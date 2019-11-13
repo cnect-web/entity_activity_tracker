@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains entity_activity_tracker.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function entity_activity_tracker_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the entity_activity_tracker module.
+    case 'help.page.entity_activity_tracker':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides a way to track entity activity/popularity') . '</p>';
+      return $output;
+
+    default:
+  }
+}

@@ -1,0 +1,7 @@
+name: 'Entity Activity Tracker'
+type: module
+description: 'Provides a way to track entity activity/popularity'
+core: 8.x
+package: 'Entity Activity Tracker'
+dependencies:
+  - hook_event_dispatcher
