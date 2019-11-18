@@ -31,34 +31,6 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInterface {
 
   /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ActivityRecordStorageInterface $activity_record_storage, EntityTypeManagerInterface $entity_type_manager) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $activity_record_storage);
-    $this->entityTypeManager = $entity_type_manager;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('entity_activity_tracker.activity_record_storage'),
-      $container->get('entity_type.manager')
-    );
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function defaultConfiguration() {

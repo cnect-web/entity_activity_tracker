@@ -4,6 +4,7 @@ namespace Drupal\entity_activity_tracker\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
@@ -26,11 +27,19 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   protected $activityRecordStorage;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ActivityRecordStorageInterface $activity_record_storage) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ActivityRecordStorageInterface $activity_record_storage, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->activityRecordStorage = $activity_record_storage;
+    $this->entityTypeManager = $entity_type_manager;
     $this->setConfiguration($configuration);
   }
 
@@ -42,7 +51,8 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_activity_tracker.activity_record_storage')
+      $container->get('entity_activity_tracker.activity_record_storage'),
+      $container->get('entity_type.manager')
     );
   }
 
