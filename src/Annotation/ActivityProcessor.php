@@ -31,4 +31,10 @@ class ActivityProcessor extends Plugin {
    */
   public $label;
 
+  /**
+   * An array of entity types where this plugin can be applied.
+   * @var array
+   */
+  public $entity_types = [];
+
 }

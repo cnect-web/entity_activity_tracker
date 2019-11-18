@@ -18,7 +18,14 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
  *
  * @ActivityProcessor (
  *   id = "entity_create",
- *   label = @Translation("Entity Create")
+ *   label = @Translation("Entity Create"),
+ *   entity_types = {
+ *     "node",
+ *     "taxonomy_term",
+ *     "group",
+ *     "comment",
+ *     "group_content",
+ *   },
  * )
  */
 class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInterface {

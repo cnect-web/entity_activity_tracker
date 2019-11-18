@@ -14,7 +14,15 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
  *
  * @ActivityProcessor (
  *   id = "entity_decay",
- *   label = @Translation("Entity Decay")
+ *   label = @Translation("Entity Decay"),
+ *   entity_types = {
+ *     "node",
+ *     "user",
+ *     "taxonomy_term",
+ *     "group",
+ *     "comment",
+ *     "group_content",
+ *   },
  * )
  */
 class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInterface {

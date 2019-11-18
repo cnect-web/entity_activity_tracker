@@ -13,7 +13,15 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
  *
  * @ActivityProcessor (
  *   id = "entity_edit",
- *   label = @Translation("Entity Edit")
+ *   label = @Translation("Entity Edit"),
+ *   entity_types = {
+ *     "node",
+ *     "user",
+ *     "taxonomy_term",
+ *     "group",
+ *     "comment",
+ *     "group_content",
+ *   },
  * )
  */
 class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInterface {
