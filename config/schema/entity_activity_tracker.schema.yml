@@ -1,0 +1,64 @@
+# Define config entity (Tracker) schema.
+entity_activity_tracker.entity_activity_tracker.*:
+  type: config_entity
+  label: 'Entity activity tracker config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string
+    entity_type:
+      type: string
+      label: 'Entity Type'
+    entity_bundle:
+      type: string
+      label: 'Entity Bundle'
+    activity_processors:
+      type: sequence
+      label: 'Activity Processors Plugins'
+      sequence:
+        type: entity_activity_tracker.activity_processor.settings.[%id]
+        label: 'Plugin Id'
+
+# Define plugin schema type.
+entity_activity_tracker.activity_processor.settings_base:
+  type: mapping
+  label: 'Activity Processor settings'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enabled'
+
+# The plugins which extend the base plugin and don't provide
+# any configuration form will validate on this entry.
+entity_activity_tracker.activity_processor.settings.*:
+  type: entity_activity_tracker.activity_processor.settings_base
+
+# Define ActivityProcessor plugins schema.
+entity_activity_tracker.activity_processor.settings.entity_create:
+  type: entity_activity_tracker.activity_processor.settings_base
+  mapping:
+    activity_creation:
+      type: integer
+    activity_existing_enabler:
+      type: boolean
+    activity_existing:
+      type: integer
+
+entity_activity_tracker.activity_processor.settings.entity_decay:
+  type: entity_activity_tracker.activity_processor.settings_base
+  mapping:
+    decay:
+      type: integer
+    decay_granularity:
+      type: integer
+
+entity_activity_tracker.activity_processor.settings.entity_edit:
+  type: entity_activity_tracker.activity_processor.settings_base
+  mapping:
+    activity_edit:
+      type: integer

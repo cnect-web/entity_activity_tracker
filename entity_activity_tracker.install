@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * @file
+ * Entity Activity Tracker module install/schema/update hooks.
+ */
+
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Config\Entity\ConfigEntityStorage;
+
+/**
+ * Implements hook_schema().
+ */
+function entity_activity_tracker_schema() {
+  $schema = [];
+
+  $schema['entity_activity_tracker'] = [
+    'description' => 'Store activity value of content entities.',
+    'fields' => [
+      'activity_id' => [
+        'description' => 'Primary Key: Activity Record ID.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ],
+      'entity_type' => [
+        'description' => 'Tracked entity type, e.g. "node" or "group".',
+        'type' => 'varchar_ascii',
+        'length' => EntityTypeInterface::ID_MAX_LENGTH,
+        'not null' => TRUE,
+      ],
+      'bundle' => [
+        'description' => 'Entity bundle of tracked entity.',
+        'type' => 'varchar_ascii',
+        'length' => EntityTypeInterface::BUNDLE_MAX_LENGTH,
+        'not null' => TRUE,
+      ],
+      'entity_id' => [
+        'description' => 'The unique ID of the entity, e.g. the gid or nid.',
+        'type' => 'varchar_ascii',
+        'length' => ConfigEntityStorage::MAX_ID_LENGTH,
+        'not null' => TRUE,
+      ],
+      'activity' => [
+        'description' => 'The value that defines how active is entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+      ],
+      'created' => [
+        'description' => 'The UNIX time stamp for the activity first record.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'disp-size' => 11,
+      ],
+      'changed' => [
+        'description' => 'The UNIX time stamp for the activity last update.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'disp-size' => 11,
+      ],
+      'last_decay' => [
+        'description' => 'The UNIX time stamp representing when last decay happened.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'disp-size' => 11,
+      ],
+    ],
+    'primary key' => ['activity_id'],
+    'indexes' => [
+      // @TODO:
+      // REVIEW Indexes when we have actual data to test queries performance.
+      // this might be useful -> https://2bits.com/articles/slow-queries-in-drupal-can-often-be-cured-by-indexes.html
+      // 'entity_id' => ['entity_id'],
+      // 'activity' => ['activity'],
+      // 'entity_type_bundle_entity_id' => ['entity_type','bundle','entity_id'],
+      // 'created_entity_type_bundle' => ['created', 'entity_type', 'bundle'],
+      // 'changed_entity_type_bundle' => ['changed', 'entity_type', 'bundle'],
+    ],
+  ];
+
+  return $schema;
+
+}

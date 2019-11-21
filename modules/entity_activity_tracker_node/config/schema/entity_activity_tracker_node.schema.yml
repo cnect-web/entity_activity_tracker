@@ -1,0 +1,5 @@
+entity_activity_tracker.activity_processor.settings.credit_commented_entity:
+  type: entity_activity_tracker.activity_processor.settings_base
+  mapping:
+    comment_creation:
+      type: integer

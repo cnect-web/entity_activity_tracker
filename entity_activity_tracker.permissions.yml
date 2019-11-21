@@ -1,0 +1,9 @@
+administer activity trackers:
+  title: 'Administer activity trackers settings'
+  description: 'Gain full control over all entity activity tracker configuration.'
+  restrict access: TRUE
+
+access entity activty field:
+  title: 'Access activity record field on edit'
+  description: 'Access activity record on entities edit pages.'
+  restrict access: TRUE

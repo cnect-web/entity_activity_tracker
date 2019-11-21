@@ -1,0 +1,29 @@
+entity_activity_tracker.activity_processor.settings.credit_user_comment_creation:
+  type: entity_activity_tracker.activity_processor.settings_base
+  mapping:
+    credit_user:
+      type: integer
+
+entity_activity_tracker.activity_processor.settings.credit_user_content_creation:
+  type: entity_activity_tracker.activity_processor.settings_base
+  mapping:
+    credit_user:
+      type: integer
+
+entity_activity_tracker.activity_processor.settings.user_create:
+  type: entity_activity_tracker.activity_processor.settings_base
+  mapping:
+    activity_creation:
+      type: integer
+    activity_existing_enabler:
+      type: boolean
+    activity_existing:
+      type: integer
+
+
+
+
+
+
+
+
