@@ -7,9 +7,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
-use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 
@@ -18,38 +15,18 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
  *
  * @ActivityProcessor (
  *   id = "entity_create",
- *   label = @Translation("Entity Create")
+ *   label = @Translation("Entity Create"),
+ *   entity_types = {
+ *     "node",
+ *     "taxonomy_term",
+ *     "group",
+ *     "comment",
+ *     "group_content",
+ *   },
+ *   summary = @Translation("Upon entity creation, credit entity"),
  * )
  */
 class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInterface {
-
-  /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ActivityRecordStorageInterface $activity_record_storage, EntityTypeManagerInterface $entity_type_manager) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $activity_record_storage);
-    $this->entityTypeManager = $entity_type_manager;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('entity_activity_tracker.activity_record_storage'),
-      $container->get('entity_type.manager')
-    );
-  }
 
   /**
    * {@inheritdoc}
@@ -117,12 +94,8 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
   /**
    * {@inheritdoc}
    */
-  public function getSummary() {
-    $replacements = [
-      '@plugin_name' => $this->pluginDefinition['label']->render(),
-      '@activity_creation' => $this->configuration['activity_creation'],
-    ];
-    return $this->t('<b>@plugin_name:</b> <br> Activity on creation: @activity_creation <br>', $replacements);
+  public function getConfigField() {
+    return ($this->configuration['activity_existing_enabler']) ? 'activity_existing' : 'activity_creation';
   }
 
   /**

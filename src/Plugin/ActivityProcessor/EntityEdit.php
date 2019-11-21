@@ -13,7 +13,15 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
  *
  * @ActivityProcessor (
  *   id = "entity_edit",
- *   label = @Translation("Entity Edit")
+ *   label = @Translation("Entity Edit"),
+ *   entity_types = {
+ *     "node",
+ *     "user",
+ *     "taxonomy_term",
+ *     "group",
+ *     "comment",
+ *     "group_content",
+ *   },
  * )
  */
 class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInterface {
@@ -67,6 +75,13 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
       '@activity_edit' => $this->configuration['activity_edit'],
     ];
     return $this->t('<b>@plugin_name:</b> <br> Activity on edit: @activity_edit <br>', $replacements);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfigField() {
+    return 'activity_edit';
   }
 
   /**

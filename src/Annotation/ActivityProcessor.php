@@ -31,4 +31,34 @@ class ActivityProcessor extends Plugin {
    */
   public $label;
 
+  /**
+   * An array of entity types where this plugin can be applied.
+   *
+   * @var array
+   */
+  public $entity_types = [];
+
+  /**
+   * The related entity_type that plugin will credit.
+   *
+   * @var string
+   */
+  public $credit_related;
+
+  /**
+   * The related plugin id that plugin will use to credit related entity.
+   *
+   * @var string
+   */
+  public $related_plugin;
+
+  /**
+   * The summary of the plugin.
+   *
+   * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
+   */
+  public $summary;
+
 }

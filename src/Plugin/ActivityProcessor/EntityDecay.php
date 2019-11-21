@@ -14,7 +14,15 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
  *
  * @ActivityProcessor (
  *   id = "entity_decay",
- *   label = @Translation("Entity Decay")
+ *   label = @Translation("Entity Decay"),
+ *   entity_types = {
+ *     "node",
+ *     "user",
+ *     "taxonomy_term",
+ *     "group",
+ *     "comment",
+ *     "group_content",
+ *   },
  * )
  */
 class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInterface {
@@ -95,6 +103,13 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
       '@decay_granularity' => $this->configuration['decay_granularity'],
     ];
     return $this->t('<b>@plugin_name:</b> <br> Type: @decay_type <br> Decay: @decay <br> Granularity: @decay_granularity <br>', $replacements);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfigField() {
+    return 'decay';
   }
 
   /**
