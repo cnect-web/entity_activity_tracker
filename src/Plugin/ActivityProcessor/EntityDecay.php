@@ -108,6 +108,13 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
   /**
    * {@inheritdoc}
    */
+  public function getConfigField() {
+    return 'decay';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function processActivity(Event $event) {
     $dispatcher_type = $event->getDispatcherType();
     switch ($dispatcher_type) {

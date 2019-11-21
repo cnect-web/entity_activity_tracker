@@ -80,6 +80,13 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
   /**
    * {@inheritdoc}
    */
+  public function getConfigField() {
+    return 'activity_edit';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function processActivity(Event $event) {
 
     $dispatcher_type = $event->getDispatcherType();

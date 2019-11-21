@@ -7,9 +7,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
-use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 
@@ -26,6 +23,7 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
  *     "comment",
  *     "group_content",
  *   },
+ *   summary = @Translation("Upon entity creation, credit entity"),
  * )
  */
 class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInterface {
@@ -96,12 +94,8 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
   /**
    * {@inheritdoc}
    */
-  public function getSummary() {
-    $replacements = [
-      '@plugin_name' => $this->pluginDefinition['label']->render(),
-      '@activity_creation' => $this->configuration['activity_creation'],
-    ];
-    return $this->t('<b>@plugin_name:</b> <br> Activity on creation: @activity_creation <br>', $replacements);
+  public function getConfigField() {
+    return ($this->configuration['activity_existing_enabler']) ? 'activity_existing' : 'activity_creation';
   }
 
   /**

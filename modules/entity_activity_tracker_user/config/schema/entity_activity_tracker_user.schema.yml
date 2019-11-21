@@ -19,3 +19,11 @@ entity_activity_tracker.activity_processor.settings.user_create:
       type: boolean
     activity_existing:
       type: integer
+
+
+
+
+
+
+
+

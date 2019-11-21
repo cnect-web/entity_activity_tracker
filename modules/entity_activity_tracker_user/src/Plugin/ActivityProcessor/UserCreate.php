@@ -17,10 +17,10 @@ use Drupal\entity_activity_tracker\Plugin\ActivityProcessor\EntityCreate;
  *   entity_types = {
  *     "user",
  *   },
+ *   summary = @Translation("Upon User creation, credit user"),
  * )
  */
 class UserCreate extends EntityCreate {
-
 
   /**
    * {@inheritdoc}

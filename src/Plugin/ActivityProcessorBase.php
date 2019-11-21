@@ -59,6 +59,18 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   /**
    * {@inheritdoc}
    */
+  public function getSummary() {
+    $replacements = [
+      '@plugin_name' => $this->pluginDefinition['label']->render(),
+      '@plugin_summary' => $this->pluginDefinition['summary']->render(),
+      '@activity' => $this->configuration[$this->getConfigField()],
+    ];
+    return $this->t('<b>@plugin_name:</b> <br> @plugin_summary: @activity <br>', $replacements);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function processActivity(Event $event) {
     // code...
   }

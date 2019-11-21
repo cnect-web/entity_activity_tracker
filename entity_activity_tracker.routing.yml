@@ -1,6 +1,6 @@
 
 entity_activity_tracker.export_activity_records:
-  path: '/admin/entity_activity_tracker/export'
+  path: '/admin/config/content/entity_activity_tracker/export'
   defaults:
     _controller: '\Drupal\entity_activity_tracker\Controller\ExportActivityRecordsController::export'
     _title: 'export'
@@ -8,7 +8,7 @@ entity_activity_tracker.export_activity_records:
     _permission: 'administer activity trackers'
 
 entity_activity_tracker.import_activity_records:
- path: '/admin/entity_activity_tracker/import'
+ path: '/admin/config/content/entity_activity_tracker/import'
  defaults:
    _title: 'Import Activity Records'
    _form: '\Drupal\entity_activity_tracker\Form\ImportActivityRecordsForm'

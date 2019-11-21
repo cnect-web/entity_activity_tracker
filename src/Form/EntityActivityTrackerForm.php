@@ -22,6 +22,12 @@ use Drupal\Core\Cache\CacheBackendInterface;
  */
 class EntityActivityTrackerForm extends EntityForm {
 
+  /**
+   * Plugin manager for constraints.
+   *
+   * @var \Drupal\Component\Plugin\PluginManagerInterface
+   */
+  protected $manager;
 
   /**
    * The form builder.
@@ -31,11 +37,11 @@ class EntityActivityTrackerForm extends EntityForm {
   protected $formBuilder;
 
   /**
-   * Plugin manager for constraints.
+   * The entity type manager.
    *
-   * @var \Drupal\Component\Plugin\PluginManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $manager;
+  protected $entityTypeManager;
 
   /**
    * The event dispatcher.
@@ -43,6 +49,13 @@ class EntityActivityTrackerForm extends EntityForm {
    * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
    */
   protected $eventDispatcher;
+
+  /**
+   * The messenger.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
 
   /**
    * The cache backend to use.
@@ -81,7 +94,14 @@ class EntityActivityTrackerForm extends EntityForm {
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
    *   The cache backend to use.
    */
-  public function __construct(PluginManagerInterface $manager, FormBuilderInterface $formBuilder, EntityTypeManagerInterface $entity_type_manager, EventDispatcherInterface $event_dispatcher, MessengerInterface $messenger, CacheBackendInterface $cache_backend) {
+  public function __construct(
+    PluginManagerInterface $manager,
+    FormBuilderInterface $formBuilder,
+    EntityTypeManagerInterface $entity_type_manager,
+    EventDispatcherInterface $event_dispatcher,
+    MessengerInterface $messenger,
+    CacheBackendInterface $cache_backend
+  ) {
     $this->manager = $manager;
     $this->formBuilder = $formBuilder;
     $this->entityTypeManager = $entity_type_manager;
@@ -151,11 +171,6 @@ class EntityActivityTrackerForm extends EntityForm {
         '#title' => $this->t('Entity Bundle'),
         '#default_value' => $entity_activity_tracker->getTargetEntityBundle(),
         '#options' => $this->getBundleOptions($entity_type),
-        // '#ajax' => [
-        //   'callback' => [$this, 'updateActivityProcessorsElement'],
-        //   'event' => 'click',
-        //   'wrapper' => 'activity-processors-wrapper',
-        // ],
         '#disabled' => !$entity_activity_tracker->isNew(),
       ];
     }
@@ -293,8 +308,6 @@ class EntityActivityTrackerForm extends EntityForm {
    *   The form element.
    */
   public function updateBundlesElement(array $form, FormStateInterface $form_state) {
-    // return $form['entity_bundle_wrapper'];
-
     $response = new AjaxResponse();
 
     $response->addCommand(new ReplaceCommand('#entity-bundle-wrapper', $form['entity_bundle_wrapper']));
@@ -303,21 +316,6 @@ class EntityActivityTrackerForm extends EntityForm {
     return $response;
 
   }
-
-  // /**
-  //  * Ajax callback to rebuild activity processors form element.
-  //  *
-  //  * @param array $form
-  //  *   Form definition of parent form.
-  //  * @param \Drupal\Core\Form\FormStateInterface $form_state
-  //  *   State of the form.
-  //  *
-  //  * @return array
-  //  *   The form element.
-  //  */
-  // public function updateActivityProcessorsElement(array $form, FormStateInterface $form_state) {
-  //   return $form['activity_processors'];
-  // }
 
   /**
    * Get bundle options for selected entity_type.

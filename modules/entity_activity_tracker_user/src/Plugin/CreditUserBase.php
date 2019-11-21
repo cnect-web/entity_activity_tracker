@@ -2,18 +2,14 @@
 
 namespace Drupal\entity_activity_tracker_user\Plugin;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
-use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
-use Drupal\user\UserInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
+use Drupal\entity_activity_tracker\Plugin\ActivityProcessorCreditRelatedBase;
 
 /**
  * Base class for Activity processor plugins.
  */
-abstract class CreditUserBase extends ActivityProcessorBase {
+abstract class CreditUserBase extends ActivityProcessorCreditRelatedBase {
 
   /**
    * {@inheritdoc}
@@ -57,84 +53,8 @@ abstract class CreditUserBase extends ActivityProcessorBase {
   /**
    * {@inheritdoc}
    */
-  public function getSummary() {
-
-    $replacements = [
-      '@plugin_name' => $this->pluginDefinition['label']->render(),
-      '@credit_user' => $this->configuration['credit_user'],
-    ];
-    return $this->t('<b>@plugin_name:</b> <br> Comment Creation: @credit_user% <br>', $replacements);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function processActivity(Event $event) {
-    $dispatcher_type = $event->getDispatcherType();
-    switch ($dispatcher_type) {
-      case EntityActivityInsertEvent::ENTITY_INSERT:
-
-        /** @var ContentEntityInterface $entity*/
-        $entity = $event->getEntity();
-        $author = $entity->getOwner();
-
-        $this->creditUser($author);
-        break;
-
-      case EntityActivityInsertEvent::TRACKER_CREATE:
-        // Iterate all already existing entities and credit author.
-        foreach ($this->getExistingEntities($event->getTracker()) as $existing_comment) {
-          $author = $existing_comment->getOwner();
-          $this->creditUser($author);
-        }
-        break;
-    }
-  }
-
- /**
-   * {@inheritdoc}
-   */
-  public function canProcess(Event $event) {
-    $dispatcher_type = $event->getDispatcherType();
-    switch ($dispatcher_type) {
-      case EntityActivityInsertEvent::ENTITY_INSERT:
-
-        /** @var entityEntityInterface $entity*/
-        $entity = $event->getEntity();
-        $user = $entity->getOwner();
-
-        if ($this->activityRecordStorage->getActivityRecordByEntity($user)) {
-          return ActivityProcessorInterface::PROCESS;
-        }
-        else {
-          return ActivityProcessorInterface::SCHEDULE;
-        }
-
-        break;
-
-      case EntityActivityInsertEvent::TRACKER_CREATE:
-        // Iterate all already existing comments and credit commented entities.
-        $related_records = [];
-
-        foreach ($this->getExistingEntities($event->getTracker()) as $existing_comment) {
-          $user = $existing_comment->getOwner();
-
-          // This will return false if related record doesn't exit.
-          $related_records[] = $this->activityRecordStorage->getActivityRecordByEntity($user);
-        }
-
-        if (count($related_records) < 1) {
-          return ActivityProcessorInterface::PASS; //No content -> pass.
-        }
-        elseif (!in_array(FALSE,$related_records,TRUE)) {
-          return ActivityProcessorInterface::PROCESS; // there is content -> process
-        }
-        else {
-          return ActivityProcessorInterface::SCHEDULE; // there is content but we are missing activity record -> shcedule for later
-        }
-
-        break;
-    }
+  public function getConfigField() {
+    return 'credit_user';
   }
 
   /**
@@ -158,37 +78,5 @@ abstract class CreditUserBase extends ActivityProcessorBase {
       return $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->loadMultiple();
     }
   }
-
-  /**
-   * Credit given user.
-   *
-   * @param \Drupal\user\UserInterface $user
-   *   The user to credit.
-   *
-   * @return bool
-   *   TRUE if activity record was updated.
-   */
-  protected function creditUser(UserInterface $user) {
-    $user_tracker = $this->entityTypeManager->getStorage('entity_activity_tracker')
-    ->loadByProperties([
-      'entity_type' => $user->getEntityTypeId(),
-      'entity_bundle' => $user->bundle(),
-    ]);
-
-    $user_tracker = reset($user_tracker);
-
-    if ($user_tracker) {
-      $initial_activity = $user_tracker->getProcessorPlugin('user_create')->configuration["activity_creation"];
-
-      $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($user);
-
-      $comment_activity = $initial_activity * ($this->configuration['credit_user'] / 100);
-
-      $activity_record = $activity_record->increaseActivity($comment_activity);
-
-      $this->activityRecordStorage->updateActivityRecord($activity_record);
-    }
-  }
-
 
 }

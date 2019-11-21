@@ -32,10 +32,10 @@ use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "canonical" = "/admin/config/entity_activity_tracker/{entity_activity_tracker}",
- *     "add-form" = "/admin/config/entity_activity_tracker/add",
- *     "edit-form" = "/admin/config/entity_activity_tracker/{entity_activity_tracker}/edit",
- *     "delete-form" = "/admin/config/entity_activity_tracker/{entity_activity_tracker}/delete",
+ *     "canonical" = "/admin/config/content/entity_activity_tracker/{entity_activity_tracker}",
+ *     "add-form" = "/admin/config/content/entity_activity_tracker/add",
+ *     "edit-form" = "/admin/config/content/entity_activity_tracker/{entity_activity_tracker}/edit",
+ *     "delete-form" = "/admin/config/content/entity_activity_tracker/{entity_activity_tracker}/delete",
  *     "collection" = "/admin/config/content/entity_activity_tracker"
  *   },
  *   config_export = {

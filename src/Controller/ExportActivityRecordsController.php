@@ -2,6 +2,7 @@
 
 namespace Drupal\entity_activity_tracker\Controller;
 
+use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Driver\mysql\Connection;
 use PDO;

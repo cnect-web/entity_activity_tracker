@@ -4,7 +4,6 @@ namespace Drupal\entity_activity_tracker_user\Plugin\ActivityProcessor;
 
 use Drupal\entity_activity_tracker_user\Plugin\CreditUserBase;
 
-
 /**
  * Sets setting for nodes and preforms the activity process for nodes.
  *
@@ -14,6 +13,9 @@ use Drupal\entity_activity_tracker_user\Plugin\CreditUserBase;
  *   entity_types = {
  *     "comment",
  *   },
+ *   credit_related = "user",
+ *   related_plugin = "user_create",
+ *   summary = @Translation("Upon comment creation, credit author"),
  * )
  */
 class CreditUserCommentCreation extends CreditUserBase {

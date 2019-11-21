@@ -87,7 +87,7 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
     $enabled_plugins = $event->getTracker()->getProcessorPlugins()->getEnabled();
     $process_control = [];
 
-    // NEW LOGIC!!! PROCESS, PASS, SCHEDULE.
+    // NEW LOGIC!!! PROCESS, SKIP, SCHEDULE.
     foreach ($enabled_plugins as $plugin_id => $processor_plugin) {
       $process_control[$plugin_id] = $processor_plugin->canProcess($event);
     }
@@ -105,7 +105,7 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
       $this->logger->info($message);
     }
     else {
-      $message = "{$plugin_id} plugin will pass process";
+      $message = "{$plugin_id} plugin will skip process";
       $this->logger->info($message);
     }
     $this->logger->info("Processing item of ActivityProcessorQueue");

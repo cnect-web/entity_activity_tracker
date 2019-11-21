@@ -14,8 +14,13 @@ use Symfony\Component\EventDispatcher\Event;
 interface ActivityProcessorInterface extends PluginInspectionInterface, ConfigurableInterface, PluginFormInterface, ContainerFactoryPluginInterface {
 
   const PROCESS = 'process_true';
-  const PASS = 'process_false';
+  const SKIP = 'process_false';
   const SCHEDULE = 'process_schedule';
+
+  /**
+   * Get plugin config field.
+   */
+  public function getConfigField();
 
   /**
    * ProcessActivity.
