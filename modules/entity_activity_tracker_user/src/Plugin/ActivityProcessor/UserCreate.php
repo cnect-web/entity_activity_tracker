@@ -51,7 +51,9 @@ class UserCreate extends EntityCreate {
       case ActivityEventInterface::ENTITY_DELETE:
         /** @var \Drupal\entity_activity_tracker\ActivityRecord $activity_record */
         $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($event->getEntity());
-        $this->activityRecordStorage->deleteActivityRecord($activity_record);
+        if ($activity_record) {
+          $this->activityRecordStorage->deleteActivityRecord($activity_record);
+        }
         break;
 
       case ActivityEventInterface::TRACKER_DELETE:

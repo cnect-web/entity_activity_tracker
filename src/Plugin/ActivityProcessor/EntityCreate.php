@@ -124,7 +124,9 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
       case ActivityEventInterface::ENTITY_DELETE:
         /** @var \Drupal\entity_activity_tracker\ActivityRecord $activity_record */
         $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($event->getEntity());
-        $this->activityRecordStorage->deleteActivityRecord($activity_record);
+        if ($activity_record) {
+          $this->activityRecordStorage->deleteActivityRecord($activity_record);
+        }
         break;
 
       case ActivityEventInterface::TRACKER_DELETE:
@@ -158,6 +160,20 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
       return $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->loadMultiple();
     }
 
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function canProcess(Event $event) {
+    // This should change since doesn't make sense to store Entity in event to then
+    // load it again.
+    $entity = $event->getEntity();
+    $exists = $this->entityTypeManager->getStorage($entity->getEntityTypeId())->load($entity->id());
+    if (empty($exists) && $event->getDispatcherType() == ActivityEventInterface::ENTITY_INSERT) {
+      return ActivityProcessorInterface::SKIP;
+    }
+    return ActivityProcessorInterface::PROCESS;
   }
 
 }
