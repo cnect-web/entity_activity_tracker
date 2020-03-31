@@ -19,6 +19,13 @@ abstract class CreditGroupMembershipBase extends CreditGroupBase {
     if ($group_content_related_entity = parent::getRelatedEntity($entity)) {
       $group = $this->getGroup($group_content_related_entity);
 
+      // Prevent further execution if no group was found.
+      if (empty($group)){
+
+        \Drupal::logger('entity_activity_tracker')->error($this->t('Couldn\'t find Group!'));
+        return FALSE;
+      }
+
       // Get the membership.
       $author_memberships = $this->entityTypeManager->getStorage('group_content')->loadByEntity($entity->getOwner());
       foreach ($author_memberships as $author_membership) {

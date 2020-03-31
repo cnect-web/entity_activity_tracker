@@ -92,7 +92,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
   public function dispatchActivityEvent(Event $event) {
     // TODO: IMPROVE THIS FIRST CONDITION!!
     if (in_array($event->getEntity()->getEntityTypeId(), EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
-      // Dispatch curresponding activity event.
+      // Dispatch corresponding activity event.
       $this->activityEventDispatcher->dispatchActivityEvent($event);
 
       // TODO: Think a way to hook this. to let other modules play.

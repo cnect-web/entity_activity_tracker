@@ -70,7 +70,11 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
       case 'comment':
         if (isset($this->pluginDefinition['credit_related'])) {
           if ($this->pluginDefinition['credit_related'] == 'group') {
-            $group_contents = $this->entityTypeManager->getStorage('group_content')->loadByEntity($entity->getCommentedEntity());
+            $node = $entity->getCommentedEntity();
+            if (empty($node)){
+              return FALSE;
+            }
+            $group_contents = $this->entityTypeManager->getStorage('group_content')->loadByEntity($node);
             if ($group_content = reset($group_contents)) {
               return $this->getGroup($group_content);
             }
@@ -79,9 +83,17 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
             }
           }
           if ($this->pluginDefinition['credit_related'] == 'group_content') {
-            $group_contents = $this->entityTypeManager->getStorage('group_content')->loadByEntity($entity->getCommentedEntity());
-            $group_content = reset($group_contents);
-            return $group_content;
+            $node = $entity->getCommentedEntity();
+            if (empty($node)){
+              return FALSE;
+            }
+            $group_contents = $this->entityTypeManager->getStorage('group_content')->loadByEntity($node);
+            if ($group_content = reset($group_contents)) {
+              return $group_content;
+            }
+            else {
+              return FALSE;
+            }
           }
         }
         break;
@@ -107,8 +119,14 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
    *   Group Content entity.
    */
   protected function getGroup(GroupContentInterface $group_content) {
-    // Since we have a group_conent we can get the group.
+    // Since we have a group_content we can get the group.
     $group = $group_content->getGroup();
+
+    // Prevent further execution if no group was found.
+    if (empty($group)){
+      \Drupal::logger('entity_activity_tracker')->error($this->t('Couldn\'t find Group!'));
+      return FALSE;
+    }
 
     // Now we must find a tracker that matches the group
     // since a tracker is needed to create activity records.
@@ -123,7 +141,7 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
     // Do something if there is a Tracker for group where content was created.
     if ($group_tracker) {
       // I NEED TO THINK HOW TO HANDLE MULTIPLE.
-      // SINCE WE DONT ALLOW A NODE BE PART OF 2 DIFERENT GROUPS ITS OK FOR NOW.
+      // SINCE WE DONT ALLOW A NODE BE PART OF 2 DIFFERENT GROUPS ITS OK FOR NOW.
       return $group;
     }
 

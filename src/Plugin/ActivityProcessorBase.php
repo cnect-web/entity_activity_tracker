@@ -79,7 +79,7 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
    * Let plugins decide if can process.
    */
   public function canProcess(Event $event) {
-    // By default we will tell to ActivityProcessorQueue to allways process.
+    // By default we will tell to ActivityProcessorQueue to always process.
     return ActivityProcessorInterface::PROCESS;
   }
 

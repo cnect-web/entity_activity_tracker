@@ -3,6 +3,8 @@
 namespace Drupal\entity_activity_tracker\Plugin;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\entity_activity_tracker\ActivityRecord;
+use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 use Drupal\entity_activity_tracker\Event\EntityActivityInsertEvent;
 use Symfony\Component\EventDispatcher\Event;
 
@@ -28,19 +30,17 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
    */
   public function processActivity(Event $event) {
     $dispatcher_type = $event->getDispatcherType();
+
     switch ($dispatcher_type) {
-      case EntityActivityInsertEvent::ENTITY_INSERT:
-
-        /** @var \Drupal\Core\Entity\ContentEntityInterface $entity*/
+      case ActivityEventInterface::ENTITY_INSERT:
         $entity = $event->getEntity();
-
         // Get related entity.
         if ($related_entity = $this->getRelatedEntity($entity)) {
           $this->creditRelated($related_entity);
         }
         break;
 
-      case EntityActivityInsertEvent::TRACKER_CREATE:
+      case ActivityEventInterface::TRACKER_CREATE:
         // Iterate all already existing entities and credit related.
         foreach ($this->getExistingEntities($event->getTracker()) as $existing_entity) {
           // Get related entity.
@@ -49,7 +49,23 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
           }
         }
         break;
+
+//      Do nothing for related entities regarding the delete operation.
+//      case ActivityEventInterface::ENTITY_DELETE:
+//        /** @var \Drupal\entity_activity_tracker\ActivityRecord $activity_record */
+//        $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($event->getEntity());
+//        $this->activityRecordStorage->deleteActivityRecord($activity_record);
+//        break;
+
+      case ActivityEventInterface::TRACKER_DELETE:
+        $tracker = $event->getTracker();
+        // Get ActivityRecords from this tracker.
+        foreach ($this->activityRecordStorage->getActivityRecords($tracker->getTargetEntityType(), $tracker->getTargetEntityBundle()) as $activity_record) {
+          $this->activityRecordStorage->deleteActivityRecord($activity_record);
+        }
+        break;
     }
+
   }
 
   /**
@@ -87,7 +103,7 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
 
           // Get related entity.
           if ($related_entity = $this->getRelatedEntity($existing_entity)) {
-            // If we get a related entity we load the actibity record.
+            // If we get a related entity we load the activity record.
             // This will return false if related record doesn't exit.
             $related_records[] = $this->activityRecordStorage->getActivityRecordByEntity($related_entity);
           }
@@ -98,13 +114,17 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
           return ActivityProcessorInterface::SKIP;
         }
         elseif (!in_array(FALSE, $related_records, TRUE)) {
-          // All related records needed exitst.
+          // All related records needed exist.
           return ActivityProcessorInterface::PROCESS;
         }
         else {
-          // Not all related records needed exitst.
+          // Not all related records needed exist.
           return ActivityProcessorInterface::SCHEDULE;
         }
+        break;
+
+      default:
+        return ActivityProcessorInterface::PROCESS;
         break;
     }
   }
@@ -124,7 +144,9 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
             return $entity->getCommentedEntity();
           }
           if ($this->pluginDefinition['credit_related'] == 'user') {
-            return $entity->getOwner();
+            $user = $entity->getOwner();
+            // prevent schedule for anonymous users.
+            return $user->id() != 0 ? $user : FALSE;
           }
         }
         break;
