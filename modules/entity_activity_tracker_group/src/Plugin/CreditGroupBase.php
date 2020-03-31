@@ -71,7 +71,7 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
         if (isset($this->pluginDefinition['credit_related'])) {
           if ($this->pluginDefinition['credit_related'] == 'group') {
             $node = $entity->getCommentedEntity();
-            if (empty($node)){
+            if (empty($node)) {
               return FALSE;
             }
             $group_contents = $this->entityTypeManager->getStorage('group_content')->loadByEntity($node);
@@ -84,7 +84,7 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
           }
           if ($this->pluginDefinition['credit_related'] == 'group_content') {
             $node = $entity->getCommentedEntity();
-            if (empty($node)){
+            if (empty($node)) {
               return FALSE;
             }
             $group_contents = $this->entityTypeManager->getStorage('group_content')->loadByEntity($node);
@@ -123,8 +123,8 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
     $group = $group_content->getGroup();
 
     // Prevent further execution if no group was found.
-    if (empty($group)){
-      \Drupal::logger('entity_activity_tracker')->error($this->t('Couldn\'t find Group!'));
+    if (empty($group)) {
+      \Drupal::logger('entity_activity_tracker')->error($this->t("Couldn't find Group!"));
       return FALSE;
     }
 

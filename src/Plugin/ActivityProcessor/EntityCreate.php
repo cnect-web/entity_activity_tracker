@@ -170,7 +170,7 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
     // load it again.
     $entity = $event->getEntity();
     $exists = $this->entityTypeManager->getStorage($entity->getEntityTypeId())->load($entity->id());
-    if (empty($exists) && $event->getDispatcherType() == ActivityEventInterface::ENTITY_INSERT){
+    if (empty($exists) && $event->getDispatcherType() == ActivityEventInterface::ENTITY_INSERT) {
       return ActivityProcessorInterface::SKIP;
     }
     return ActivityProcessorInterface::PROCESS;

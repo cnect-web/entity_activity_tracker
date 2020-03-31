@@ -3,7 +3,6 @@
 namespace Drupal\entity_activity_tracker\Plugin;
 
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 use Drupal\entity_activity_tracker\Event\EntityActivityInsertEvent;
 use Symfony\Component\EventDispatcher\Event;
@@ -49,13 +48,6 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
           }
         }
         break;
-
-//      Do nothing for related entities regarding the delete operation.
-//      case ActivityEventInterface::ENTITY_DELETE:
-//        /** @var \Drupal\entity_activity_tracker\ActivityRecord $activity_record */
-//        $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($event->getEntity());
-//        $this->activityRecordStorage->deleteActivityRecord($activity_record);
-//        break;
 
       case ActivityEventInterface::TRACKER_DELETE:
         $tracker = $event->getTracker();
@@ -125,7 +117,6 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
 
       default:
         return ActivityProcessorInterface::PROCESS;
-        break;
     }
   }
 
@@ -145,7 +136,7 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
           }
           if ($this->pluginDefinition['credit_related'] == 'user') {
             $user = $entity->getOwner();
-            // prevent schedule for anonymous users.
+            // Prevent schedule for anonymous users.
             return $user->id() != 0 ? $user : FALSE;
           }
         }

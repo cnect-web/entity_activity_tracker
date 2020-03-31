@@ -117,7 +117,7 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
     // load it again.
     $entity = $event->getEntity();
     $exists = $this->entityTypeManager->getStorage($entity->getEntityTypeId())->load($entity->id());
-    if (empty($exists)){
+    if (empty($exists)) {
       return ActivityProcessorInterface::SKIP;
     }
     return ActivityProcessorInterface::PROCESS;

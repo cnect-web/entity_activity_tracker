@@ -20,9 +20,9 @@ abstract class CreditGroupMembershipBase extends CreditGroupBase {
       $group = $this->getGroup($group_content_related_entity);
 
       // Prevent further execution if no group was found.
-      if (empty($group)){
+      if (empty($group)) {
 
-        \Drupal::logger('entity_activity_tracker')->error($this->t('Couldn\'t find Group!'));
+        \Drupal::logger('entity_activity_tracker')->error($this->t("Couldn't find Group!"));
         return FALSE;
       }
 
