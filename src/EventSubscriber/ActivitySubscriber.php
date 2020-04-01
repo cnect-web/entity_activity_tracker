@@ -91,11 +91,15 @@ class ActivitySubscriber implements EventSubscriberInterface {
    */
   public function dispatchActivityEvent(Event $event) {
     // TODO: IMPROVE THIS FIRST CONDITION!!
-    if (in_array($event->getEntity()->getEntityTypeId(), EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
-      // Dispatch corresponding activity event.
-      $this->activityEventDispatcher->dispatchActivityEvent($event);
-
-      // TODO: Think a way to hook this. to let other modules play.
+    $entity = $event->getEntity();
+    // Syncing entities should not count.
+    // @see: GroupContent::postSave()
+    if (!$entity->isSyncing()) {
+      if (in_array($entity->getEntityTypeId(), EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
+        // Dispatch corresponding activity event.
+        $this->activityEventDispatcher->dispatchActivityEvent($event);
+        // TODO: Think a way to hook this. to let other modules play.
+      }
     }
   }
 
