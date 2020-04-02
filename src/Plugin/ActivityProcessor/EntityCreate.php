@@ -168,10 +168,12 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
   public function canProcess(Event $event) {
     // This should change since doesn't make sense to store Entity in event to then
     // load it again.
-    $entity = $event->getEntity();
-    $exists = $this->entityTypeManager->getStorage($entity->getEntityTypeId())->load($entity->id());
-    if (empty($exists) && $event->getDispatcherType() == ActivityEventInterface::ENTITY_INSERT) {
-      return ActivityProcessorInterface::SKIP;
+    if ($event->getDispatcherType() == ActivityEventInterface::ENTITY_INSERT){
+      $entity = $event->getEntity();
+      $exists = $this->entityTypeManager->getStorage($entity->getEntityTypeId())->load($entity->id());
+      if (empty($exists)) {
+        return ActivityProcessorInterface::SKIP;
+      }
     }
     return ActivityProcessorInterface::PROCESS;
   }
