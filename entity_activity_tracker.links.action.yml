@@ -15,3 +15,9 @@ entity_activity_tracker.import_activity_records:
   title: 'Import Activity Records (CSV)'
   appears_on:
     - entity.entity_activity_tracker.collection
+
+entity_activity_tracker.entity_activity_tracker.settings:
+  route_name: entity_activity_tracker.settings
+  title: 'Settings'
+  appears_on:
+    - entity.entity_activity_tracker.collection

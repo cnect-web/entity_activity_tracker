@@ -2,6 +2,7 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -43,6 +44,13 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
   protected $logger;
 
   /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $config;
+
+  /**
    * Constructs a new ActivityProcessorQueue.
    *
    * @param array $configuration
@@ -57,12 +65,15 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
    *   The queue object.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config
+   *   The config factory.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, QueueInterface $queue, LoggerInterface $logger) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, QueueInterface $queue, LoggerInterface $logger, ConfigFactoryInterface $config) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->queue = $queue;
     $this->logger = $logger;
+    $this->config = $config->get('entity_activity_tracker.settings');
   }
 
   /**
@@ -75,7 +86,8 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
       $plugin_definition,
       $container->get('entity_type.manager'),
       $container->get('queue')->get($plugin_id),
-      $container->get('logger.factory')->get('entity_activity_tracker')
+      $container->get('logger.factory')->get('entity_activity_tracker'),
+      $container->get('config.factory')
     );
   }
 
@@ -102,13 +114,18 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
     elseif (in_array(ActivityProcessorInterface::SCHEDULE, $process_control, TRUE)) {
       $this->queue->createItem($event);
       $message = "{$plugin_id} plugin is missing a related activity record, {$event->getDispatcherType()} was scheduled for later";
-      $this->logger->info($message);
+      $this->logInfo($message);
     }
     else {
       $message = "{$plugin_id} plugin will skip process";
-      $this->logger->info($message);
+      $this->logInfo($message);
     }
-    $this->logger->info("Processing item of ActivityProcessorQueue");
+    $this->logInfo("Processing item of ActivityProcessorQueue");
+  }
+
+  protected function logInfo($message) {
+    if($this->config->get('debug'))
+      return $this->logger->info($message);
   }
 
 }

@@ -14,3 +14,11 @@ entity_activity_tracker.import_activity_records:
    _form: '\Drupal\entity_activity_tracker\Form\ImportActivityRecordsForm'
  requirements:
    _permission: 'administer activity trackers'
+
+entity_activity_tracker.settings:
+ path: '/admin/config/content/entity_activity_tracker/settings'
+ defaults:
+   _title: 'Settings'
+   _form: '\Drupal\entity_activity_tracker\Form\EntityActivityTrackerSettingsForm'
+ requirements:
+   _permission: 'administer activity trackers'
