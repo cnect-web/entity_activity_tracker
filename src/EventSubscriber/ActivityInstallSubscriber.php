@@ -56,13 +56,15 @@ class ActivityInstallSubscriber implements EventSubscriberInterface {
   public function importTracker(ConfigCrudEvent $event) {
     $config = $event->getConfig();
     // This is a new config. CHECK IF BELONGS TO THIS MODULE.
-    if (empty($config->getOriginal()) && strpos($config->getName(), 'entity_activity_tracker.') === 0) {
-      $tracker_id = $event->getConfig()->get('id');
-      $tracker = $this->entityTypeManager->getStorage('entity_activity_tracker')->load($tracker_id);
-      // Dispatch the TrackerCreateEvent.
-      $tracker_create_event = new TrackerCreateEvent($tracker);
-      $this->eventDispatcher->dispatch(ActivityEventInterface::TRACKER_CREATE, $tracker_create_event);
+    if ($event->getConfig()->getName() !== 'entity_activity_tracker.settings') {
+      if (empty($config->getOriginal()) && strpos($config->getName(), 'entity_activity_tracker.') === 0) {
+        $tracker_id = $event->getConfig()->get('id');
+        $tracker = $this->entityTypeManager->getStorage('entity_activity_tracker')->load($tracker_id);
+        // Dispatch the TrackerCreateEvent.
+        $tracker_create_event = new TrackerCreateEvent($tracker);
+        $this->eventDispatcher->dispatch(ActivityEventInterface::TRACKER_CREATE, $tracker_create_event);
 
+      }
     }
   }
 
