@@ -1,5 +1,5 @@
 {
-    "name": "cnec-web/entity_activity_tracker",
+    "name": "cnect-web/entity_activity_tracker",
     "description": "Provides a way to track entity activity/popularity",
     "type": "drupal-module",
     "authors": [
