@@ -106,8 +106,12 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
     switch ($dispatcher_type) {
       case ActivityEventInterface::ENTITY_INSERT:
         $entity = $event->getEntity();
-        $activity_record = new ActivityRecord($entity->getEntityTypeId(), $entity->bundle(),
-          $entity->id(), $this->configuration['activity_creation']);
+        $activity_record = new ActivityRecord(
+          $entity->getEntityTypeId(),
+          $entity->bundle(),
+          $entity->id(),
+          $this->configuration['activity_creation']
+        );
         $this->activityRecordStorage->createActivityRecord($activity_record);
         break;
 
