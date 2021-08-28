@@ -103,8 +103,10 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
       '@decay' => $this->configuration['decay'],
       '@decay_granularity' => $this->configuration['decay_granularity'],
     ];
-    return $this->t('<b>@plugin_name:</b> <br> Type: @decay_type <br> Decay: @decay <br> Granularity: @decay_granularity <br>',
-      $replacements);
+    return $this->t(
+      '<b>@plugin_name:</b> <br> Type: @decay_type <br> Decay: @decay <br> Granularity: @decay_granularity <br>',
+      $replacements
+    );
   }
 
   /**
@@ -132,8 +134,10 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
                 $decay_granularity = $this->configuration['decay_granularity'];
 
                 // Exponential Decay function.
-                $activity_value = ceil($record->getActivityValue() * pow(exp(1),
-                    (-$decay_rate * (($decay_granularity / 60) / 60) / 24)));
+                $activity_value = ceil(
+                  $record->getActivityValue() * pow(exp(1),
+                    (-$decay_rate * (($decay_granularity / 60) / 60) / 24))
+                );
 
                 // @TODO: add threshold value and verify before apply decay.
                 $record->setActivityValue((int) $activity_value);
@@ -157,15 +161,18 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
   /**
    * This returns List of ActivityRecords to Decay.
    *
-   * @param \Drupal\entity_activity_tracker\EntityActivityTrackerInterface $tracker
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
    *   The tracker config entity.
    *
    * @return \Drupal\entity_activity_tracker\ActivityRecord[]
    *   List of records to decay.
    */
   protected function recordsToDecay(EntityActivityTrackerInterface $tracker) {
-    return $this->activityRecordStorage->getActivityRecordsLastDecay(time() - $this->configuration['decay_granularity'],
-      $tracker->getTargetEntityType(), $tracker->getTargetEntityBundle());
+    return $this->activityRecordStorage
+      ->getActivityRecordsLastDecay(
+        time() - $this->configuration['decay_granularity'],
+        $tracker->getTargetEntityType(), $tracker->getTargetEntityBundle()
+      );
   }
 
   /**

@@ -117,8 +117,13 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
           ? $this->configuration['activity_existing']
           : $this->configuration['activity_creation'];
         foreach ($this->getExistingEntities($event->getTracker()) as $existing_entity) {
-          $activity_record = new ActivityRecord($existing_entity->getEntityTypeId(),
-            $existing_entity->bundle(), $existing_entity->id(), $activity);
+          $activity_record = new ActivityRecord(
+            $existing_entity->getEntityTypeId(),
+            $existing_entity->bundle(),
+            $existing_entity->id(),
+            $activity
+          );
+
           $this->activityRecordStorage->createActivityRecord($activity_record);
         }
         break;
@@ -133,11 +138,10 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
 
       case ActivityEventInterface::TRACKER_DELETE:
         $tracker = $event->getTracker();
+        $activity_records = $this->activityRecordStorage
+          ->getActivityRecords($tracker->getTargetEntityType(), $tracker->getTargetEntityBundle());
         // Get ActivityRecords from this tracker.
-        foreach (
-          $this->activityRecordStorage->getActivityRecords($tracker->getTargetEntityType(),
-            $tracker->getTargetEntityBundle()) as $activity_record
-        ) {
+        foreach ($activity_records as $activity_record) {
           $this->activityRecordStorage->deleteActivityRecord($activity_record);
         }
         break;
