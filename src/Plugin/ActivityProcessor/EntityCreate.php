@@ -42,7 +42,6 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-
     $form['activity_creation'] = [
       '#type' => 'number',
       '#title' => $this->t('Activity on Creation'),
@@ -102,21 +101,24 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
    * {@inheritdoc}
    */
   public function processActivity(Event $event) {
-
     $dispatcher_type = $event->getDispatcherType();
 
     switch ($dispatcher_type) {
       case ActivityEventInterface::ENTITY_INSERT:
         $entity = $event->getEntity();
-        $activity_record = new ActivityRecord($entity->getEntityTypeId(), $entity->bundle(), $entity->id(), $this->configuration['activity_creation']);
+        $activity_record = new ActivityRecord($entity->getEntityTypeId(), $entity->bundle(),
+          $entity->id(), $this->configuration['activity_creation']);
         $this->activityRecordStorage->createActivityRecord($activity_record);
         break;
 
       case ActivityEventInterface::TRACKER_CREATE:
         // Iterate all already existing entities and create a record.
-        $activity = ($this->configuration['activity_existing_enabler']) ? $this->configuration['activity_existing'] : $this->configuration['activity_creation'];
+        $activity = ($this->configuration['activity_existing_enabler'])
+          ? $this->configuration['activity_existing']
+          : $this->configuration['activity_creation'];
         foreach ($this->getExistingEntities($event->getTracker()) as $existing_entity) {
-          $activity_record = new ActivityRecord($existing_entity->getEntityTypeId(), $existing_entity->bundle(), $existing_entity->id(), $activity);
+          $activity_record = new ActivityRecord($existing_entity->getEntityTypeId(),
+            $existing_entity->bundle(), $existing_entity->id(), $activity);
           $this->activityRecordStorage->createActivityRecord($activity_record);
         }
         break;
@@ -132,7 +134,10 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
       case ActivityEventInterface::TRACKER_DELETE:
         $tracker = $event->getTracker();
         // Get ActivityRecords from this tracker.
-        foreach ($this->activityRecordStorage->getActivityRecords($tracker->getTargetEntityType(), $tracker->getTargetEntityBundle()) as $activity_record) {
+        foreach (
+          $this->activityRecordStorage->getActivityRecords($tracker->getTargetEntityType(),
+            $tracker->getTargetEntityBundle()) as $activity_record
+        ) {
           $this->activityRecordStorage->deleteActivityRecord($activity_record);
         }
         break;
@@ -142,7 +147,7 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
   /**
    * Get existing entities of tracker that was just created.
    *
-   * @param \Drupal\entity_activity_tracker\EntityActivityTrackerInterface $tracker
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
    *   The tracker config entity.
    *
    * @return \Drupal\Core\Entity\ContentEntityInterface[]
@@ -152,14 +157,17 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
     $storage = $this->entityTypeManager->getStorage($tracker->getTargetEntityType());
     $bundle_key = $storage->getEntityType()->getKey('bundle');
     if (!empty($bundle_key)) {
-      return $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->loadByProperties([$bundle_key => $tracker->getTargetEntityBundle()]);
+      return $this->entityTypeManager
+        ->getStorage($tracker->getTargetEntityType())
+        ->loadByProperties([$bundle_key => $tracker->getTargetEntityBundle()]);
     }
     else {
       // This needs review!! For now should be enough.
       // User entity has no bundles.
-      return $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->loadMultiple();
+      return $this->entityTypeManager
+        ->getStorage($tracker->getTargetEntityType())
+        ->loadMultiple();
     }
-
   }
 
   /**
@@ -168,13 +176,18 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
   public function canProcess(Event $event) {
     // This should change since doesn't make sense to store Entity in event to then
     // load it again.
-    if ($event->getDispatcherType() == ActivityEventInterface::ENTITY_INSERT){
-      $entity = $event->getEntity();
-      $exists = $this->entityTypeManager->getStorage($entity->getEntityTypeId())->load($entity->id());
-      if (empty($exists)) {
-        return ActivityProcessorInterface::SKIP;
-      }
+    if ($event->getDispatcherType() !== ActivityEventInterface::ENTITY_INSERT) {
+      return ActivityProcessorInterface::SKIP;
     }
+
+    $entity = $event->getEntity();
+    $exists = $this->entityTypeManager
+      ->getStorage($entity->getEntityTypeId())
+      ->load($entity->id());
+    if (empty($exists)) {
+      return ActivityProcessorInterface::SKIP;
+    }
+
     return ActivityProcessorInterface::PROCESS;
   }
 

@@ -68,7 +68,15 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *   The config factory.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, QueueInterface $queue, LoggerInterface $logger, ConfigFactoryInterface $config) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    EntityTypeManagerInterface $entity_type_manager,
+    QueueInterface $queue,
+    LoggerInterface $logger,
+    ConfigFactoryInterface $config
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->queue = $queue;
@@ -79,7 +87,12 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
     return new static(
       $configuration,
       $plugin_id,
@@ -95,18 +108,22 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
    * {@inheritdoc}
    */
   public function processItem($event) {
-
     $enabled_plugins = $event->getTracker()->getProcessorPlugins()->getEnabled();
     $process_control = [];
 
     // NEW LOGIC!!! PROCESS, SKIP, SCHEDULE.
     foreach ($enabled_plugins as $plugin_id => $processor_plugin) {
-      $process_control[$plugin_id] = $processor_plugin->canProcess($event);
+      $process = $processor_plugin->canProcess($event);
+      if ($process === ActivityProcessorInterface::SKIP) {
+        continue;
+      }
+
+      $process_control[$plugin_id] = $process;
     }
 
-    if (count(array_unique($process_control)) === 1 && end($process_control) === ActivityProcessorInterface::PROCESS) {
-      foreach ($enabled_plugins as $plugin_id => $processor_plugin) {
-        $processor_plugin->processActivity($event);
+    if (in_array(ActivityProcessorInterface::PROCESS, $process_control, TRUE)) {
+      foreach ($process_control as $plugin_id => $can_process) {
+        $enabled_plugins[$plugin_id]->processActivity($event);
         $message = $plugin_id . ' plugin processed';
         $this->logger->info($message);
       }
@@ -124,8 +141,9 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
   }
 
   protected function logInfo($message) {
-    if($this->config->get('debug'))
-      return $this->logger->info($message);
+    if ($this->config->get('debug')) {
+      $this->logger->info($message);
+    }
   }
 
 }

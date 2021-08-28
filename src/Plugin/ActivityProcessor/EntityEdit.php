@@ -2,6 +2,7 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\ActivityProcessor;
 
+use Drupal\entity_activity_tracker\Event\EntityActivityBaseEvent;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\EventDispatcher\Event;
@@ -113,6 +114,10 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
    * {@inheritdoc}
    */
   public function canProcess(Event $event) {
+    if (!$event instanceof EntityActivityBaseEvent) {
+      return ActivityProcessorInterface::SKIP;
+    }
+
     // This should change since doesn't make sense to store Entity in event to then
     // load it again.
     $entity = $event->getEntity();

@@ -2,6 +2,8 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\ActivityProcessor;
 
+use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
+use Drupal\entity_activity_tracker\Event\EntityActivityBaseEvent;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\EventDispatcher\Event;
@@ -34,7 +36,7 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
     return [
       'decay_type' => 'exponetial',
       'decay' => 5,
-    // 4 days;
+      // 4 days;
       'decay_granularity' => 345600,
     ];
   }
@@ -95,14 +97,14 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
    * {@inheritdoc}
    */
   public function getSummary() {
-
     $replacements = [
       '@plugin_name' => $this->pluginDefinition['label']->render(),
       '@decay_type' => $this->configuration['decay_type'],
       '@decay' => $this->configuration['decay'],
       '@decay_granularity' => $this->configuration['decay_granularity'],
     ];
-    return $this->t('<b>@plugin_name:</b> <br> Type: @decay_type <br> Decay: @decay <br> Granularity: @decay_granularity <br>', $replacements);
+    return $this->t('<b>@plugin_name:</b> <br> Type: @decay_type <br> Decay: @decay <br> Granularity: @decay_granularity <br>',
+      $replacements);
   }
 
   /**
@@ -123,7 +125,6 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
         $records = $this->recordsToDecay($tracker);
         if (!empty($records)) {
           foreach ($records as $record) {
-
             switch ($this->configuration['decay_type']) {
               case 'exponential':
                 // Exponential Decay.
@@ -131,7 +132,8 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
                 $decay_granularity = $this->configuration['decay_granularity'];
 
                 // Exponential Decay function.
-                $activity_value = ceil($record->getActivityValue() * pow(exp(1), (-$decay_rate * (($decay_granularity / 60) / 60) / 24)));
+                $activity_value = ceil($record->getActivityValue() * pow(exp(1),
+                    (-$decay_rate * (($decay_granularity / 60) / 60) / 24)));
 
                 // @TODO: add threshold value and verify before apply decay.
                 $record->setActivityValue((int) $activity_value);
@@ -162,7 +164,19 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
    *   List of records to decay.
    */
   protected function recordsToDecay(EntityActivityTrackerInterface $tracker) {
-    return $this->activityRecordStorage->getActivityRecordsLastDecay(time() - $this->configuration['decay_granularity'], $tracker->getTargetEntityType(), $tracker->getTargetEntityBundle());
+    return $this->activityRecordStorage->getActivityRecordsLastDecay(time() - $this->configuration['decay_granularity'],
+      $tracker->getTargetEntityType(), $tracker->getTargetEntityBundle());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function canProcess(Event $event) {
+    if (!$event instanceof EntityActivityBaseEvent || !$event instanceof ActivityDecayEvent) {
+      return ActivityProcessorInterface::SKIP;
+    }
+
+    return ActivityProcessorInterface::PROCESS;
   }
 
 }
