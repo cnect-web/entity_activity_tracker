@@ -19,7 +19,7 @@ interface ActivityEventInterface {
   /**
    * Get the Tracker.
    *
-   * @return \Drupal\entity_activity_tracker\EntityActivityTrackerInterface
+   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
    *   The Tracker.
    */
   public function getTracker();

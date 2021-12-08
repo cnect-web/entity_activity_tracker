@@ -6,7 +6,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\hook_event_dispatcher\Event\Cron\CronEvent;
+use Drupal\core_event_dispatcher\Event\Core\CronEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Psr\Log\LoggerInterface;

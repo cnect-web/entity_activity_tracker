@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
+use Drupal\entity_activity_tracker\Event\EntityActivityInsertEvent;
 
 /**
  * Sets activity when entity is edited.
@@ -63,7 +64,7 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['activity_edait'] = $form_state->getValue('activity_edit');
+    $this->configuration['activity_edit'] = $form_state->getValue('activity_edit');
   }
 
   /**
@@ -113,14 +114,16 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
    * {@inheritdoc}
    */
   public function canProcess(Event $event) {
-    // This should change since doesn't make sense to store Entity in event to then
-    // load it again.
-    $entity = $event->getEntity();
-    $exists = $this->entityTypeManager->getStorage($entity->getEntityTypeId())->load($entity->id());
-    if (empty($exists)) {
-      return ActivityProcessorInterface::SKIP;
+    // Only target entity updates for this processor.
+    if ($event->getDispatcherType() == ActivityEventInterface::ENTITY_UPDATE){
+      /** @var \Drupal\entity_activity_tracker\Event\EntityActivityBaseEvent $event */
+      $entity = $event->getEntity();
+      if (empty($entity)) {
+        return ActivityProcessorInterface::SKIP;
+      }
+      return ActivityProcessorInterface::PROCESS;
     }
-    return ActivityProcessorInterface::PROCESS;
+    return ActivityProcessorInterface::SKIP;
   }
 
 }

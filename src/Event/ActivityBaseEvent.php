@@ -13,14 +13,14 @@ abstract class ActivityBaseEvent extends Event implements ActivityEventInterface
   /**
    * The EntityActivityTracker.
    *
-   * @var \Drupal\entity_activity_tracker\EntityActivityTrackerInterface
+   * @var \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
    */
   protected $tracker;
 
   /**
    * ActivityBaseEvent constructor.
    *
-   * @param \Drupal\Core\Entity\EntityActivityTrackerInterface $tracker
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
    *   The EntityActivityTracker.
    */
   public function __construct(EntityActivityTrackerInterface $tracker) {
@@ -30,7 +30,7 @@ abstract class ActivityBaseEvent extends Event implements ActivityEventInterface
   /**
    * Get the Tracker.
    *
-   * @return \Drupal\entity_activity_tracker\EntityActivityTrackerInterface
+   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
    *   The Tracker.
    */
   public function getTracker() {

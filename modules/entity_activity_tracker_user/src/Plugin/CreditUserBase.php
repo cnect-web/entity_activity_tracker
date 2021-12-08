@@ -60,7 +60,7 @@ abstract class CreditUserBase extends ActivityProcessorCreditRelatedBase {
   /**
    * Get existing entities of tracker that was just created.
    *
-   * @param \Drupal\entity_activity_tracker\EntityActivityTrackerInterface $tracker
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
    *   The tracker config entity.
    *
    * @return \Drupal\Core\Entity\ContentEntityInterface[]

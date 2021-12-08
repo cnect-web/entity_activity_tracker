@@ -155,14 +155,17 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
   /**
    * This returns List of ActivityRecords to Decay.
    *
-   * @param \Drupal\entity_activity_tracker\EntityActivityTrackerInterface $tracker
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
    *   The tracker config entity.
    *
    * @return \Drupal\entity_activity_tracker\ActivityRecord[]
    *   List of records to decay.
    */
   protected function recordsToDecay(EntityActivityTrackerInterface $tracker) {
-    return $this->activityRecordStorage->getActivityRecordsLastDecay(time() - $this->configuration['decay_granularity'], $tracker->getTargetEntityType(), $tracker->getTargetEntityBundle());
+    return $this->activityRecordStorage->getActivityRecordsLastDecay(
+      time() - $this->configuration['decay_granularity'],
+      $tracker->getTargetEntityType(), $tracker->getTargetEntityBundle()
+    );
   }
 
 }

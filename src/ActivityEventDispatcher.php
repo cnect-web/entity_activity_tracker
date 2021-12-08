@@ -68,7 +68,7 @@ class ActivityEventDispatcher {
   }
 
   /**
-   * Dispatch activity event based on event comming from HookEventDispatcher.
+   * Dispatch activity event based on event coming from HookEventDispatcher.
    *
    * @param Symfony\Component\EventDispatcher\Event $event
    *   The original event.

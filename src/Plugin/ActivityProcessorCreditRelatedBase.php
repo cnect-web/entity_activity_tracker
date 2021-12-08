@@ -52,7 +52,8 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
       case ActivityEventInterface::TRACKER_DELETE:
         $tracker = $event->getTracker();
         // Get ActivityRecords from this tracker.
-        foreach ($this->activityRecordStorage->getActivityRecords($tracker->getTargetEntityType(), $tracker->getTargetEntityBundle()) as $activity_record) {
+        $activity_records = $this->activityRecordStorage->getActivityRecords($tracker->getTargetEntityType(), $tracker->getTargetEntityBundle());
+        foreach ($activity_records as $activity_record) {
           $this->activityRecordStorage->deleteActivityRecord($activity_record);
         }
         break;
