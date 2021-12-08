@@ -5,7 +5,6 @@ namespace Drupal\entity_activity_tracker;
 use Drupal\Core\Database\Driver\mysql\Connection;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Component\Datetime\TimeInterface;
-use PDO;
 use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
@@ -253,7 +252,7 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
    *   A list of ActivityRecord objects or false.
    */
   protected function preparareList(SelectInterface $query) {
-    if ($results = $query->execute()->fetchAllAssoc('activity_id', PDO::FETCH_ASSOC)) {
+    if ($results = $query->execute()->fetchAllAssoc('activity_id', \PDO::FETCH_ASSOC)) {
       $records = [];
       foreach ($results as $activity_id => $record) {
         $records[$activity_id] = new ActivityRecord($record['entity_type'], $record['bundle'], $record['entity_id'], $record['activity'], $record['created'], $record['changed'], $record['activity_id']);

@@ -134,9 +134,13 @@ class DecayQueue extends QueueWorkerBase implements ContainerFactoryPluginInterf
     return $this->entityTypeManager->getStorage('entity_activity_tracker')->loadMultiple();
   }
 
+  /**
+   *
+   */
   protected function logInfo($message) {
-    if($this->config->get('debug'))
+    if ($this->config->get('debug')) {
       return $this->logger->info($message);
+    }
   }
 
 }

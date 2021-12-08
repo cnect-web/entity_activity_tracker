@@ -133,7 +133,7 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
                 // Exponential Decay function.
                 $activity_value = ceil($record->getActivityValue() * pow(exp(1), (-$decay_rate * (($decay_granularity / 60) / 60) / 24)));
 
-                // @TODO: add threshold value and verify before apply decay.
+                // @todo add threshold value and verify before apply decay.
                 $record->setActivityValue((int) $activity_value);
                 $this->activityRecordStorage->decayActivityRecord($record);
                 break;

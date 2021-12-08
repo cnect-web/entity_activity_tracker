@@ -10,14 +10,14 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class EntityActivityTrackerSettingsForm extends ConfigFormBase {
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   public function getFormId() {
     return 'entity_activity_tracker_settings';
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
@@ -26,7 +26,7 @@ class EntityActivityTrackerSettingsForm extends ConfigFormBase {
     ];
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
@@ -41,7 +41,7 @@ class EntityActivityTrackerSettingsForm extends ConfigFormBase {
     return parent::buildForm($form, $form_state);
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {

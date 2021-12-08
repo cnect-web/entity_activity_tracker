@@ -7,7 +7,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
-use Drupal\entity_activity_tracker\Event\EntityActivityInsertEvent;
 
 /**
  * Sets activity when entity is edited.
@@ -115,7 +114,7 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
    */
   public function canProcess(Event $event) {
     // Only target entity updates for this processor.
-    if ($event->getDispatcherType() == ActivityEventInterface::ENTITY_UPDATE){
+    if ($event->getDispatcherType() == ActivityEventInterface::ENTITY_UPDATE) {
       /** @var \Drupal\entity_activity_tracker\Event\EntityActivityBaseEvent $event */
       $entity = $event->getEntity();
       if (empty($entity)) {
