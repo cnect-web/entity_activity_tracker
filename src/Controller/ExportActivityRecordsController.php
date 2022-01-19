@@ -5,7 +5,6 @@ namespace Drupal\entity_activity_tracker\Controller;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Driver\mysql\Connection;
-use PDO;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -76,7 +75,7 @@ class ExportActivityRecordsController extends ControllerBase {
       // Put the headers.
       fputcsv($fp, $headers);
 
-      $rows = $query->execute()->fetchAllAssoc('activity_id', PDO::FETCH_ASSOC);
+      $rows = $query->execute()->fetchAllAssoc('activity_id', \PDO::FETCH_ASSOC);
       foreach ($rows as $row) {
         // Push the rest.
         fputcsv($fp, array_values((array) $row));

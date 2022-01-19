@@ -104,28 +104,50 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
       $process_control[$plugin_id] = $processor_plugin->canProcess($event);
     }
 
-    if (count(array_unique($process_control)) === 1 && end($process_control) === ActivityProcessorInterface::PROCESS) {
-      foreach ($enabled_plugins as $plugin_id => $processor_plugin) {
-        $processor_plugin->processActivity($event);
-        $message = $plugin_id . ' plugin processed';
-        $this->logger->info($message);
-      }
+    // Rework the logic here!
+    // First handle what wen know that we canProcess.
+    $to_process = array_intersect($process_control, [ActivityProcessorInterface::PROCESS]);
+    foreach (array_keys($to_process) as $plugin_id) {
+      $enabled_plugins[$plugin_id]->processActivity($event);
+      $message = $plugin_id . ' plugin processed';
+      $this->logInfo($message);
     }
-    elseif (in_array(ActivityProcessorInterface::SCHEDULE, $process_control, TRUE)) {
+
+    // First handle what wen know that we canProcess.
+    $to_schedule = array_intersect($process_control, [ActivityProcessorInterface::SCHEDULE]);
+    foreach (array_keys($to_schedule) as $plugin_id) {
       $this->queue->createItem($event);
       $message = "{$plugin_id} plugin is missing a related activity record, {$event->getDispatcherType()} was scheduled for later";
       $this->logInfo($message);
     }
-    else {
-      $message = "{$plugin_id} plugin will skip process";
-      $this->logInfo($message);
-    }
-    $this->logInfo("Processing item of ActivityProcessorQueue");
+
+    // // PROBLEM when we set multiple plugins and then create the entity activity tracker!!!
+    // if (count(array_unique($process_control)) === 1 && end($process_control) === ActivityProcessorInterface::PROCESS) {
+    //   foreach ($enabled_plugins as $plugin_id => $processor_plugin) {
+    //     $processor_plugin->processActivity($event);
+    //     $message = $plugin_id . ' plugin processed';
+    //     $this->logger->info($message);
+    //   }
+    // }
+    // elseif (in_array(ActivityProcessorInterface::SCHEDULE, $process_control, TRUE)) {
+    //   $this->queue->createItem($event);
+    //   $message = "{$plugin_id} plugin is missing a related activity record, {$event->getDispatcherType()} was scheduled for later";
+    //   $this->logInfo($message);
+    // }
+    // else {
+    //   $message = "{$plugin_id} plugin will skip process";
+    //   $this->logInfo($message);
+    // }
+    // $this->logInfo("Processing item of ActivityProcessorQueue");
   }
 
+  /**
+   *
+   */
   protected function logInfo($message) {
-    if($this->config->get('debug'))
+    if ($this->config->get('debug')) {
       return $this->logger->info($message);
+    }
   }
 
 }

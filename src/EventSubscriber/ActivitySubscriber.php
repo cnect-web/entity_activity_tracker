@@ -5,7 +5,7 @@ namespace Drupal\entity_activity_tracker\EventSubscriber;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Drupal\hook_event_dispatcher\HookEventDispatcherInterface;
 use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
-use Drupal\hook_event_dispatcher\Event\Cron\CronEvent;
+use Drupal\core_event_dispatcher\Event\Core\CronEvent;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\entity_activity_tracker\ActivityEventDispatcher;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
@@ -74,7 +74,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
   /**
    * Creates a item in Decay queue to dispatch ActivityDecayEvent.
    *
-   * @param \Drupal\hook_event_dispatcher\Event\Cron\CronEvent $event
+   * @param \Drupal\core_event_dispatcher\Event\Core\CronEvent $event
    *   The cron event.
    */
   public function scheduleDecay(CronEvent $event) {
@@ -90,7 +90,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
    *   The original event from which we dispatch activity event.
    */
   public function dispatchActivityEvent(Event $event) {
-    // TODO: IMPROVE THIS FIRST CONDITION!!
+    // @todo IMPROVE THIS FIRST CONDITION!!
     $entity = $event->getEntity();
     // Syncing entities should not count.
     // @see: GroupContent::postSave()
@@ -98,7 +98,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
       if (in_array($entity->getEntityTypeId(), EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
         // Dispatch corresponding activity event.
         $this->activityEventDispatcher->dispatchActivityEvent($event);
-        // TODO: Think a way to hook this. to let other modules play.
+        // @todo Think a way to hook this. to let other modules play.
       }
     }
   }

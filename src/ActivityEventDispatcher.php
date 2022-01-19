@@ -4,7 +4,6 @@ namespace Drupal\entity_activity_tracker;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use ReflectionClass;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -57,18 +56,18 @@ class ActivityEventDispatcher {
    * @see \Drupal\hook_event_dispatcher\HookEventDispatcherInterface
    */
   public function getActivityEvent(string $original_event) {
-    $r = new ReflectionClass('Drupal\hook_event_dispatcher\HookEventDispatcherInterface');
+    $r = new \ReflectionClass('Drupal\hook_event_dispatcher\HookEventDispatcherInterface');
     $original_events = $r->getConstants();
 
     if ($constant_name = array_search($original_event, $original_events)) {
-      $activity_events_interface = new ReflectionClass('Drupal\entity_activity_tracker\Event\ActivityEventInterface');
+      $activity_events_interface = new \ReflectionClass('Drupal\entity_activity_tracker\Event\ActivityEventInterface');
       return $activity_events_interface->getConstant($constant_name);
     }
     return FALSE;
   }
 
   /**
-   * Dispatch activity event based on event comming from HookEventDispatcher.
+   * Dispatch activity event based on event coming from HookEventDispatcher.
    *
    * @param Symfony\Component\EventDispatcher\Event $event
    *   The original event.
@@ -86,7 +85,7 @@ class ActivityEventDispatcher {
 
       $this->eventDispatcher->dispatch($activity_event_name, $event_to_dispatch);
     }
-    // @TODO: NEED TO CHECK EDGE CASES. (NO TRACKER)
+    // @todo NEED TO CHECK EDGE CASES. (NO TRACKER)
   }
 
   /**

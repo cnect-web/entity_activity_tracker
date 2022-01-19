@@ -59,7 +59,8 @@ class UserCreate extends EntityCreate {
       case ActivityEventInterface::TRACKER_DELETE:
         $tracker = $event->getTracker();
         // Get ActivityRecords from this tracker.
-        foreach ($this->activityRecordStorage->getActivityRecords($tracker->getTargetEntityType(), $tracker->getTargetEntityBundle()) as $activity_record) {
+        $activity_records = $this->activityRecordStorage->getActivityRecords($tracker->getTargetEntityType(), $tracker->getTargetEntityBundle());
+        foreach ($activity_records as $activity_record) {
           $this->activityRecordStorage->deleteActivityRecord($activity_record);
         }
         break;
@@ -69,7 +70,7 @@ class UserCreate extends EntityCreate {
   /**
    * Get existing entities of tracker that was just created.
    *
-   * @param \Drupal\entity_activity_tracker\EntityActivityTrackerInterface $tracker
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
    *   The tracker config entity.
    *
    * @return \Drupal\Core\Entity\ContentEntityInterface[]

@@ -133,7 +133,7 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
                 // Exponential Decay function.
                 $activity_value = ceil($record->getActivityValue() * pow(exp(1), (-$decay_rate * (($decay_granularity / 60) / 60) / 24)));
 
-                // @TODO: add threshold value and verify before apply decay.
+                // @todo add threshold value and verify before apply decay.
                 $record->setActivityValue((int) $activity_value);
                 $this->activityRecordStorage->decayActivityRecord($record);
                 break;
@@ -155,14 +155,17 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
   /**
    * This returns List of ActivityRecords to Decay.
    *
-   * @param \Drupal\entity_activity_tracker\EntityActivityTrackerInterface $tracker
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
    *   The tracker config entity.
    *
    * @return \Drupal\entity_activity_tracker\ActivityRecord[]
    *   List of records to decay.
    */
   protected function recordsToDecay(EntityActivityTrackerInterface $tracker) {
-    return $this->activityRecordStorage->getActivityRecordsLastDecay(time() - $this->configuration['decay_granularity'], $tracker->getTargetEntityType(), $tracker->getTargetEntityBundle());
+    return $this->activityRecordStorage->getActivityRecordsLastDecay(
+      time() - $this->configuration['decay_granularity'],
+      $tracker->getTargetEntityType(), $tracker->getTargetEntityBundle()
+    );
   }
 
 }

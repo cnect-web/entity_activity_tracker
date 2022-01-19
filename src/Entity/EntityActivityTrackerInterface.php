@@ -48,7 +48,7 @@ interface EntityActivityTrackerInterface extends ConfigEntityInterface {
    * @param string $instance_id
    *   The ID of a behavior plugin instance to return.
    *
-   * @return \Drupal\entity_activity_tracker\EntityActivityTrackerInterface
+   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
    *   A specific plugin instance.
    */
   public function getProcessorPlugin($instance_id);
@@ -56,7 +56,7 @@ interface EntityActivityTrackerInterface extends ConfigEntityInterface {
   /**
    * Retrieves all the enabled plugins.
    *
-   * @return \Drupal\entity_activity_tracker\EntityActivityTrackerInterface[]
+   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface[]
    *   Array of the enabled plugins as instances.
    */
   public function getEnabledProcessorsPlugins();

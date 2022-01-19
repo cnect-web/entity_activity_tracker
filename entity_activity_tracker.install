@@ -66,7 +66,7 @@ function entity_activity_tracker_schema() {
     ],
     'primary key' => ['activity_id'],
     'indexes' => [
-      // @TODO:
+      // @todo
       // REVIEW Indexes when we have actual data to test queries performance.
       // this might be useful -> https://2bits.com/articles/slow-queries-in-drupal-can-often-be-cured-by-indexes.html
       // 'entity_id' => ['entity_id'],

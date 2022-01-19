@@ -226,6 +226,7 @@ class EntityActivityTrackerViewsOperations implements ContainerInjectionInterfac
       $joins[$table_prefix . '_field_data'] = [
         'left_field' => $id_name,
         'field' => 'entity_id',
+        'type' => 'INNER',
         'extra' => [
           [
             'field' => 'entity_type',
@@ -261,6 +262,7 @@ class EntityActivityTrackerViewsOperations implements ContainerInjectionInterfac
             'base field' => $entity_type->getKey('id'),
             'field' => 'entity_id',
             'label' => $this->t('Entity: @entity_type', ['@entity_type' => $entity_type->getLabel()]),
+            'type' => 'INNER',
           ],
         ];
       }

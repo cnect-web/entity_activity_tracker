@@ -142,7 +142,7 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
   /**
    * Get existing entities of tracker that was just created.
    *
-   * @param \Drupal\entity_activity_tracker\EntityActivityTrackerInterface $tracker
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
    *   The tracker config entity.
    *
    * @return \Drupal\Core\Entity\ContentEntityInterface[]
@@ -168,7 +168,7 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
   public function canProcess(Event $event) {
     // This should change since doesn't make sense to store Entity in event to then
     // load it again.
-    if ($event->getDispatcherType() == ActivityEventInterface::ENTITY_INSERT){
+    if ($event->getDispatcherType() == ActivityEventInterface::ENTITY_INSERT) {
       $entity = $event->getEntity();
       $exists = $this->entityTypeManager->getStorage($entity->getEntityTypeId())->load($entity->id());
       if (empty($exists)) {

@@ -20,14 +20,14 @@ abstract class EntityActivityBaseEvent extends ActivityBaseEvent {
   /**
    * The EntityActivityTracker.
    *
-   * @var \Drupal\entity_activity_tracker\EntityActivityTrackerInterface
+   * @var \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
    */
   protected $tracker;
 
   /**
    * TrackerCreateEvent constructor.
    *
-   * @param \Drupal\Core\Entity\EntityActivityTrackerInterface $tracker
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
    *   The EntityActivityTracker.
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The Entity.

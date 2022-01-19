@@ -65,7 +65,7 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
    *   The entity attached to event.
    */
   protected function getRelatedEntity(ContentEntityInterface $entity) {
-    // TODO: HOW TO DEAL WITH CONTENT ON MULTIPLE GROUPS???
+    // @todo HOW TO DEAL WITH CONTENT ON MULTIPLE GROUPS???
     switch ($entity->getEntityTypeId()) {
       case 'comment':
         if (isset($this->pluginDefinition['credit_related'])) {
