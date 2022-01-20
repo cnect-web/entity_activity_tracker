@@ -4,7 +4,7 @@ namespace Drupal\entity_activity_tracker;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -69,7 +69,7 @@ class ActivityEventDispatcher {
   /**
    * Dispatch activity event based on event coming from HookEventDispatcher.
    *
-   * @param Symfony\Component\EventDispatcher\Event $event
+   * @param \Symfony\Contracts\EventDispatcher\Event $event
    *   The original event.
    */
   public function dispatchActivityEvent(Event $event) {

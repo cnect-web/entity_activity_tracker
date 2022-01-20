@@ -8,10 +8,10 @@ namespace Drupal\entity_activity_tracker\Event;
 class ActivityDecayEvent extends ActivityBaseEvent {
 
   /**
-   * Get the dispatcher type.
+   * Get the dispatcher's type.
    *
    * @return string
-   *   The dispatcher type.
+   *   The dispatcher's type.
    */
   public function getDispatcherType() {
     return ActivityEventInterface::DECAY;

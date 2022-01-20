@@ -3,7 +3,7 @@
 namespace Drupal\entity_activity_tracker\Event;
 
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Base class for Activity Events.

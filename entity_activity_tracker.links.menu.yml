@@ -1,5 +1,4 @@
-
-# Entity activity tracker menu items definition
+# Entity activity tracker menu items definition.
 entity.entity_activity_tracker.collection:
   title: 'Entity activity tracker'
   route_name: entity.entity_activity_tracker.collection

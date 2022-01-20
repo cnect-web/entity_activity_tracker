@@ -1,4 +1,3 @@
-
 entity_activity_tracker.export_activity_records:
   path: '/admin/config/content/entity_activity_tracker/export'
   defaults:

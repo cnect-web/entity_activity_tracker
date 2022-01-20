@@ -26,7 +26,7 @@ class ExportActivityRecordsController extends ControllerBase {
    *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
-  protected $filesystemSettigns;
+  protected $filesystemSettings;
 
   /**
    * Constructs a new GroupMembershipController.
@@ -38,7 +38,7 @@ class ExportActivityRecordsController extends ControllerBase {
    */
   public function __construct(Connection $database, ImmutableConfig $filesystem_settings) {
     $this->database = $database;
-    $this->filesystemSettigns = $filesystem_settings;
+    $this->filesystemSettings = $filesystem_settings;
   }
 
   /**
@@ -54,7 +54,7 @@ class ExportActivityRecordsController extends ControllerBase {
   /**
    * Export.
    *
-   * @return Symfony\Component\HttpFoundation\Response
+   * @return \Symfony\Component\HttpFoundation\Response
    *   Return Activity export in CSV.
    */
   public function export() {
@@ -65,7 +65,7 @@ class ExportActivityRecordsController extends ControllerBase {
 
     if ($first_row = $query->execute()->fetchAssoc()) {
 
-      $temp_dir = $this->filesystemSettigns->get('path.temporary');
+      $temp_dir = $this->filesystemSettings->get('path.temporary');
       $temp_file = tempnam($temp_dir, 'activity_csv_export_');
 
       // Export to .CSV.

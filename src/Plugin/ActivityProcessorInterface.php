@@ -6,7 +6,7 @@ use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Defines an interface for Activity processor plugins.

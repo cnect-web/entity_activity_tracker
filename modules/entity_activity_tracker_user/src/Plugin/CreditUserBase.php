@@ -40,7 +40,7 @@ abstract class CreditUserBase extends ActivityProcessorCreditRelatedBase {
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // Do nodthing for now.
+    // Do nothing for now.
   }
 
   /**
@@ -70,12 +70,12 @@ abstract class CreditUserBase extends ActivityProcessorCreditRelatedBase {
     $storage = $this->entityTypeManager->getStorage($tracker->getTargetEntityType());
     $bundle_key = $storage->getEntityType()->getKey('bundle');
     if (!empty($bundle_key)) {
-      return $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->loadByProperties([$bundle_key => $tracker->getTargetEntityBundle()]);
+      return $storage->loadByProperties([$bundle_key => $tracker->getTargetEntityBundle()]);
     }
     else {
       // This needs review!! For now should be enough.
       // User entity has no bundles.
-      return $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->loadMultiple();
+      return $storage->loadMultiple();
     }
   }
 

@@ -34,6 +34,7 @@ class EntityActivityTrackerListBuilder extends ConfigEntityListBuilder {
         '#markup' => $plugin->getSummary(),
       ];
     }
+    // @TODO use DI.
     $row['plugins'] = \Drupal::service('renderer')->render($summary_element);
 
     return $row + parent::buildRow($entity);

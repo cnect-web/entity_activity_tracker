@@ -9,6 +9,7 @@ use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
@@ -201,7 +202,7 @@ class EntityActivityTrackerForm extends EntityForm {
         $form['activity_processors'][$plugin_id]['settings'] = [];
         $subform_state = SubformState::createForSubform($form['activity_processors'][$plugin_id]['settings'], $form, $form_state);
 
-        /** @var \Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface $processor */
+        /** @var ActivityProcessorInterface $processor */
         $processor = $entity_activity_tracker->getProcessorPlugin($plugin_id);
 
         if ($settings = $processor->buildConfigurationForm($form['activity_processors'][$plugin_id]['settings'], $subform_state)) {
@@ -245,7 +246,7 @@ class EntityActivityTrackerForm extends EntityForm {
     ];
     $existing = $this->entityTypeManager->getStorage('entity_activity_tracker')->loadByProperties($properties);
     if (count($existing) >= 1 && !array_key_exists($this->entity->id(), $existing)) {
-      // There is a Tracker for this entiy/bundle so we set a form error.
+      // There is a Tracker for this entity/bundle so we set a form error.
       $form_state->setErrorByName('entity_bundle', $this->t('There is already a Tracker for this bundle: @bundle', ['@bundle' => $bundle_value]));
     }
 
@@ -331,7 +332,7 @@ class EntityActivityTrackerForm extends EntityForm {
       // User entities don't have bundle.
       return [$entity_type_value => $this->t('User')];
     }
-    $bundles = $this->entityTypeManager->getStorage($entity_type_value . '_type')->loadMultiple();
+    $bundles = $this->entityTypeManager->getStorage("{$entity_type_value}_type")->loadMultiple();
 
     $bundles_options = [];
     foreach ($bundles as $bundle_id => $bundle_type) {
@@ -342,7 +343,7 @@ class EntityActivityTrackerForm extends EntityForm {
   }
 
   /**
-   * Get current tracker (usefull for activity plugins subforms)
+   * Get current tracker (useful for activity plugins subforms)
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
    *   The tracker that is being configured.

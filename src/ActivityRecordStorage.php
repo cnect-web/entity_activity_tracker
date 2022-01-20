@@ -77,7 +77,7 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
       }
     }
 
-    return $this->preparareList($query);
+    return $this->prepareList($query);
   }
 
   /**
@@ -143,6 +143,8 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
       }
       return TRUE;
     }
+
+    return FALSE;
   }
 
   /**
@@ -167,6 +169,8 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
       }
       return TRUE;
     }
+
+    return FALSE;
   }
 
   /**
@@ -204,7 +208,7 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
       }
     }
 
-    return $this->preparareList($query);
+    return $this->prepareList($query);
   }
 
   /**
@@ -220,7 +224,7 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
         $query->condition('bundle', $bundle);
       }
     }
-    return $this->preparareList($query);
+    return $this->prepareList($query);
   }
 
   /**
@@ -239,27 +243,26 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
         $query->condition('bundle', $bundle);
       }
     }
-    return $this->preparareList($query);
+    return $this->prepareList($query);
   }
 
   /**
    * Prepares array of ActivityRecords.
    *
-   * @param Drupal\Core\Database\Query\SelectInterface $query
+   * @param \Drupal\Core\Database\Query\SelectInterface $query
    *   The select object to be executed.
    *
-   * @return \Drupal\entity_activity_tracker\ActivityRecord[]|false
-   *   A list of ActivityRecord objects or false.
+   * @return \Drupal\entity_activity_tracker\ActivityRecord[]
+   *   A list of ActivityRecord objects.
    */
-  protected function preparareList(SelectInterface $query) {
+  protected function prepareList(SelectInterface $query) {
+    $records = [];
     if ($results = $query->execute()->fetchAllAssoc('activity_id', \PDO::FETCH_ASSOC)) {
-      $records = [];
       foreach ($results as $activity_id => $record) {
         $records[$activity_id] = new ActivityRecord($record['entity_type'], $record['bundle'], $record['entity_id'], $record['activity'], $record['created'], $record['changed'], $record['activity_id']);
       }
-      return $records;
     }
-    return FALSE;
+    return $records;
   }
 
 }

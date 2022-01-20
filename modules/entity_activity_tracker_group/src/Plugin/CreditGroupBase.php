@@ -41,7 +41,7 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // Do nodthing for now.
+    // Do nothing for now.
   }
 
   /**
@@ -141,10 +141,11 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
     // Do something if there is a Tracker for group where content was created.
     if ($group_tracker) {
       // I NEED TO THINK HOW TO HANDLE MULTIPLE.
-      // SINCE WE DONT ALLOW A NODE BE PART OF 2 DIFFERENT GROUPS ITS OK FOR NOW.
+      // SINCE WE DON'T ALLOW A NODE BE PART OF 2 DIFFERENT GROUPS IT'S OK FOR NOW.
       return $group;
     }
 
+    return FALSE;
   }
 
 }

@@ -10,7 +10,7 @@ use Drupal\Core\Queue\QueueFactory;
 use Drupal\entity_activity_tracker\ActivityEventDispatcher;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Class ActivitySubscriber.
@@ -60,7 +60,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * Creates a item in Decay queue to later be processed.
+   * Creates an item in Decay queue to later be processed.
    *
    * @param \Drupal\entity_activity_tracker\Event\ActivityDecayEvent $event
    *   The decay event.
@@ -72,21 +72,20 @@ class ActivitySubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * Creates a item in Decay queue to dispatch ActivityDecayEvent.
+   * Creates an item in Decay queue to dispatch ActivityDecayEvent.
    *
    * @param \Drupal\core_event_dispatcher\Event\Core\CronEvent $event
    *   The cron event.
    */
   public function scheduleDecay(CronEvent $event) {
-    /** @var \Drupal\Core\Queue\QueueInterface $decay_queue */
     $decay_queue = $this->queue->get('decay_queue');
     $decay_queue->createItem($event);
   }
 
   /**
-   * Dispatch activity event based on a event.
+   * Dispatch activity event based on an event.
    *
-   * @param \Symfony\Component\EventDispatcher\Event $event
+   * @param \Symfony\Contracts\EventDispatcher\Event $event
    *   The original event from which we dispatch activity event.
    */
   public function dispatchActivityEvent(Event $event) {

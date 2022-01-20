@@ -19,15 +19,15 @@ interface EntityActivityTrackerInterface extends ConfigEntityInterface {
   ];
 
   /**
-   * Gets the entity type to wich this config applies.
+   * Gets the entity type to which this config applies.
    *
    * @return string
-   *   The Traget Entity type.
+   *   The Target Entity type.
    */
   public function getTargetEntityType();
 
   /**
-   * Gets the entity type bundle to wich this config applies.
+   * Gets the entity type bundle to which this config applies.
    *
    * @return string
    *   The Bundle.

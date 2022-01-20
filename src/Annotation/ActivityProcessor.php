@@ -5,7 +5,7 @@ namespace Drupal\entity_activity_tracker\Annotation;
 use Drupal\Component\Annotation\Plugin;
 
 /**
- * Defines a Activity processor item annotation object.
+ * Defines an Activity processor item annotation object.
  *
  * @see \Drupal\entity_activity_tracker\Plugin\ActivityProcessorManager
  * @see plugin_api
@@ -13,7 +13,6 @@ use Drupal\Component\Annotation\Plugin;
  * @Annotation
  */
 class ActivityProcessor extends Plugin {
-
 
   /**
    * The plugin ID.
