@@ -2,7 +2,7 @@
 
 namespace Drupal\entity_activity_tracker_user\Plugin\ActivityProcessor;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;

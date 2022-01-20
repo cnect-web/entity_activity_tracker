@@ -8,7 +8,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
- * Class to react to views related operaions.
+ * Class to react to view related operations.
  */
 class EntityActivityTrackerViewsOperations implements ContainerInjectionInterface {
 
@@ -41,7 +41,7 @@ class EntityActivityTrackerViewsOperations implements ContainerInjectionInterfac
   }
 
   /**
-   * Discribes entity_activity_tracker data table to Views module.
+   * Describes entity_activity_tracker data table to Views module.
    *
    * @return array
    *   An associative array describing the data structure.

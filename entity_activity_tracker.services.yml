@@ -4,15 +4,19 @@ services:
     arguments: ['@queue', '@entity_activity_tracker.event.dispatcher']
     tags:
       - { name: event_subscriber }
+
   entity_activity_tracker.plugin.manager.activity_processor:
     class: Drupal\entity_activity_tracker\Plugin\ActivityProcessorManager
     parent: default_plugin_manager
+
   entity_activity_tracker.activity_record_storage:
     class: Drupal\entity_activity_tracker\ActivityRecordStorage
     arguments: ['@database', '@datetime.time', '@logger.factory']
+
   entity_activity_tracker.event.dispatcher:
     class: Drupal\entity_activity_tracker\ActivityEventDispatcher
     arguments: ['@entity_type.manager', '@event_dispatcher']
+
   entity_activity_tracker.activity_install_subscriber:
     class: Drupal\entity_activity_tracker\EventSubscriber\ActivityInstallSubscriber
     arguments: ['@entity_type.manager', '@event_dispatcher']

@@ -14,8 +14,7 @@ function entity_activity_tracker_help($route_name, RouteMatchInterface $route_ma
   switch ($route_name) {
     // Main module help for the entity_activity_tracker module.
     case 'help.page.entity_activity_tracker':
-      $output = '';
-      $output .= '<h3>' . t('About') . '</h3>';
+      $output = '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('Provides a way to track entity activity/popularity') . '</p>';
       return $output;
 

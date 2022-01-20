@@ -8,8 +8,8 @@ use Drupal\Core\Entity\Routing\AdminHtmlRouteProvider;
 /**
  * Provides routes for Entity activity tracker entities.
  *
- * @see Drupal\Core\Entity\Routing\AdminHtmlRouteProvider
- * @see Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider
+ * @see \Drupal\Core\Entity\Routing\AdminHtmlRouteProvider
+ * @see \Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider
  */
 class EntityActivityTrackerHtmlRouteProvider extends AdminHtmlRouteProvider {
 

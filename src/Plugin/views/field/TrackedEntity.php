@@ -79,7 +79,7 @@ class TrackedEntity extends FieldPluginBase implements ContainerFactoryPluginInt
     $this->ensureMyTable();
 
     // Make this field query activity_id col.
-    // This is needed to know wich record we are dealing with.
+    // This is needed to know which record we are dealing with.
     $this->realField = 'activity_id';
 
     $params = $this->options['group_type'] != 'group' ? ['function' => $this->options['group_type']] : [];
@@ -102,8 +102,8 @@ class TrackedEntity extends FieldPluginBase implements ContainerFactoryPluginInt
   public function render(ResultRow $values) {
     $activity_record = $this->activityRecordStorage->getActivityRecord($values->activity_id);
 
-    $entity_strorage = $this->entityTypeManager->getStorage($activity_record->getEntityType());
-    $tracked_entity = $entity_strorage->load($activity_record->getEntityId());
+    $entity_storage = $this->entityTypeManager->getStorage($activity_record->getEntityType());
+    $tracked_entity = $entity_storage->load($activity_record->getEntityId());
 
     return $tracked_entity->toLink()->toString();
   }

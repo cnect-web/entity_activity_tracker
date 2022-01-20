@@ -62,17 +62,17 @@ class ActivityRecord {
    * @param string $entity_type
    *   Tracked entity_type.
    * @param string $bundle
-   *   Trakced entity bundle.
+   *   Tracked entity bundle.
    * @param int $entity_id
-   *   Trakced entity id.
+   *   Tracked entity id.
    * @param int $activity
-   *   Trakced entity activity value.
+   *   Tracked entity activity value.
    * @param int $created
    *   ActivityRecord creation timestamp.
    * @param int $changed
    *   ActivityRecord last change timestamp.
    * @param int $activity_id
-   *   Id of existing ActivityRecord.
+   *   Activity id of existing ActivityRecord.
    */
   public function __construct($entity_type, $bundle, $entity_id, $activity, $created = NULL, $changed = NULL, $activity_id = NULL) {
     $this->activityId = $activity_id;
@@ -138,7 +138,7 @@ class ActivityRecord {
    * Get activity value.
    *
    * @return int
-   *   Atual value of ActivityRecord.
+   *   Actual value of ActivityRecord.
    */
   public function getActivityValue() {
     return $this->activity;

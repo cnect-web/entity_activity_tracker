@@ -4,7 +4,7 @@ namespace Drupal\entity_activity_tracker\Plugin\ActivityProcessor;
 
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
@@ -32,7 +32,7 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
    */
   public function defaultConfiguration() {
     return [
-      'decay_type' => 'exponetial',
+      'decay_type' => 'exponential',
       'decay' => 5,
     // 4 days;
       'decay_granularity' => 345600,
@@ -46,7 +46,7 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
     $form['decay_type'] = [
       '#type' => 'select',
       '#title' => $this->t('Decay Type'),
-      '#description' => $this->t('Select decay beahvior.'),
+      '#description' => $this->t('Select decay behavior.'),
       '#default_value' => $this->getConfiguration()['decay_type'],
       '#options' => [
         'exponential' => $this->t('Exponential Decay'),
@@ -79,7 +79,7 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // Do nodthing for now.
+    // Do nothing for now.
   }
 
   /**

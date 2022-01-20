@@ -33,7 +33,7 @@ abstract class EntityActivityBaseEvent extends ActivityBaseEvent {
    *   The Entity.
    */
   public function __construct(EntityActivityTrackerInterface $tracker, EntityInterface $entity) {
-    $this->tracker = $tracker;
+    parent::__construct($tracker);
     $this->entity = $entity;
   }
 

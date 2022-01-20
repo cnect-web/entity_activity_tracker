@@ -9,7 +9,7 @@ use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Base class for Activity processor plugins.
@@ -57,7 +57,10 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   }
 
   /**
-   * {@inheritdoc}
+   * Get summary.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   Summary.
    */
   public function getSummary() {
     $replacements = [
@@ -76,10 +79,10 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   }
 
   /**
-   * Let plugins decide if can process.
+   * Let plugins decide if they can process.
    */
   public function canProcess(Event $event) {
-    // By default we will tell to ActivityProcessorQueue to always process.
+    // By default, we will tell to ActivityProcessorQueue to always process.
     return ActivityProcessorInterface::PROCESS;
   }
 

@@ -7,6 +7,8 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity_activity_tracker\ActivityRecord;
+use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
+use Drupal\file\FileInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -83,14 +85,14 @@ class ImportActivityRecordsForm extends FormBase implements ContainerInjectionIn
 
     $csv_file = $form_state->getValue('import_csv');
 
-    /** @var \Drupal\file\FileInterface $file */
+    /** @var FileInterface $file */
     $file = $this->entityTypeManager->getStorage('file')->load($csv_file[0]);
 
     // TEST IF THIS CAN BE TEMPORARY.
     $file->setPermanent();
 
     $file->save();
-
+    $operations = [];
     $data = $this->csvtoarray($file->getFileUri(), ',');
     foreach ($data as $row) {
       $operations[] = ['\Drupal\entity_activity_tracker\Form\ImportActivityRecordsForm::addImportActivityRecord', [$row]];
@@ -148,22 +150,23 @@ class ImportActivityRecordsForm extends FormBase implements ContainerInjectionIn
    *   The batch context.
    */
   public static function addImportActivityRecord(array $item, array &$context) {
+    $entity_type_manager = \Drupal::entityTypeManager();
     $context['sandbox']['current_item'] = $item;
 
     $entity_type = $item['entity_type'];
-    $bunlde = $item['bundle'];
+    $bundle = $item['bundle'];
     $entity_id = $item['entity_id'];
 
-    /** @var \Drupal\entity_activity_tracker\ActivityRecordStorageInterface $activity_record_storage */
+    /** @var ActivityRecordStorageInterface $activity_record_storage */
     $activity_record_storage = \Drupal::service('entity_activity_tracker.activity_record_storage');
-    $item_storage = \Drupal::entityTypeManager()->getStorage($entity_type);
-    $tracker_storage = \Drupal::entityTypeManager()->getStorage('entity_activity_tracker');
+    $item_storage = $entity_type_manager->getStorage($entity_type);
+    $tracker_storage = $entity_type_manager->getStorage('entity_activity_tracker');
 
     $item_entity = $item_storage->load($entity_id);
 
     $properties = [
       'entity_type' => $entity_type,
-      'entity_bundle' => $bunlde,
+      'entity_bundle' => $bundle,
     ];
 
     $tracker = $tracker_storage->loadByProperties($properties);
@@ -173,7 +176,7 @@ class ImportActivityRecordsForm extends FormBase implements ContainerInjectionIn
     // Import record if entity / tracker exist and that record doesn't exist.
     if ($item_entity && $tracker && !$activity_record) {
       $message = "Creating activity record for entity {$entity_type} {$entity_id}";
-      $activity_record = new ActivityRecord($item['entity_type'], $item['bundle'], $item['entity_id'], $item['activity'], $item['created'], $item['changed']);
+      $activity_record = new ActivityRecord($entity_type, $bundle, $entity_id, $item['activity'], $item['created'], $item['changed']);
       $activity_record_storage->createActivityRecord($activity_record);
       $context['results'][] = $item;
     }

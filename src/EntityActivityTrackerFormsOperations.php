@@ -13,7 +13,7 @@ use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 
 /**
- * Class to react to form related operaions.
+ * Class to react to form related operations.
  */
 class EntityActivityTrackerFormsOperations implements ContainerInjectionInterface {
 
@@ -104,7 +104,7 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
   }
 
   /**
-   * Alters forms of tracked bundles to show a activity field.
+   * Alters forms of tracked bundles to show an activity field.
    *
    * @param array $form
    *   An associative array containing the structure of the form.
@@ -117,8 +117,8 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
    */
   public function formAlter(array &$form, FormStateInterface $form_state, $form_id) {
 
-    if ($this->currentUser->hasPermission('access entity activty field') || $this->currentUser->hasPermission('administer activity trackers')) {
-      /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
+    if ($this->currentUser->hasPermission('access entity activity field') || $this->currentUser->hasPermission('administer activity trackers')) {
+      /** @var ContentEntityInterface $entity */
       $entity = $form_state->getFormObject()->getEntity();
       if ($entity instanceof ContentEntityInterface) {
         if (!$entity->isNew() && $this->hasTracker($entity) &&  $this->getActivityValue($entity) && $form_state->getFormObject()->getOperation() == "edit") {
@@ -176,7 +176,7 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
    * Get all existing EntityActivityTrackers.
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface[]
-   *   Array containing all trackers config entities.
+   *   Array containing all trackers' config entities.
    */
   protected function getTrackers() {
     return $this->entityTypeManager->getStorage('entity_activity_tracker')->loadMultiple();
@@ -185,8 +185,8 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
   /**
    * Check if exists EntityActivityTracker for given entity.
    *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   *   The entity to check if has a tracker.
+   * @param ContentEntityInterface $entity
+   *   The entity to check if it has a tracker.
    *
    * @return bool
    *   Returns TRUE if there is a tracker.
@@ -199,9 +199,9 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
   }
 
   /**
-   * Get Tracker given a entity.
+   * Get Tracker given an entity.
    *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   * @param ContentEntityInterface $entity
    *   The tracked entity.
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
@@ -219,7 +219,7 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
   /**
    * Get current activity value of given entity.
    *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   * @param ContentEntityInterface $entity
    *   The tracked entity.
    *
    * @return int
@@ -235,7 +235,7 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
   /**
    * Get tracker canonical url given tracked entity.
    *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   * @param ContentEntityInterface $entity
    *   The tracked entity.
    *
    * @return \Drupal\Core\Url

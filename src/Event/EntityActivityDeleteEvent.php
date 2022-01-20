@@ -8,10 +8,10 @@ namespace Drupal\entity_activity_tracker\Event;
 class EntityActivityDeleteEvent extends EntityActivityBaseEvent {
 
   /**
-   * Get the dispatcher type.
+   * Get the dispatcher's type.
    *
    * @return string
-   *   The dispatcher type.
+   *   The dispatcher's type.
    */
   public function getDispatcherType() {
     return ActivityEventInterface::ENTITY_DELETE;

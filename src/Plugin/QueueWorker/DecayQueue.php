@@ -7,13 +7,14 @@ use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\core_event_dispatcher\Event\Core\CronEvent;
+use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Triggers decay event or processes plugins deppending on Event.
+ * Triggers decay event or processes plugins depending on Event.
  *
  * @QueueWorker(
  *   id = "decay_queue",
@@ -116,7 +117,7 @@ class DecayQueue extends QueueWorkerBase implements ContainerFactoryPluginInterf
         // Here we dispatch a Decay Event for each tracker.
         foreach ($trackers as $tracker) {
           $event = new ActivityDecayEvent($tracker);
-          $this->eventDispatcher->dispatch(ActivityDecayEvent::DECAY, $event);
+          $this->eventDispatcher->dispatch(ActivityEventInterface::DECAY, $event);
         }
 
         $this->logInfo("Activity Decay Dispatched");
@@ -139,7 +140,7 @@ class DecayQueue extends QueueWorkerBase implements ContainerFactoryPluginInterf
    */
   protected function logInfo($message) {
     if ($this->config->get('debug')) {
-      return $this->logger->info($message);
+      $this->logger->info($message);
     }
   }
 

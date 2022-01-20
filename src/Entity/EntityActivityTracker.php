@@ -63,7 +63,6 @@ class EntityActivityTracker extends ConfigEntityBase implements EntityActivityTr
    */
   protected $label;
 
-
   /**
    * The Entity type where this config will be used.
    *
@@ -111,6 +110,7 @@ class EntityActivityTracker extends ConfigEntityBase implements EntityActivityTr
    */
   public function getProcessorPlugins() {
     if (!isset($this->processorCollection)) {
+      // @TODO use DI here.
       $this->processorCollection = new ActivityProcessorCollection(\Drupal::service('entity_activity_tracker.plugin.manager.activity_processor'), $this->activity_processors);
     }
     return $this->processorCollection;

@@ -32,7 +32,7 @@ class EntityActivityTrackerDeleteForm extends EntityConfirmFormBase {
   protected $cacheBackend;
 
   /**
-   * Overridden constructor to get event dispactcher service.
+   * Overridden constructor to get event dispatcher service.
    *
    * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    *   The event dispatcher.

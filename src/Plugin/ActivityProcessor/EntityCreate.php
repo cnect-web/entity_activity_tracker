@@ -4,7 +4,7 @@ namespace Drupal\entity_activity_tracker\Plugin\ActivityProcessor;
 
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
@@ -61,7 +61,6 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
     $form['activity_existing'] = [
       '#type' => 'number',
       '#title' => $this->t('Activity for existing entities'),
-      '#description' => $this->t('Apply different activity value for entities that were already created. (This just applies on creation process)'),
       '#min' => 0,
       '#default_value' => $this->getConfiguration()['activity_existing'],
       '#description' => $this->t('The activity value on entity creation.'),
@@ -79,7 +78,7 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // Do nodthing for now.
+    // Do nothing for now.
   }
 
   /**

@@ -25,10 +25,10 @@ interface ActivityEventInterface {
   public function getTracker();
 
   /**
-   * Get the dispatcher type.
+   * Get the dispatcher's type.
    *
    * @return string
-   *   The dispatcher type.
+   *   The dispatcher's type.
    */
   public function getDispatcherType();
 

@@ -2,27 +2,16 @@
 
 namespace Drupal\entity_activity_tracker\Plugin;
 
+use Drupal\comment\CommentInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
-use Drupal\entity_activity_tracker\Event\EntityActivityInsertEvent;
-use Symfony\Component\EventDispatcher\Event;
+use Drupal\node\NodeInterface;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Base class for Activity processor plugins.
  */
 abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase {
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSummary() {
-    $replacements = [
-      '@plugin_name' => $this->pluginDefinition['label']->render(),
-      '@plugin_summary' => $this->pluginDefinition['summary']->render(),
-      '@activity' => $this->configuration[$this->getConfigField()],
-    ];
-    return $this->t('<b>@plugin_name:</b> <br> @plugin_summary: @activity%<br>', $replacements);
-  }
 
   /**
    * {@inheritdoc}
@@ -62,14 +51,14 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
   }
 
   /**
-   * Let plugins decide if can process.
+   * Let plugins decide if it can process.
    */
   public function canProcess(Event $event) {
     $dispatcher_type = $event->getDispatcherType();
     switch ($dispatcher_type) {
-      case EntityActivityInsertEvent::ENTITY_INSERT:
+      case ActivityEventInterface::ENTITY_INSERT:
 
-        /** @var \Drupal\Core\Entity\ContentEntityInterface $entity*/
+        /** @var ContentEntityInterface $entity */
         $entity = $event->getEntity();
 
         // Get related entity.
@@ -89,7 +78,7 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
 
         break;
 
-      case EntityActivityInsertEvent::TRACKER_CREATE:
+      case ActivityEventInterface::TRACKER_CREATE:
         // Iterate all already existing comments and credit commented entities.
         $related_records = [];
         foreach ($this->getExistingEntities($event->getTracker()) as $existing_entity) {
@@ -122,15 +111,18 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
   }
 
   /**
-   * Get entity based on attached entity and plugin "credit_related" defenition.
+   * Get entity based on attached entity and plugin "credit_related" definition.
    *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   * @param ContentEntityInterface $entity
    *   The entity attached to event.
+   *
+   * @return ContentEntityInterface|null
+   *   Related entity or null.
    */
   protected function getRelatedEntity(ContentEntityInterface $entity) {
     switch ($entity->getEntityTypeId()) {
       case 'comment':
-        /** @var \Drupal\comment\CommentInterface $entity */
+        /** @var CommentInterface $entity */
         if (isset($this->pluginDefinition['credit_related'])) {
           if ($this->pluginDefinition['credit_related'] == 'node') {
             return $entity->getCommentedEntity();
@@ -138,13 +130,15 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
           if ($this->pluginDefinition['credit_related'] == 'user') {
             $user = $entity->getOwner();
             // Prevent schedule for anonymous users.
-            return $user->id() != 0 ? $user : FALSE;
+            if ($user->id() != 0) {
+              return $user;
+            }
           }
         }
         break;
 
       case 'node':
-        /** @var \Drupal\node\NodeInterface $entity */
+        /** @var NodeInterface $entity */
         if (isset($this->pluginDefinition['credit_related'])) {
           if ($this->pluginDefinition['credit_related'] == 'user') {
             return $entity->getOwner();
@@ -152,12 +146,14 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
         }
         break;
     }
+
+    return NULL;
   }
 
   /**
    * Credit related entity.
    *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $related_entity
+   * @param ContentEntityInterface $related_entity
    *   The entity to credit.
    */
   protected function creditRelated(ContentEntityInterface $related_entity) {
@@ -173,6 +169,7 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
       $related_plugin = $related_entity_tracker->getProcessorPlugin($this->pluginDefinition['related_plugin']);
       $initial_activity = $related_plugin->configuration[$related_plugin->getConfigField()];
 
+      // @TODO check why activity_record assigned twice.
       $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($related_entity);
 
       $entity_activity = $initial_activity * ($this->configuration[$this->getConfigField()] / 100);
