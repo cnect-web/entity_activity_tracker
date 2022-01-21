@@ -55,7 +55,7 @@ class ActivityEventDispatcher {
    *
    * @see \Drupal\hook_event_dispatcher\HookEventDispatcherInterface
    */
-  public function getActivityEvent(string $original_event) {
+  protected function getActivityEvent(string $original_event) {
     $r = new \ReflectionClass('Drupal\hook_event_dispatcher\HookEventDispatcherInterface');
     $original_events = $r->getConstants();
 
@@ -74,6 +74,7 @@ class ActivityEventDispatcher {
    */
   public function dispatchActivityEvent(Event $event) {
     // Our events need the tracker.
+    // @TODO Add validation for trackers.
     if ($tracker = $this->getTracker($event->getEntity())) {
 
       $activity_event_name = $this->getActivityEvent($event->getDispatcherType());

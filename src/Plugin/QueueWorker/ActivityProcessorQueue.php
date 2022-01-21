@@ -105,14 +105,14 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
     }
 
     // Rework the logic here!
-    // First handle what wen know that we canProcess.
+    // First handle what we know that we canProcess.
     $to_process = array_intersect($process_control, [ActivityProcessorInterface::PROCESS]);
     foreach (array_keys($to_process) as $plugin_id) {
       $enabled_plugins[$plugin_id]->processActivity($event);
       $this->logInfo("{$plugin_id} plugin processed");
     }
 
-    // First handle what wen know that we canProcess.
+    // Then handle what have been scheduled
     $to_schedule = array_intersect($process_control, [ActivityProcessorInterface::SCHEDULE]);
     foreach (array_keys($to_schedule) as $plugin_id) {
       $this->queue->createItem($event);

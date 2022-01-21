@@ -63,12 +63,11 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
    *   Summary.
    */
   public function getSummary() {
-    $replacements = [
+    return $this->t('<b>@plugin_name:</b> <br> @plugin_summary: @activity <br>', [
       '@plugin_name' => $this->pluginDefinition['label']->render(),
       '@plugin_summary' => $this->pluginDefinition['summary']->render(),
       '@activity' => $this->configuration[$this->getConfigField()],
-    ];
-    return $this->t('<b>@plugin_name:</b> <br> @plugin_summary: @activity <br>', $replacements);
+    ]);
   }
 
   /**
@@ -98,7 +97,15 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   protected function getExistingEntities(EntityActivityTrackerInterface $tracker) {
     $storage = $this->entityTypeManager->getStorage($tracker->getTargetEntityType());
     $bundle_key = $storage->getEntityType()->getKey('bundle');
-    return $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->loadByProperties([$bundle_key => $tracker->getTargetEntityBundle()]);
+    if (!empty($bundle_key)) {
+      return $storage->loadByProperties([$bundle_key => $tracker->getTargetEntityBundle()]);
+    }
+    else {
+      // This needs review!! For now should be enough.
+      // User entity has no bundles.
+      return $storage->loadMultiple();
+    }
+
   }
 
   /**

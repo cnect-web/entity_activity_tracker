@@ -192,10 +192,7 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
    *   Returns TRUE if there is a tracker.
    */
   protected function hasTracker(ContentEntityInterface $entity) {
-    if (!empty($this->getTracker($entity))) {
-      return TRUE;
-    }
-    return FALSE;
+    return !empty($this->getTracker($entity));
   }
 
   /**

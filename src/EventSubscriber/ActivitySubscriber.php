@@ -2,7 +2,6 @@
 
 namespace Drupal\entity_activity_tracker\EventSubscriber;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Drupal\hook_event_dispatcher\HookEventDispatcherInterface;
 use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
 use Drupal\core_event_dispatcher\Event\Core\CronEvent;
@@ -10,6 +9,7 @@ use Drupal\Core\Queue\QueueFactory;
 use Drupal\entity_activity_tracker\ActivityEventDispatcher;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -49,12 +49,14 @@ class ActivitySubscriber implements EventSubscriberInterface {
       HookEventDispatcherInterface::ENTITY_INSERT => 'dispatchActivityEvent',
       HookEventDispatcherInterface::ENTITY_UPDATE => 'dispatchActivityEvent',
       HookEventDispatcherInterface::ENTITY_DELETE => 'dispatchActivityEvent',
+
       // Activity Events.
       ActivityEventInterface::ENTITY_INSERT => 'queueEvent',
       ActivityEventInterface::ENTITY_UPDATE => 'queueEvent',
       ActivityEventInterface::ENTITY_DELETE => 'queueEvent',
       ActivityEventInterface::TRACKER_CREATE => 'queueEvent',
       ActivityEventInterface::TRACKER_DELETE => 'queueEvent',
+
       ActivityEventInterface::DECAY => 'applyDecay',
     ];
   }
@@ -66,9 +68,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
    *   The decay event.
    */
   public function applyDecay(ActivityDecayEvent $event) {
-    $decay_queue = $this->queue->get('decay_queue');
-    $decay_queue->createItem($event);
-
+    $this->createQueueEventItem($event, 'decay_queue');
   }
 
   /**
@@ -78,8 +78,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
    *   The cron event.
    */
   public function scheduleDecay(CronEvent $event) {
-    $decay_queue = $this->queue->get('decay_queue');
-    $decay_queue->createItem($event);
+    $this->createQueueEventItem($event, 'decay_queue');
   }
 
   /**
@@ -93,12 +92,10 @@ class ActivitySubscriber implements EventSubscriberInterface {
     $entity = $event->getEntity();
     // Syncing entities should not count.
     // @see: GroupContent::postSave()
-    if (!$entity->isSyncing()) {
-      if (in_array($entity->getEntityTypeId(), EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
-        // Dispatch corresponding activity event.
-        $this->activityEventDispatcher->dispatchActivityEvent($event);
-        // @todo Think a way to hook this. to let other modules play.
-      }
+    if (!$entity->isSyncing() && in_array($entity->getEntityTypeId(), EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
+      // Dispatch corresponding activity event.
+      $this->activityEventDispatcher->dispatchActivityEvent($event);
+      // @todo Think a way to hook this. to let other modules play.
     }
   }
 
@@ -109,7 +106,19 @@ class ActivitySubscriber implements EventSubscriberInterface {
    *   Activity Event to queue.
    */
   public function queueEvent(ActivityEventInterface $event) {
-    $processors_queue = $this->queue->get('activity_processor_queue');
+    $this->createQueueEventItem($event, 'activity_processor_queue');
+  }
+
+  /**
+   * Create a queue event item.
+   *
+   * @param \Symfony\Contracts\EventDispatcher\Event $event
+   *   An event.
+   * @param string $queue_name
+   *   Queue name.
+   */
+  public function createQueueEventItem(Event $event, $queue_name) {
+    $processors_queue = $this->queue->get($queue_name);
     $processors_queue->createItem($event);
   }
 

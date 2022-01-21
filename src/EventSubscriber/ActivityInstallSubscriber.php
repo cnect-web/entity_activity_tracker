@@ -4,11 +4,11 @@ namespace Drupal\entity_activity_tracker\EventSubscriber;
 
 use Drupal\Core\Config\ConfigCrudEvent;
 use Drupal\Core\Config\ConfigEvents;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 use Drupal\entity_activity_tracker\Event\TrackerCreateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class ActivityInstallSubscriber.

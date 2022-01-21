@@ -120,7 +120,8 @@ class DecayQueue extends QueueWorkerBase implements ContainerFactoryPluginInterf
           $this->eventDispatcher->dispatch(ActivityEventInterface::DECAY, $event);
         }
 
-        $this->logInfo("Activity Decay Dispatched");
+        $this->logInfo('Activity Decay Dispatched');
+
         break;
     }
   }

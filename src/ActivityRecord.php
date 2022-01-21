@@ -147,11 +147,11 @@ class ActivityRecord {
   /**
    * Set ActivityRecord activity value.
    *
-   * @param int $val
-   *   The new activity value.
+   * @param int $value
+   *   A new activity value.
    */
-  public function setActivityValue(int $val) {
-    $this->activity = $val;
+  public function setActivityValue(int $value) {
+    $this->activity = $value;
   }
 
   /**
@@ -175,30 +175,30 @@ class ActivityRecord {
   }
 
   /**
-   * Increases Activity value by given $val.
+   * Increases Activity value by given $value.
    *
-   * @param int $val
+   * @param int $value
    *   The value to increase activity.
    *
    * @return ActivityRecord
    *   The ActivityRecord with increased activity value.
    */
-  public function increaseActivity(int $val) {
-    $this->setActivityValue($this->getActivityValue() + $val);
+  public function increaseActivity(int $value) {
+    $this->setActivityValue($this->getActivityValue() + $value);
     return $this;
   }
 
   /**
-   * Decrease Activity value by given $val.
+   * Decrease Activity value by given $value.
    *
-   * @param int $val
+   * @param int $value
    *   The value to decrease activity.
    *
    * @return ActivityRecord
    *   The ActivityRecord with decreased activity value.
    */
-  public function decreaseActivity(int $val) {
-    $this->setActivityValue($this->getActivityValue() - $val);
+  public function decreaseActivity(int $value) {
+    $this->setActivityValue($this->getActivityValue() - $value);
     return $this;
   }
 

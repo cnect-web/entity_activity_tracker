@@ -1,13 +1,13 @@
 # Entity Activity Tracker
 ## What is this?
-This module gives the ability to create Trackers (Con fig Entity) to Track Entities on given events and storing an arbitrary value that determines the amount of activity directly or indirectly all depends on trackers are configured.
+This module gives the ability to create trackers (Config Entity) to track entities on given events and storing an arbitrary value that determines the amount of activity directly or indirectly all depends on trackers are configured.
 The module relies on hook_event_dispatcher module to keep track of core events like:
-- cron,
-- entity.insert,
-- entity.update,
-- entity.delete.
+- cron
+- entity.insert
+- entity.update
+- entity.delete
 
-Then a EventSubscriber (ActivitySubscriber) will dispatch our own event via dispatchActivityEvent method (see line 92) and (ActivityEventDispatcher). At this point we attach the Tracker, so we have the tracker and all plugin configuration available when processing.
+Then an EventSubscriber (ActivitySubscriber) will dispatch our own event via dispatchActivityEvent method (see line 92) and (ActivityEventDispatcher). At this point we attach the tracker, so we have the tracker and all plugin configuration available when processing.
 
 After dispatching our own Event we pass again in ActivitySubscriber where all our own "activity events" will be queued.
 
@@ -17,7 +17,7 @@ The **ActivityProcessorQueue** will receive the event and check if plugin canPro
 This module is dependent of cron to handle decay, and to process queued items.
 
 
-**This snippet is from ActivitySubscriber and I believe I gives a good overview of what happens with every event:**
+**This snippet is from ActivitySubscriber and I believe it gives a good overview of what happens with every event:**
 ```php
 /**
  * {@inheritdoc}

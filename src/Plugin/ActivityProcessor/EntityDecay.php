@@ -27,12 +27,14 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
  */
 class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInterface {
 
+  const DECAY_TYPE_EXPONENTIAL = 'exponential';
+  const DECAY_TYPE_LINEAR = 'linear';
   /**
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
     return [
-      'decay_type' => 'exponential',
+      'decay_type' => self::DECAY_TYPE_EXPONENTIAL,
       'decay' => 5,
     // 4 days;
       'decay_granularity' => 345600,
@@ -49,8 +51,8 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
       '#description' => $this->t('Select decay behavior.'),
       '#default_value' => $this->getConfiguration()['decay_type'],
       '#options' => [
-        'exponential' => $this->t('Exponential Decay'),
-        'linear' => $this->t('Linear Decay'),
+        self::DECAY_TYPE_EXPONENTIAL => $this->t('Exponential Decay'),
+        self::DECAY_TYPE_LINEAR => $this->t('Linear Decay'),
       ],
     ];
 
@@ -95,14 +97,12 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
    * {@inheritdoc}
    */
   public function getSummary() {
-
-    $replacements = [
+    return $this->t('<b>@plugin_name:</b> <br> Type: @decay_type <br> Decay: @decay <br> Granularity: @decay_granularity <br>', [
       '@plugin_name' => $this->pluginDefinition['label']->render(),
       '@decay_type' => $this->configuration['decay_type'],
       '@decay' => $this->configuration['decay'],
       '@decay_granularity' => $this->configuration['decay_granularity'],
-    ];
-    return $this->t('<b>@plugin_name:</b> <br> Type: @decay_type <br> Decay: @decay <br> Granularity: @decay_granularity <br>', $replacements);
+    ]);
   }
 
   /**
@@ -125,8 +125,7 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
           foreach ($records as $record) {
 
             switch ($this->configuration['decay_type']) {
-              case 'exponential':
-                // Exponential Decay.
+              case EntityDecay::DECAY_TYPE_EXPONENTIAL:
                 $decay_rate = $this->configuration['decay'] / 100;
                 $decay_granularity = $this->configuration['decay_granularity'];
 
@@ -138,8 +137,8 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
                 $this->activityRecordStorage->decayActivityRecord($record);
                 break;
 
-              case 'linear':
-                $initial_activity = $tracker->getProcessorPlugin('entity_create')->configuration["activity_creation"];
+              case EntityDecay::DECAY_TYPE_LINEAR:
+                $initial_activity = $tracker->getProcessorPlugin('entity_create')->configuration['activity_creation'];
                 $activity_decay = $initial_activity * ($this->configuration['decay'] / 100);
                 $record->decreaseActivity($activity_decay);
 

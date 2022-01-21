@@ -4,7 +4,6 @@ namespace Drupal\entity_activity_tracker_user\Plugin\ActivityProcessor;
 
 use Symfony\Contracts\EventDispatcher\Event;
 use Drupal\entity_activity_tracker\ActivityRecord;
-use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessor\EntityCreate;
 
@@ -36,6 +35,14 @@ class UserCreate extends EntityCreate {
         $this->activityRecordStorage->createActivityRecord($activity_record);
         break;
 
+      case ActivityEventInterface::ENTITY_DELETE:
+        /** @var \Drupal\entity_activity_tracker\ActivityRecord $activity_record */
+        $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($event->getEntity());
+        if ($activity_record) {
+          $this->activityRecordStorage->deleteActivityRecord($activity_record);
+        }
+        break;
+
       case ActivityEventInterface::TRACKER_CREATE:
         // Iterate all already existing entities and create a record.
         $activity = ($this->configuration['activity_existing_enabler']) ? $this->configuration['activity_existing'] : $this->configuration['activity_creation'];
@@ -48,14 +55,6 @@ class UserCreate extends EntityCreate {
         }
         break;
 
-      case ActivityEventInterface::ENTITY_DELETE:
-        /** @var \Drupal\entity_activity_tracker\ActivityRecord $activity_record */
-        $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($event->getEntity());
-        if ($activity_record) {
-          $this->activityRecordStorage->deleteActivityRecord($activity_record);
-        }
-        break;
-
       case ActivityEventInterface::TRACKER_DELETE:
         $tracker = $event->getTracker();
         // Get ActivityRecords from this tracker.
@@ -65,29 +64,6 @@ class UserCreate extends EntityCreate {
         }
         break;
     }
-  }
-
-  /**
-   * Get existing entities of tracker that was just created.
-   *
-   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
-   *   The tracker config entity.
-   *
-   * @return \Drupal\Core\Entity\ContentEntityInterface[]
-   *   Existing entities to be tracked.
-   */
-  protected function getExistingEntities(EntityActivityTrackerInterface $tracker) {
-    $storage = $this->entityTypeManager->getStorage($tracker->getTargetEntityType());
-    $bundle_key = $storage->getEntityType()->getKey('bundle');
-    if (!empty($bundle_key)) {
-      return $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->loadByProperties([$bundle_key => $tracker->getTargetEntityBundle()]);
-    }
-    else {
-      // This needs review!! For now should be enough.
-      // User entity has no bundles.
-      return $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->loadMultiple();
-    }
-
   }
 
 }

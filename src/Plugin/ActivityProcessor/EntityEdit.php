@@ -71,11 +71,10 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
    * {@inheritdoc}
    */
   public function getSummary() {
-    $replacements = [
+    return $this->t('<b>@plugin_name:</b> <br> Activity on edit: @activity_edit <br>', [
       '@plugin_name' => $this->pluginDefinition['label']->render(),
       '@activity_edit' => $this->configuration['activity_edit'],
-    ];
-    return $this->t('<b>@plugin_name:</b> <br> Activity on edit: @activity_edit <br>', $replacements);
+    ]);
   }
 
   /**
@@ -97,13 +96,13 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
         $entity = $event->getEntity();
         $tracker = $event->getTracker();
 
-        $initial_activity = $tracker->getProcessorPlugin('entity_create')->configuration["activity_creation"];
+        $initial_activity = $tracker->getProcessorPlugin('entity_create')->configuration['activity_creation'];
 
         $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($entity);
 
         $update_activity = $initial_activity * ($this->configuration['activity_edit'] / 100);
 
-        $activity_record = $activity_record->increaseActivity($update_activity);
+        $activity_record->increaseActivity($update_activity);
 
         $this->activityRecordStorage->updateActivityRecord($activity_record);
         break;
