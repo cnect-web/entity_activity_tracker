@@ -2,6 +2,7 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\ActivityProcessor;
 
+use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\Event\EntityActivityBaseEvent;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -99,6 +100,11 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
         $initial_activity = $tracker->getProcessorPlugin('entity_create')->configuration['activity_creation'];
 
         $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($entity);
+        // Create activity reecord, if it is missing.
+        if (empty($activity_record)) {
+          $activity_record = new ActivityRecord($entity->getEntityTypeId(), $entity->bundle(), $entity->id(), $initial_activity);
+          $this->activityRecordStorage->createActivityRecord($activity_record);
+        }
 
         $update_activity = $initial_activity * ($this->configuration['activity_edit'] / 100);
 

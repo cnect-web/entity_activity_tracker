@@ -4,14 +4,54 @@ namespace Drupal\entity_activity_tracker\Plugin;
 
 use Drupal\comment\CommentInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
+use Drupal\entity_activity_tracker\TrackerLoader;
 use Drupal\node\NodeInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Base class for Activity processor plugins.
  */
 abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase {
+
+  /**
+   * Tracker loader.
+   *
+   * @var \Drupal\entity_activity_tracker\TrackerLoader
+   */
+  protected $trackerLoader;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    ActivityRecordStorageInterface $activity_record_storage,
+    EntityTypeManagerInterface $entity_type_manager,
+    TrackerLoader $tracker_loader
+  ) {
+    $this->trackerLoader = $tracker_loader;
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $activity_record_storage, $entity_type_manager);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity_activity_tracker.activity_record_storage'),
+      $container->get('entity_type.manager'),
+      $container->get('entity_activity_tracker.tracker_loader')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -157,13 +197,7 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
    *   The entity to credit.
    */
   protected function creditRelated(ContentEntityInterface $related_entity) {
-    $related_entity_tracker = $this->entityTypeManager->getStorage('entity_activity_tracker')
-      ->loadByProperties([
-        'entity_type' => $related_entity->getEntityTypeId(),
-        'entity_bundle' => $related_entity->bundle(),
-      ]);
-
-    $related_entity_tracker = reset($related_entity_tracker);
+    $related_entity_tracker = $this->trackerLoader->getTrackerByEntity($related_entity);
 
     if ($related_entity_tracker) {
       $related_plugin = $related_entity_tracker->getProcessorPlugin($this->pluginDefinition['related_plugin']);

@@ -128,15 +128,7 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
       return FALSE;
     }
 
-    // Now we must find a tracker that matches the group
-    // since a tracker is needed to create activity records.
-    $properties = [
-      'entity_type' => $group->getEntityTypeId(),
-      'entity_bundle' => $group->bundle(),
-    ];
-
-    $group_tracker = $this->entityTypeManager->getStorage('entity_activity_tracker')->loadByProperties($properties);
-    $group_tracker = reset($group_tracker);
+    $group_tracker = $this->trackerLoader->getTrackerByEntityBundle($group->getEntityTypeId(), $group->bundle());
 
     // Do something if there is a Tracker for group where content was created.
     if ($group_tracker) {

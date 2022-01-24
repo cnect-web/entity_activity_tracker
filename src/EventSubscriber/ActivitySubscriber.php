@@ -2,15 +2,16 @@
 
 namespace Drupal\entity_activity_tracker\EventSubscriber;
 
-use Drupal\hook_event_dispatcher\HookEventDispatcherInterface;
-use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
 use Drupal\core_event_dispatcher\Event\Core\CronEvent;
 use Drupal\Core\Queue\QueueFactory;
+use Drupal\hook_event_dispatcher\Event\EventInterface;
+use Drupal\hook_event_dispatcher\HookEventDispatcherInterface;
+use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
 use Drupal\entity_activity_tracker\ActivityEventDispatcher;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
+use Drupal\entity_activity_tracker\TrackerLoader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Class ActivitySubscriber.
@@ -25,18 +26,44 @@ class ActivitySubscriber implements EventSubscriberInterface {
   protected $queue;
 
   /**
-   * The activity event dispatcher service.
+   * Tracker loader.
    *
-   * @var \Drupal\entity_activity_tracker\ActivityEventDispatcher
+   * @var \Drupal\entity_activity_tracker\TrackerLoader
    */
-  protected $activityEventDispatcher;
+  protected $trackerLoader;
+
+  /**
+   * The activity record storage service.
+   *
+   * @var \Drupal\entity_activity_tracker\ActivityRecordStorageInterface
+   */
+  protected $activityRecordStorage;
+
+  /**
+   * Mapping between Event Name and Class.
+   *
+   * @var array
+   */
+  protected $activityEventsMap = [
+    'hook_event_dispatcher.entity.insert' => 'Drupal\entity_activity_tracker\Event\EntityActivityInsertEvent',
+    'hook_event_dispatcher.entity.update' => 'Drupal\entity_activity_tracker\Event\EntityActivityUpdateEvent',
+    'hook_event_dispatcher.entity.delete' => 'Drupal\entity_activity_tracker\Event\EntityActivityDeleteEvent',
+  ];
 
   /**
    * Constructs a new ActivitySubscriber object.
+   *
+   * @param \Drupal\Core\Queue\QueueFactory $queue
+   *   Queue manager.
+   * @param \Drupal\entity_activity_tracker\TrackerLoader $tracker_loader
+   *   Tracker loader.
+   * @param \Drupal\entity_activity_tracker\ActivityRecordStorageInterface $activity_record_storage
+   *   Activity record storage.
    */
-  public function __construct(QueueFactory $queue, ActivityEventDispatcher $activity_event_dispatcher) {
+  public function __construct(QueueFactory $queue, TrackerLoader $tracker_loader, $activity_record_storage) {
     $this->queue = $queue;
-    $this->activityEventDispatcher = $activity_event_dispatcher;
+    $this->trackerLoader = $tracker_loader;
+    $this->activityRecordStorage = $activity_record_storage;
   }
 
   /**
@@ -46,16 +73,9 @@ class ActivitySubscriber implements EventSubscriberInterface {
     return [
       // System Events.
       HookEventDispatcherInterface::CRON => 'scheduleDecay',
-      HookEventDispatcherInterface::ENTITY_INSERT => 'dispatchActivityEvent',
-      HookEventDispatcherInterface::ENTITY_UPDATE => 'dispatchActivityEvent',
-      HookEventDispatcherInterface::ENTITY_DELETE => 'dispatchActivityEvent',
-
-      // Activity Events.
-      ActivityEventInterface::ENTITY_INSERT => 'queueEvent',
-      ActivityEventInterface::ENTITY_UPDATE => 'queueEvent',
-      ActivityEventInterface::ENTITY_DELETE => 'queueEvent',
-      ActivityEventInterface::TRACKER_CREATE => 'queueEvent',
-      ActivityEventInterface::TRACKER_DELETE => 'queueEvent',
+      HookEventDispatcherInterface::ENTITY_INSERT => 'createActivityEvent',
+      HookEventDispatcherInterface::ENTITY_UPDATE => 'createActivityEvent',
+      HookEventDispatcherInterface::ENTITY_DELETE => 'deleteEntity',
 
       ActivityEventInterface::DECAY => 'applyDecay',
     ];
@@ -84,18 +104,20 @@ class ActivitySubscriber implements EventSubscriberInterface {
   /**
    * Dispatch activity event based on an event.
    *
-   * @param \Symfony\Contracts\EventDispatcher\Event $event
+   * @param \Drupal\hook_event_dispatcher\Event\EventInterface $event
    *   The original event from which we dispatch activity event.
    */
-  public function dispatchActivityEvent(Event $event) {
+  public function createActivityEvent(EventInterface $original_event) {
     // @todo IMPROVE THIS FIRST CONDITION!!
-    $entity = $event->getEntity();
+    $entity = $original_event->getEntity();
     // Syncing entities should not count.
     // @see: GroupContent::postSave()
     if (!$entity->isSyncing() && in_array($entity->getEntityTypeId(), EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
-      // Dispatch corresponding activity event.
-      $this->activityEventDispatcher->dispatchActivityEvent($event);
-      // @todo Think a way to hook this. to let other modules play.
+      $activity_event = $this->getActivityEvent($original_event);
+      if (!empty($activity_event)) {
+        // Send an event to the queue to be processed later.
+        $this->queueEvent($activity_event);
+      }
     }
   }
 
@@ -112,14 +134,62 @@ class ActivitySubscriber implements EventSubscriberInterface {
   /**
    * Create a queue event item.
    *
-   * @param \Symfony\Contracts\EventDispatcher\Event $event
+   * @param \Symfony\Contracts\EventDispatcher\Event|\Drupal\hook_event_dispatcher\Event\EventInterface $event
    *   An event.
    * @param string $queue_name
    *   Queue name.
    */
-  public function createQueueEventItem(Event $event, $queue_name) {
+  public function createQueueEventItem($event, $queue_name) {
     $processors_queue = $this->queue->get($queue_name);
     $processors_queue->createItem($event);
+  }
+
+  /**
+   * Get activity event based on event coming from HookEventDispatcher.
+   *
+   * @param \Drupal\hook_event_dispatcher\Event\EventInterface $event
+   *   The original event.
+   *
+   * @return Drupal\entity_activity_tracker\Event\ActivityEventInterface|null
+   *   Activity tracker event.
+   */
+  public function getActivityEvent(EventInterface $original_event) {
+    $entity = $original_event->getEntity();
+    $activity_tracker_event = NULL;
+    // Our events need the tracker.
+    // @TODO Add validation for trackers.
+    if ($tracker = $this->trackerLoader->getTrackerByEntity($entity)) {
+      $activity_event_class = $this->activityEventsMap[$original_event->getDispatcherType()] ?? NULL;
+      if (!empty($activity_event_class)) {
+        // Dynamically create activity event.
+        $activity_tracker_event = new $activity_event_class($tracker, $entity);
+      }
+    }
+
+    return $activity_tracker_event;
+  }
+
+  /**
+   * Delete entity event processing.
+   *
+   * @param \Drupal\hook_event_dispatcher\Event\EventInterface $event
+   *   The original event.
+   */
+  public function deleteEntity(EventInterface $original_event) {
+    /** @var \Drupal\Core\Entity\EntityInterface $entity */
+    $entity = $original_event->getEntity();
+    // @TODO - Later we can move it queue.
+    if ($entity->getEntityTypeId() == 'entity_activity_tracker') {
+      // Clean all activity records for the tracker.
+      $this->activityRecordStorage->deleteActivityRecorsdByBundle($entity->getTargetEntityType(), $entity->getTargetEntityBundle());
+    }
+    else {
+      /** @var \Drupal\entity_activity_tracker\ActivityRecord $activity_record */
+      $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($entity);
+      if ($activity_record) {
+        $this->activityRecordStorage->deleteActivityRecord($activity_record);
+      }
+    }
   }
 
 }

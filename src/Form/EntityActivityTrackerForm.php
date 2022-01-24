@@ -10,6 +10,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
+use Drupal\entity_activity_tracker\TrackerLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
@@ -66,6 +67,13 @@ class EntityActivityTrackerForm extends EntityForm {
   protected $cacheBackend;
 
   /**
+   * Tracker loader.
+   *
+   * @var \Drupal\entity_activity_tracker\TrackerLoader
+   */
+  protected $trackerLoader;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -75,7 +83,8 @@ class EntityActivityTrackerForm extends EntityForm {
       $container->get('entity_type.manager'),
       $container->get('event_dispatcher'),
       $container->get('messenger'),
-      $container->get('cache.default')
+      $container->get('cache.default'),
+      $container->get('entity_activity_tracker.tracker_loader')
     );
   }
 
@@ -94,6 +103,8 @@ class EntityActivityTrackerForm extends EntityForm {
    *   The messenger service.
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
    *   The cache backend to use.
+   * @param \Drupal\entity_activity_tracker\TrackerLoader $tracker_loader
+   *   Tracker loader.
    */
   public function __construct(
     PluginManagerInterface $manager,
@@ -101,7 +112,8 @@ class EntityActivityTrackerForm extends EntityForm {
     EntityTypeManagerInterface $entity_type_manager,
     EventDispatcherInterface $event_dispatcher,
     MessengerInterface $messenger,
-    CacheBackendInterface $cache_backend
+    CacheBackendInterface $cache_backend,
+    TrackerLoader $tracker_loader
   ) {
     $this->manager = $manager;
     $this->formBuilder = $formBuilder;
@@ -109,6 +121,7 @@ class EntityActivityTrackerForm extends EntityForm {
     $this->eventDispatcher = $event_dispatcher;
     $this->messenger = $messenger;
     $this->cacheBackend = $cache_backend;
+    $this->trackerLoader = $tracker_loader;
   }
 
   /**
@@ -124,7 +137,7 @@ class EntityActivityTrackerForm extends EntityForm {
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $entity_activity_tracker->label(),
-      '#description' => $this->t("Label for the Entity activity tracker."),
+      '#description' => $this->t('Label for the Entity activity tracker.'),
       '#required' => TRUE,
     ];
 
@@ -239,17 +252,12 @@ class EntityActivityTrackerForm extends EntityForm {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-
-    $properties = [
-      'entity_type' => $form_state->getValue('entity_type'),
-      'entity_bundle' => $bundle_value = $form_state->getValue('entity_bundle'),
-    ];
-    $existing = $this->entityTypeManager->getStorage('entity_activity_tracker')->loadByProperties($properties);
-    if (count($existing) >= 1 && !array_key_exists($this->entity->id(), $existing)) {
+    $bundle_value = $form_state->getValue('entity_bundle');
+    $tracker = $this->trackerLoader->getTrackerByEntityBundle($form_state->getValue('entity_type'), $bundle_value);
+    if ($tracker && $this->entity->isNew()) {
       // There is a Tracker for this entity/bundle so we set a form error.
       $form_state->setErrorByName('entity_bundle', $this->t('There is already a Tracker for this bundle: @bundle', ['@bundle' => $bundle_value]));
     }
-
   }
 
   /**
@@ -340,16 +348,6 @@ class EntityActivityTrackerForm extends EntityForm {
     }
 
     return $bundles_options;
-  }
-
-  /**
-   * Get current tracker (useful for activity plugins subforms)
-   *
-   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
-   *   The tracker that is being configured.
-   */
-  public function getTracker() {
-    return $this->entity;
   }
 
 }
