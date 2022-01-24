@@ -3,9 +3,10 @@
 namespace Drupal\entity_activity_tracker;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\entity_activity_tracker\TrackerLoader;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class to react to view related operations.
@@ -22,13 +23,23 @@ class EntityActivityTrackerViewsOperations implements ContainerInjectionInterfac
   protected $entityTypeManager;
 
   /**
+   * Tracker loader.
+   *
+   * @var \Drupal\entity_activity_tracker\TrackerLoader
+   */
+  protected $trackerLoader;
+
+  /**
    * Constructs a new EntityActivityTrackerViewsOperations instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
+   * @param \Drupal\entity_activity_tracker\TrackerLoader $tracker_loader
+   *   Tracker loader.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, TrackerLoader $tracker_loader) {
     $this->entityTypeManager = $entity_type_manager;
+    $this->trackerLoader = $tracker_loader;
   }
 
   /**
@@ -36,7 +47,8 @@ class EntityActivityTrackerViewsOperations implements ContainerInjectionInterfac
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('entity_activity_tracker.tracker_loader')
     );
   }
 
@@ -198,16 +210,6 @@ class EntityActivityTrackerViewsOperations implements ContainerInjectionInterfac
   }
 
   /**
-   * Get all existing EntityActivityTrackers.
-   *
-   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface[]
-   *   Array containing all trackers config entities.
-   */
-  protected function getTrackers() {
-    return $this->entityTypeManager->getStorage('entity_activity_tracker')->loadMultiple();
-  }
-
-  /**
    * Get implicit relations to Trackers entity types.
    *
    * @return array
@@ -216,14 +218,14 @@ class EntityActivityTrackerViewsOperations implements ContainerInjectionInterfac
    */
   protected function getImplicitRelations() {
     $id_names = [];
-    foreach ($this->getTrackers() as $tracker) {
+    foreach ($this->trackerLoader->getAll() as $tracker) {
       $id_names[$tracker->getTargetEntityType()] = $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->getEntityType()->getKey('id');
     }
     $joins = [];
 
     foreach ($id_names as $entity_type => $id_name) {
-      $table_prefix = ($entity_type == "group") ? "groups" : $entity_type;
-      $joins[$table_prefix . '_field_data'] = [
+      $table_prefix = $entity_type == 'group' ? 'groups' : $entity_type;
+      $joins["{$table_prefix}_field_data"] = [
         'left_field' => $id_name,
         'field' => 'entity_id',
         'type' => 'INNER',
@@ -246,27 +248,26 @@ class EntityActivityTrackerViewsOperations implements ContainerInjectionInterfac
    */
   protected function getRelationsFields() {
     $data = [];
-    if (count($this->getTrackers())) {
-      foreach ($this->getTrackers() as $tracker) {
-        $entity_type = $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->getEntityType();
+    foreach ($this->trackerLoader->getAll() as $tracker) {
+      $entity_type = $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->getEntityType();
 
-        $data[$entity_type->getKey('id')] = [
-          'title' => $this->t('Entity ID'),
-          'help' => $this->t('Tracked Entity ID.'),
-          'relationship' => [
-            'id' => 'standard',
-            'title' => $this->t('@entity_type', ['@entity_type' => $entity_type->getLabel()]),
-            'help' => $this->t('Relate activity to the @entity_type  that is being tracked.', ['@entity_type' => $entity_type->getLabel()]),
-            'handler' => 'views_handler_relationship',
-            'base' => $entity_type->getDataTable(),
-            'base field' => $entity_type->getKey('id'),
-            'field' => 'entity_id',
-            'label' => $this->t('Entity: @entity_type', ['@entity_type' => $entity_type->getLabel()]),
-            'type' => 'INNER',
-          ],
-        ];
-      }
+      $data[$entity_type->getKey('id')] = [
+        'title' => $this->t('Entity ID'),
+        'help' => $this->t('Tracked Entity ID.'),
+        'relationship' => [
+          'id' => 'standard',
+          'title' => $this->t('@entity_type', ['@entity_type' => $entity_type->getLabel()]),
+          'help' => $this->t('Relate activity to the @entity_type  that is being tracked.', ['@entity_type' => $entity_type->getLabel()]),
+          'handler' => 'views_handler_relationship',
+          'base' => $entity_type->getDataTable(),
+          'base field' => $entity_type->getKey('id'),
+          'field' => 'entity_id',
+          'label' => $this->t('Entity: @entity_type', ['@entity_type' => $entity_type->getLabel()]),
+          'type' => 'INNER',
+        ],
+      ];
     }
+
     return $data;
   }
 

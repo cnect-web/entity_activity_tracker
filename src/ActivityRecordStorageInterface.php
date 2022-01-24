@@ -89,6 +89,19 @@ interface ActivityRecordStorageInterface {
   public function deleteActivityRecord(ActivityRecord $activity_record);
 
   /**
+   * Delete activity records by bundle and entity type.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   * @param string $bundle
+   *   Bundle.
+   *
+   * @return bool
+   *   TRUE if successful.
+   */
+  public function deleteActivityRecorsdByBundle($entity_type, $bundle);
+
+  /**
    * Gets a list of ActivityRecords filtering by created timestamp.
    *
    * This method will get activity records by comparing record creation date

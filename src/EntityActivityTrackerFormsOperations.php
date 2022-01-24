@@ -49,6 +49,13 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
   protected $currentUser;
 
   /**
+   * Tracker loader.
+   *
+   * @var \Drupal\entity_activity_tracker\TrackerLoader
+   */
+  protected $trackerLoader;
+
+  /**
    * Constructs a new EntityActivityTrackerFormsOperations instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -59,12 +66,15 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
    *   The messenger.
    * @param \Drupal\Core\Session\AccountProxyInterface|null $current_user
    *   The current logged user.
+   * @param \Drupal\entity_activity_tracker\TrackerLoader $tracker_loader
+   *   Tracker loader.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, ActivityRecordStorageInterface $activity_record_storage, MessengerInterface $messenger, AccountProxyInterface $current_user) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, ActivityRecordStorageInterface $activity_record_storage, MessengerInterface $messenger, AccountProxyInterface $current_user, TrackerLoader $tracker_loader) {
     $this->entityTypeManager = $entity_type_manager;
     $this->activityRecordStorage = $activity_record_storage;
     $this->messenger = $messenger;
     $this->currentUser = $current_user;
+    $this->trackerLoader = $tracker_loader;
   }
 
   /**
@@ -75,7 +85,8 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
       $container->get('entity_type.manager'),
       $container->get('entity_activity_tracker.activity_record_storage'),
       $container->get('messenger'),
-      $container->get('current_user')
+      $container->get('current_user'),
+      $container->get('entity_activity_tracker.tracker_loader')
     );
   }
 
@@ -89,7 +100,7 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
    */
   public function entityExtraFieldInfo() {
     $extra_activity_fields = [];
-    foreach ($this->getTrackers() as $tracker) {
+    foreach ($this->trackerLoader->getAll() as $tracker) {
       $extra_activity_fields[$tracker->getTargetEntityType()][$tracker->getTargetEntityBundle()] = [
         'form' => [
           'activity' => [
@@ -120,33 +131,31 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
     if ($this->currentUser->hasPermission('access entity activity field') || $this->currentUser->hasPermission('administer activity trackers')) {
       /** @var ContentEntityInterface $entity */
       $entity = $form_state->getFormObject()->getEntity();
-      if ($entity instanceof ContentEntityInterface) {
-        if (!$entity->isNew() && $this->hasTracker($entity) &&  $this->getActivityValue($entity) && $form_state->getFormObject()->getOperation() == "edit") {
-          $form['activity'] = [
-            '#type' => 'details',
-            '#title' => $this->t('Activity'),
-            '#description' => $this->t('Set (force) a activity value to this entity.'),
-            '#open' => FALSE,
-            'activity_tracker_link' => [
-              '#title' => $this->t('Edit @tracker', ['@tracker' => $this->getTracker($entity)->label()]),
-              '#type' => 'link',
-              '#url' => $this->getTrackerCanonical($entity),
+      if ($entity instanceof ContentEntityInterface && !$entity->isNew() && $form_state->getFormObject()->getOperation() == 'edit' && $this->trackerLoader->hasTracker($entity) && $this->getActivityValue($entity)) {
+        $form['activity'] = [
+          '#type' => 'details',
+          '#title' => $this->t('Activity'),
+          '#description' => $this->t('Set (force) a activity value to this entity.'),
+          '#open' => FALSE,
+          'activity_tracker_link' => [
+            '#title' => $this->t('Edit @tracker', ['@tracker' => $this->trackerLoader->getTrackerByEntity($entity)->label()]),
+            '#type' => 'link',
+            '#url' => $this->trackerLoader->getTrackerCanonical($entity),
+          ],
+          'activity_value' => [
+            '#type' => 'number',
+            '#title' => $this->t('Activity Value'),
+            '#min' => 1,
+            '#default_value' => $this->getActivityValue($entity),
+          ],
+          'submit' => [
+            '#type' => 'submit',
+            '#value' => $this->t('Set Activity'),
+            '#submit' => [
+              [$this, 'activitySubmit'],
             ],
-            'activity_value' => [
-              '#type' => 'number',
-              '#title' => $this->t('Activity Value'),
-              '#min' => 1,
-              '#default_value' => $this->getActivityValue($entity),
-            ],
-            'submit' => [
-              '#type' => 'submit',
-              '#value' => $this->t('Set Activity'),
-              '#submit' => [
-                [$this, 'activitySubmit'],
-              ],
-            ],
-          ];
-        }
+          ],
+        ];
       }
     }
   }
@@ -173,47 +182,6 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
   }
 
   /**
-   * Get all existing EntityActivityTrackers.
-   *
-   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface[]
-   *   Array containing all trackers' config entities.
-   */
-  protected function getTrackers() {
-    return $this->entityTypeManager->getStorage('entity_activity_tracker')->loadMultiple();
-  }
-
-  /**
-   * Check if exists EntityActivityTracker for given entity.
-   *
-   * @param ContentEntityInterface $entity
-   *   The entity to check if it has a tracker.
-   *
-   * @return bool
-   *   Returns TRUE if there is a tracker.
-   */
-  protected function hasTracker(ContentEntityInterface $entity) {
-    return !empty($this->getTracker($entity));
-  }
-
-  /**
-   * Get Tracker given an entity.
-   *
-   * @param ContentEntityInterface $entity
-   *   The tracked entity.
-   *
-   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
-   *   The tracker.
-   */
-  protected function getTracker(ContentEntityInterface $entity) {
-    $properties = [
-      'entity_type' => $entity->getEntityTypeId(),
-      'entity_bundle' => $entity->bundle(),
-    ];
-    $tracker = $this->entityTypeManager->getStorage('entity_activity_tracker')->loadByProperties($properties);
-    return reset($tracker);
-  }
-
-  /**
    * Get current activity value of given entity.
    *
    * @param ContentEntityInterface $entity
@@ -227,19 +195,6 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
       return $activity_record->getActivityValue();
     }
     return FALSE;
-  }
-
-  /**
-   * Get tracker canonical url given tracked entity.
-   *
-   * @param ContentEntityInterface $entity
-   *   The tracked entity.
-   *
-   * @return \Drupal\Core\Url
-   *   The URL to tracker canonical route.
-   */
-  protected function getTrackerCanonical(ContentEntityInterface $entity) {
-    return $this->getTracker($entity)->toUrl();
   }
 
 }

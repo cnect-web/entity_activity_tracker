@@ -8,8 +8,8 @@ use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\core_event_dispatcher\Event\Core\CronEvent;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
+use Drupal\entity_activity_tracker\TrackerLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -25,20 +25,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class DecayQueue extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * A logger instance.
-   *
-   * @var \Psr\Log\LoggerInterface
-   */
-  protected $logger;
-
-  /**
    * The event dispatcher.
    *
    * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
@@ -46,11 +32,11 @@ class DecayQueue extends QueueWorkerBase implements ContainerFactoryPluginInterf
   protected $eventDispatcher;
 
   /**
-   * The config factory.
+   * Tracker loader.
    *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   * @var \Drupal\entity_activity_tracker\TrackerLoader
    */
-  protected $config;
+  protected $trackerLoader;
 
   /**
    * Constructs a new ActivityProcessorQueue.
@@ -61,21 +47,27 @@ class DecayQueue extends QueueWorkerBase implements ContainerFactoryPluginInterf
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher
    *   The event dispatcher.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *   The config factory.
+   * @param \Drupal\entity_activity_tracker\TrackerLoader $tracker_loader
+   *   Tracker loader.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, LoggerInterface $logger, EventDispatcherInterface $dispatcher, ConfigFactoryInterface $config) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->entityTypeManager = $entity_type_manager;
-    $this->logger = $logger;
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    LoggerInterface $logger,
+    EventDispatcherInterface $dispatcher,
+    ConfigFactoryInterface $config,
+    TrackerLoader $tracker_loader
+  ){
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $logger, $config);
     $this->eventDispatcher = $dispatcher;
-    $this->config = $config->get('entity_activity_tracker.settings');
+    $this->trackerLoader = $tracker_loader;
   }
 
   /**
@@ -86,10 +78,10 @@ class DecayQueue extends QueueWorkerBase implements ContainerFactoryPluginInterf
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager'),
       $container->get('logger.factory')->get('entity_activity_tracker'),
       $container->get('event_dispatcher'),
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('entity_activity_tracker.tracker_loader')
     );
   }
 
@@ -111,11 +103,8 @@ class DecayQueue extends QueueWorkerBase implements ContainerFactoryPluginInterf
         break;
 
       case $event instanceof CronEvent:
-        // Get all trackers.
-        $trackers = $this->getTrackers();
-
         // Here we dispatch a Decay Event for each tracker.
-        foreach ($trackers as $tracker) {
+        foreach ($this->trackerLoader->getAll() as $tracker) {
           $event = new ActivityDecayEvent($tracker);
           $this->eventDispatcher->dispatch(ActivityEventInterface::DECAY, $event);
         }
@@ -124,16 +113,6 @@ class DecayQueue extends QueueWorkerBase implements ContainerFactoryPluginInterf
 
         break;
     }
-  }
-
-  /**
-   * This gets all EntityActivityTrackers config entities.
-   *
-   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface[]
-   *   An array of Trackers indexed by their ID.
-   */
-  protected function getTrackers() {
-    return $this->entityTypeManager->getStorage('entity_activity_tracker')->loadMultiple();
   }
 
   /**

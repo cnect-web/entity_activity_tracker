@@ -37,20 +37,6 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
   protected $queue;
 
   /**
-   * A logger instance.
-   *
-   * @var \Psr\Log\LoggerInterface
-   */
-  protected $logger;
-
-  /**
-   * The config factory.
-   *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected $config;
-
-  /**
    * Constructs a new ActivityProcessorQueue.
    *
    * @param array $configuration
@@ -69,11 +55,9 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
    *   The config factory.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, QueueInterface $queue, LoggerInterface $logger, ConfigFactoryInterface $config) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $logger, $config);
     $this->entityTypeManager = $entity_type_manager;
     $this->queue = $queue;
-    $this->logger = $logger;
-    $this->config = $config->get('entity_activity_tracker.settings');
   }
 
   /**
@@ -137,18 +121,6 @@ class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactory
     //   $this->logInfo($message);
     // }
     // $this->logInfo("Processing item of ActivityProcessorQueue");
-  }
-
-  /**
-   * Log message.
-   *
-   * @param string $message
-   *   Message to log.
-   */
-  protected function logInfo($message) {
-    if ($this->config->get('debug')) {
-      $this->logger->info($message);
-    }
   }
 
 }

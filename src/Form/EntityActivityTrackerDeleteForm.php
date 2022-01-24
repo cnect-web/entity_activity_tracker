@@ -85,9 +85,6 @@ class EntityActivityTrackerDeleteForm extends EntityConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
 
-    $event = new TrackerDeleteEvent($this->entity);
-    $this->eventDispatcher->dispatch(ActivityEventInterface::TRACKER_DELETE, $event);
-
     // Invalidate caches to make views aware of new tracker.
     $this->cacheBackend->invalidateAll();
 

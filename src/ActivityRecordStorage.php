@@ -197,6 +197,24 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
   /**
    * {@inheritdoc}
    */
+  public function deleteActivityRecorsdByBundle($entity_type, $bundle) {
+    try {
+      $this->database->delete('entity_activity_tracker')
+        ->condition('entity_type', $entity_type)
+        ->condition('bundle', $bundle)
+        ->execute();
+    }
+    catch (\Throwable $th) {
+      $this->logger->error($th->getMessage());
+      return FALSE;
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getActivityRecordsCreated(int $timestamp, string $entity_type = '', string $bundle = '', string $operator = '<=') {
     $query = $this->database->select('entity_activity_tracker', 'fa')
       ->fields('fa');

@@ -5,4 +5,4 @@ core: 8.x
 core_version_requirement: ^8 || ^9
 package: 'Entity Activity Tracker'
 dependencies:
-  - drupal:hook_event_dispatcher
+  - drupal:core_event_dispatcher

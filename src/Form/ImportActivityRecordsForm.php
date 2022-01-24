@@ -8,6 +8,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
+use Drupal\entity_activity_tracker\TrackerLoader;
 use Drupal\file\FileInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -150,7 +151,6 @@ class ImportActivityRecordsForm extends FormBase implements ContainerInjectionIn
    *   The batch context.
    */
   public static function addImportActivityRecord(array $item, array &$context) {
-    $entity_type_manager = \Drupal::entityTypeManager();
     $context['sandbox']['current_item'] = $item;
 
     $entity_type = $item['entity_type'];
@@ -159,18 +159,10 @@ class ImportActivityRecordsForm extends FormBase implements ContainerInjectionIn
 
     /** @var ActivityRecordStorageInterface $activity_record_storage */
     $activity_record_storage = \Drupal::service('entity_activity_tracker.activity_record_storage');
-    $item_storage = $entity_type_manager->getStorage($entity_type);
-    $tracker_storage = $entity_type_manager->getStorage('entity_activity_tracker');
-
+    $item_storage = \Drupal::entityTypeManager()->getStorage($entity_type);
     $item_entity = $item_storage->load($entity_id);
 
-    $properties = [
-      'entity_type' => $entity_type,
-      'entity_bundle' => $bundle,
-    ];
-
-    $tracker = $tracker_storage->loadByProperties($properties);
-    $tracker = reset($tracker);
+    $tracker = \Drupal::service('entity_activity_tracker.tracker_loader')->getTrackerByEntityBundle($entity_type, $bundle);
 
     $activity_record = $activity_record_storage->getActivityRecordByEntity($item_entity);
     // Import record if entity / tracker exist and that record doesn't exist.

@@ -1,7 +1,7 @@
 services:
   entity_activity_tracker.activity_subscriber:
     class: Drupal\entity_activity_tracker\EventSubscriber\ActivitySubscriber
-    arguments: ['@queue', '@entity_activity_tracker.event.dispatcher']
+    arguments: ['@queue', '@entity_activity_tracker.tracker_loader', '@entity_activity_tracker.activity_record_storage']
     tags:
       - { name: event_subscriber }
 
@@ -13,12 +13,6 @@ services:
     class: Drupal\entity_activity_tracker\ActivityRecordStorage
     arguments: ['@database', '@datetime.time', '@logger.factory']
 
-  entity_activity_tracker.event.dispatcher:
-    class: Drupal\entity_activity_tracker\ActivityEventDispatcher
-    arguments: ['@entity_type.manager', '@event_dispatcher']
-
-  entity_activity_tracker.activity_install_subscriber:
-    class: Drupal\entity_activity_tracker\EventSubscriber\ActivityInstallSubscriber
-    arguments: ['@entity_type.manager', '@event_dispatcher']
-    tags:
-      - { name: event_subscriber }
+  entity_activity_tracker.tracker_loader:
+    class: Drupal\entity_activity_tracker\TrackerLoader
+    arguments: ['@entity_type.manager']
