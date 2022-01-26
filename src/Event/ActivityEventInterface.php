@@ -8,7 +8,6 @@ namespace Drupal\entity_activity_tracker\Event;
 interface ActivityEventInterface {
 
   const TRACKER_CREATE = 'entity_activity_tracker.event.tracker.create';
-  const TRACKER_DELETE = 'entity_activity_tracker.event.tracker.delete';
   const DECAY = 'entity_activity_tracker.event.decay';
 
   // Events from HookEventDispatcher.

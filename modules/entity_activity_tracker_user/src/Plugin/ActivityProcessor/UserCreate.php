@@ -35,14 +35,17 @@ class UserCreate extends EntityCreate {
         $this->activityRecordStorage->createActivityRecord($activity_record);
         break;
 
-      case ActivityEventInterface::ENTITY_DELETE:
-        /** @var \Drupal\entity_activity_tracker\ActivityRecord $activity_record */
-        $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($event->getEntity());
-        if ($activity_record) {
-          $this->activityRecordStorage->deleteActivityRecord($activity_record);
+      case ActivityEventInterface::TRACKER_CREATE:
+        // Iterate all already existing entities and create a record.
+        $activity = ($this->configuration['activity_existing_enabler']) ? $this->configuration['activity_existing'] : $this->configuration['activity_creation'];
+        foreach ($this->getExistingEntities($event->getTracker()) as $existing_entity) {
+          // Prevent creation of activity record for anonymous user (uid = 0).
+          if ($existing_entity->id()) {
+            $activity_record = new ActivityRecord($existing_entity->getEntityTypeId(), $existing_entity->bundle(), $existing_entity->id(), $activity);
+            $this->activityRecordStorage->createActivityRecord($activity_record);
+          }
         }
         break;
-
     }
   }
 

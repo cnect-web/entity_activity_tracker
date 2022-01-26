@@ -4,6 +4,7 @@ namespace Drupal\entity_activity_tracker\EventSubscriber;
 
 use Drupal\core_event_dispatcher\Event\Core\CronEvent;
 use Drupal\Core\Queue\QueueFactory;
+use Drupal\entity_activity_tracker\Event\TrackerCreateEvent;
 use Drupal\hook_event_dispatcher\Event\EventInterface;
 use Drupal\hook_event_dispatcher\HookEventDispatcherInterface;
 use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
@@ -110,9 +111,16 @@ class ActivitySubscriber implements EventSubscriberInterface {
   public function createActivityEvent(EventInterface $original_event) {
     // @todo IMPROVE THIS FIRST CONDITION!!
     $entity = $original_event->getEntity();
+    $entity_type_id = $entity->getEntityTypeId();
+
+    if ($entity_type_id == 'entity_activity_tracker') {
+      $tracker_create_event = new TrackerCreateEvent($entity);
+      $this->queueEvent($tracker_create_event);
+    }
+
     // Syncing entities should not count.
     // @see: GroupContent::postSave()
-    if (!$entity->isSyncing() && in_array($entity->getEntityTypeId(), EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
+    if (!$entity->isSyncing() && in_array($entity_type_id, EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
       $activity_event = $this->getActivityEvent($original_event);
       if (!empty($activity_event)) {
         // Send an event to the queue to be processed later.
