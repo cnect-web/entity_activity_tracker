@@ -13,7 +13,7 @@ class EntityActivityUpdateEvent extends EntityActivityBaseEvent {
    * @return string
    *   The dispatcher type.
    */
-  public function getDispatcherType() {
+  public function getDispatcherType(): string {
     return ActivityEventInterface::ENTITY_UPDATE;
   }
 

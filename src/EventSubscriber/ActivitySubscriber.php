@@ -4,11 +4,10 @@ namespace Drupal\entity_activity_tracker\EventSubscriber;
 
 use Drupal\core_event_dispatcher\Event\Core\CronEvent;
 use Drupal\Core\Queue\QueueFactory;
+use Drupal\core_event_dispatcher\Event\Entity\AbstractEntityEvent;
 use Drupal\entity_activity_tracker\Event\TrackerCreateEvent;
-use Drupal\hook_event_dispatcher\Event\EventInterface;
 use Drupal\hook_event_dispatcher\HookEventDispatcherInterface;
 use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
-use Drupal\entity_activity_tracker\ActivityEventDispatcher;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 use Drupal\entity_activity_tracker\TrackerLoader;
@@ -105,15 +104,15 @@ class ActivitySubscriber implements EventSubscriberInterface {
   /**
    * Dispatch activity event based on an event.
    *
-   * @param \Drupal\hook_event_dispatcher\Event\EventInterface $event
+   * @param \Drupal\core_event_dispatcher\Event\Entity\AbstractEntityEvent $event
    *   The original event from which we dispatch activity event.
    */
-  public function createActivityEvent(EventInterface $original_event) {
-
+  public function createActivityEvent(AbstractEntityEvent $original_event) {
+    /** @var \Drupal\Core\Entity\EntityInterface|\Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $entity */
     $entity = $original_event->getEntity();
     $entity_type_id = $entity->getEntityTypeId();
 
-    if ($entity_type_id == 'entity_activity_tracker') {
+    if ($entity_type_id == 'entity_activity_tracker' && $original_event->getDispatcherType() == HookEventDispatcherInterface::ENTITY_INSERT) {
       $tracker_create_event = new TrackerCreateEvent($entity);
       $this->queueEvent($tracker_create_event);
     }
@@ -156,13 +155,13 @@ class ActivitySubscriber implements EventSubscriberInterface {
   /**
    * Get activity event based on event coming from HookEventDispatcher.
    *
-   * @param \Drupal\hook_event_dispatcher\Event\EventInterface $event
+   * @param \Drupal\core_event_dispatcher\Event\Entity\AbstractEntityEvent $event
    *   The original event.
    *
    * @return Drupal\entity_activity_tracker\Event\ActivityEventInterface|null
    *   Activity tracker event.
    */
-  public function getActivityEvent(EventInterface $original_event) {
+  public function getActivityEvent(AbstractEntityEvent $original_event) {
     $entity = $original_event->getEntity();
     $activity_tracker_event = NULL;
     // Our events need the tracker.
@@ -180,11 +179,11 @@ class ActivitySubscriber implements EventSubscriberInterface {
   /**
    * Delete entity event processing.
    *
-   * @param \Drupal\hook_event_dispatcher\Event\EventInterface $event
+   * @param \Drupal\core_event_dispatcher\Event\Entity\AbstractEntityEvent $event
    *   The original event.
    */
-  public function deleteEntity(EventInterface $original_event) {
-    /** @var \Drupal\Core\Entity\EntityInterface $entity */
+  public function deleteEntity(AbstractEntityEvent $original_event) {
+    /** @var \Drupal\Core\Entity\EntityInterface|\Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $entity */
     $entity = $original_event->getEntity();
     // @TODO - Later we can move it queue.
     if ($entity->getEntityTypeId() == 'entity_activity_tracker') {
