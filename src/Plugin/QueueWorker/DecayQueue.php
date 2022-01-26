@@ -3,9 +3,7 @@
 namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\core_event_dispatcher\Event\Core\CronEvent;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 use Drupal\entity_activity_tracker\TrackerLoader;
@@ -22,7 +20,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *   cron = {"time" = 10}
  * )
  */
-class DecayQueue extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+class DecayQueue extends ActivityQueueWorkerBase {
 
   /**
    * The event dispatcher.

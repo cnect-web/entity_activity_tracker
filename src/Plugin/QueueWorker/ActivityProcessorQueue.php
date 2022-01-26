@@ -3,8 +3,6 @@
 namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Queue\QueueWorkerBase;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,7 +18,7 @@ use Psr\Log\LoggerInterface;
  *   cron = {"time" = 10}
  * )
  */
-class ActivityProcessorQueue extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+class ActivityProcessorQueue extends ActivityQueueWorkerBase {
 
   /**
    * The entity type manager.
