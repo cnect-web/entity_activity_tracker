@@ -109,7 +109,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
    *   The original event from which we dispatch activity event.
    */
   public function createActivityEvent(EventInterface $original_event) {
-    // @todo IMPROVE THIS FIRST CONDITION!!
+
     $entity = $original_event->getEntity();
     $entity_type_id = $entity->getEntityTypeId();
 
@@ -118,6 +118,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
       $this->queueEvent($tracker_create_event);
     }
 
+    // @todo IMPROVE THIS FIRST CONDITION!!
     // Syncing entities should not count.
     // @see: GroupContent::postSave()
     if (!$entity->isSyncing() && in_array($entity_type_id, EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
@@ -165,7 +166,6 @@ class ActivitySubscriber implements EventSubscriberInterface {
     $entity = $original_event->getEntity();
     $activity_tracker_event = NULL;
     // Our events need the tracker.
-    // @TODO Add validation for trackers.
     if ($tracker = $this->trackerLoader->getTrackerByEntity($entity)) {
       $activity_event_class = $this->activityEventsMap[$original_event->getDispatcherType()] ?? NULL;
       if (!empty($activity_event_class)) {

@@ -195,12 +195,9 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
       $related_plugin = $related_entity_tracker->getProcessorPlugin($this->pluginDefinition['related_plugin']);
       $initial_activity = $related_plugin->configuration[$related_plugin->getConfigField()];
 
-      // @TODO check why activity_record assigned twice.
       $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($related_entity);
-
       $entity_activity = $initial_activity * ($this->configuration[$this->getConfigField()] / 100);
-
-      $activity_record = $activity_record->increaseActivity($entity_activity);
+      $activity_record->increaseActivity($entity_activity);
 
       $this->activityRecordStorage->updateActivityRecord($activity_record);
     }
