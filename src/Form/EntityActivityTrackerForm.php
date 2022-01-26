@@ -203,14 +203,25 @@ class EntityActivityTrackerForm extends EntityForm {
     ];
 
     $processor_config = $entity_activity_tracker->get('activity_processors');
+    $target_entity = $entity_activity_tracker->getTargetEntityType();
     foreach ($this->manager->getDefinitions() as $plugin_id => $definition) {
-      // Display plugins that are applyable to tracked entity type.
-      if (in_array($entity_activity_tracker->getTargetEntityType(), $definition['entity_types'])) {
+      // Display plugins that are meant to track selected entity type.
+      if (in_array($target_entity, $definition['entity_types'])) {
+        // Check if processor is defined as required for entity type.
+        if (in_array($target_entity, $definition['required'])) {
+          $value = true;
+          $disabled = true;
+        }
+        else {
+          $value = !empty($processor_config[$plugin_id]['enabled']);
+          $disabled = false;
+        }
         $form['activity_processors'][$plugin_id]['enabled'] = [
           '#type' => 'checkbox',
           '#title' => $definition['label'],
           '#title_display' => 'after',
-          '#default_value' => !empty($processor_config[$plugin_id]['enabled']),
+          '#default_value' => $value,
+          '#disabled' => $disabled,
         ];
         $form['activity_processors'][$plugin_id]['settings'] = [];
         $subform_state = SubformState::createForSubform($form['activity_processors'][$plugin_id]['settings'], $form, $form_state);
