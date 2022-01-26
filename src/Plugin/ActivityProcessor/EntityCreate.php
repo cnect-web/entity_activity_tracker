@@ -22,6 +22,12 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
  *     "comment",
  *     "group_content",
  *   },
+ *   required = {
+ *     "node",
+ *     "taxonomy_term",
+ *     "group",
+ *     "group_content",
+ *   },
  *   summary = @Translation("Upon entity creation, credit entity"),
  * )
  */

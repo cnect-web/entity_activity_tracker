@@ -60,4 +60,13 @@ class ActivityProcessor extends Plugin {
    */
   public $summary;
 
+  /**
+   * Map Activity Processor as Required for specific entity types.
+   *
+   * @var array
+   *
+   * @ingroup plugin_translatable
+   */
+  public $required = [];
+
 }

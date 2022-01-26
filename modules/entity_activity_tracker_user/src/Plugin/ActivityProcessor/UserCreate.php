@@ -16,6 +16,9 @@ use Drupal\entity_activity_tracker\Plugin\ActivityProcessor\EntityCreate;
  *   entity_types = {
  *     "user",
  *   },
+ *   required = {
+ *     "user",
+ *   },
  *   summary = @Translation("Upon User creation, credit user"),
  * )
  */
