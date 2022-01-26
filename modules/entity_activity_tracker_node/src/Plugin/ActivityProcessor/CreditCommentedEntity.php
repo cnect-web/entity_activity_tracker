@@ -44,6 +44,7 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase implement
       '#description' => $this->t('The percentage relative to initial value.'),
       '#required' => TRUE,
     ];
+
     return $form;
   }
 
