@@ -2,10 +2,12 @@
 
 namespace Drupal\entity_activity_tracker\Event;
 
+use Drupal\hook_event_dispatcher\Event\EventInterface;
+
 /**
  * Interface ActivityEventInterface.
  */
-interface ActivityEventInterface {
+interface ActivityEventInterface extends EventInterface{
 
   const TRACKER_CREATE = 'entity_activity_tracker.event.tracker.create';
   const DECAY = 'entity_activity_tracker.event.decay';
@@ -22,13 +24,5 @@ interface ActivityEventInterface {
    *   The Tracker.
    */
   public function getTracker();
-
-  /**
-   * Get the dispatcher type.
-   *
-   * @return string
-   *   The dispatcher type.
-   */
-  public function getDispatcherType();
 
 }

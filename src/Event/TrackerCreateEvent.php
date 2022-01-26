@@ -13,7 +13,7 @@ class TrackerCreateEvent extends ActivityBaseEvent {
    * @return string
    *   The dispatcher type.
    */
-  public function getDispatcherType() {
+  public function getDispatcherType(): string {
     return ActivityEventInterface::TRACKER_CREATE;
   }
 
