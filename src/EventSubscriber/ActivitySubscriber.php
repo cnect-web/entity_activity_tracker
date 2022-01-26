@@ -113,7 +113,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
     $entity = $original_event->getEntity();
     $entity_type_id = $entity->getEntityTypeId();
 
-    if ($entity_type_id == 'entity_activity_tracker') {
+    if ($entity_type_id == 'entity_activity_tracker' && $original_event->getDispatcherType() == HookEventDispatcherInterface::ENTITY_INSERT) {
       $tracker_create_event = new TrackerCreateEvent($entity);
       $this->queueEvent($tracker_create_event);
     }
