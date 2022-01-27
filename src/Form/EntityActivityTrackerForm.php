@@ -74,6 +74,30 @@ class EntityActivityTrackerForm extends EntityForm {
   protected $trackerLoader;
 
   /**
+   * Entity type options.
+   *
+   * @var array $entity_type_options
+   *   List of entity types
+   */
+  protected $entity_type_options = [];
+
+  /**
+   * Entity type bundles.
+   *
+   * @var array $entity_type_bundles
+   *   List of entity type bundles
+   */
+  protected $entity_type_bundles = [];
+
+  /**
+   * Bundle options.
+   *
+   * @var array $bundle_options
+   *   List of bundle options
+   */
+  protected $bundle_options = [];
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -150,10 +174,14 @@ class EntityActivityTrackerForm extends EntityForm {
       '#disabled' => !$entity_activity_tracker->isNew(),
     ];
 
-    $entity_type_options = [];
-    foreach ($this->entityTypeManager->getDefinitions() as $entity_type_id => $entity_type) {
-      if ($entity_type->entityClassImplements(ContentEntityInterface::class) && in_array($entity_type_id, EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
-        $entity_type_options[$entity_type_id] = $entity_type->get('label');
+    if (empty($this->entity_type_options)) {
+      foreach ($this->entityTypeManager->getDefinitions() as $entity_type_id => $entity_type) {
+        if ($entity_type->entityClassImplements(ContentEntityInterface::class) && in_array($entity_type_id, EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
+          $this->entity_type_options[$entity_type_id] = $entity_type->get('label');
+
+          // User don't have bundles.
+          $this->entity_type_bundles[$entity_type_id] = $entity_type->getBundleEntityType() ? $entity_type->getBundleEntityType() : $entity_type_id;
+        }
       }
     }
 
@@ -162,7 +190,7 @@ class EntityActivityTrackerForm extends EntityForm {
       '#title' => $this->t('Entity Type'),
       '#description' => $this->t('Select entity type for this config.'),
       '#default_value' => $entity_activity_tracker->getTargetEntityType(),
-      '#options' => $entity_type_options,
+      '#options' => $this->entity_type_options,
       '#required' => TRUE,
       '#ajax' => [
         'callback' => [$this, 'updateBundlesElement'],
@@ -179,12 +207,13 @@ class EntityActivityTrackerForm extends EntityForm {
 
     // I need to set the default value when editing already created tracker.
     $entity_type = $entity_activity_tracker->getTargetEntityType();
+
     if (!empty($entity_type)) {
       $form['entity_bundle_wrapper']['entity_bundle'] = [
         '#type' => 'select',
         '#title' => $this->t('Entity Bundle'),
         '#default_value' => $entity_activity_tracker->getTargetEntityBundle(),
-        '#options' => $this->getBundleOptions($entity_type),
+        '#options' => $this->getBundleOptions($this->entity_type_bundles[$entity_type]),
         '#disabled' => !$entity_activity_tracker->isNew(),
       ];
     }
@@ -347,18 +376,20 @@ class EntityActivityTrackerForm extends EntityForm {
    *   List of bundles.
    */
   protected function getBundleOptions(string $entity_type_value) {
-    if ($entity_type_value == 'user') {
-      // User entities don't have bundle.
-      return [$entity_type_value => $this->t('User')];
-    }
-    $bundles = $this->entityTypeManager->getStorage("{$entity_type_value}_type")->loadMultiple();
+    if (empty($this->bundle_options[$entity_type_value])) {
+      if ($entity_type_value == 'user') {
+        // User entities don't have bundle.
+        $this->bundle_options[$entity_type_value][$entity_type_value] = $this->t('User');
+      }
+      else {
+        $bundles = $this->entityTypeManager->getStorage($entity_type_value)->loadMultiple();
 
-    $bundles_options = [];
-    foreach ($bundles as $bundle_id => $bundle_type) {
-      $bundles_options[$bundle_id] = $bundle_type->get('name') ?? $bundle_id;
+        foreach ($bundles as $bundle_id => $bundle_type) {
+          $this->bundle_options[$entity_type_value][$bundle_id] = $bundle_type->get('name') ?? $bundle_id;
+        }
+      }
     }
-
-    return $bundles_options;
+    return $this->bundle_options[$entity_type_value];
   }
 
 }
