@@ -3,7 +3,9 @@
 namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
@@ -33,6 +35,27 @@ abstract class ActivityQueueWorkerBase extends QueueWorkerBase implements Contai
   protected $config;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * Entity storages.
+   *
+   * @var array
+   */
+  protected $entity_storages = [];
+
+  /**
+   * Gt tracker enabled plugins.
+   *
+   * @var array
+   */
+  protected $tracker_enabled_plugins = [];
+
+  /**
    * Constructs a new ActivityProcessorQueue.
    *
    * @param array $configuration
@@ -45,11 +68,21 @@ abstract class ActivityQueueWorkerBase extends QueueWorkerBase implements Contai
    *   A logger instance.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *   The config factory.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, LoggerInterface $logger, ConfigFactoryInterface $config) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    LoggerInterface $logger,
+    ConfigFactoryInterface $config,
+    EntityTypeManagerInterface $entity_type_manager
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $logger;
     $this->config = $config->get('entity_activity_tracker.settings');
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -61,7 +94,8 @@ abstract class ActivityQueueWorkerBase extends QueueWorkerBase implements Contai
       $plugin_id,
       $plugin_definition,
       $container->get('logger.factory')->get('entity_activity_tracker'),
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('entity_type.manager')
     );
   }
   /**
@@ -74,5 +108,40 @@ abstract class ActivityQueueWorkerBase extends QueueWorkerBase implements Contai
     if ($this->config->get('debug')) {
       $this->logger->info($message);
     }
+  }
+
+  /**
+   * Get entity storage.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   *
+   * @return \Drupal\Core\Entity\EntityStorageInterface|mixed
+   *   Entity storage.
+   */
+  protected function getEntityStorage($entity_type) {
+    if (empty($this->entity_storages[$entity_type])) {
+      $this->entity_storages[$entity_type] = $this->entityTypeManager->getStorage($entity_type);
+    }
+
+    return $this->entity_storages[$entity_type];
+  }
+
+  /**
+   * Get tracker enabled plugins.
+   *
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
+   *   Tracker.
+   *
+   * @return \Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface[]
+   *   List of Activity Processor plugins.
+   */
+  protected function getTrackerEnabledPlugins(EntityActivityTrackerInterface $tracker) {
+    $tracker_id = $tracker->id();
+    if (empty($this->tracker_enabled_plugins[$tracker_id])) {
+      $this->tracker_enabled_plugins[$tracker_id] = $tracker->getProcessorPlugins()->getEnabled();
+    }
+
+    return $this->tracker_enabled_plugins[$tracker_id];
   }
 }

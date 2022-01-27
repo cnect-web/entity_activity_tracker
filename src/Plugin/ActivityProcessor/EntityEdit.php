@@ -100,7 +100,7 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
         $initial_activity = $tracker->getProcessorPlugin('entity_create')->configuration['activity_creation'];
 
         $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($entity);
-        // Create activity reecord, if it is missing.
+        // Create activity record, if it is missing.
         if (empty($activity_record)) {
           $activity_record = new ActivityRecord($entity->getEntityTypeId(), $entity->bundle(), $entity->id(), $initial_activity);
           $this->activityRecordStorage->createActivityRecord($activity_record);

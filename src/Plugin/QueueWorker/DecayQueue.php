@@ -3,6 +3,7 @@
 namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\entity_activity_tracker\Event\ActivityDecayEvent;
 use Drupal\core_event_dispatcher\Event\Core\CronEvent;
 use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
@@ -61,9 +62,10 @@ class DecayQueue extends ActivityQueueWorkerBase {
     LoggerInterface $logger,
     EventDispatcherInterface $dispatcher,
     ConfigFactoryInterface $config,
-    TrackerLoader $tracker_loader
+    TrackerLoader $tracker_loader,
+    EntityTypeManagerInterface $entity_type_manager
   ){
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $logger, $config);
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $logger, $config, $entity_type_manager);
     $this->eventDispatcher = $dispatcher;
     $this->trackerLoader = $tracker_loader;
   }
@@ -79,7 +81,8 @@ class DecayQueue extends ActivityQueueWorkerBase {
       $container->get('logger.factory')->get('entity_activity_tracker'),
       $container->get('event_dispatcher'),
       $container->get('config.factory'),
-      $container->get('entity_activity_tracker.tracker_loader')
+      $container->get('entity_activity_tracker.tracker_loader'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -87,10 +90,29 @@ class DecayQueue extends ActivityQueueWorkerBase {
    * {@inheritdoc}
    */
   public function processItem($event) {
+
+    if (!($event instanceof CronEvent)) {
+      $event_tracker = $event->getTracker();
+
+      // Make sure we have still entity and tracker.
+      $tracker = $this->getEntityStorage($event_tracker->getEntityTypeId())->load($event_tracker->id());
+      if (empty($tracker)) {
+        return;
+      }
+
+      if (!$event->getDispatcherType() == 'ActivityEventInterface::TRACKER_CREATE') {
+        $event_entity = $event->getEntity();
+        $entity = $this->getEntityStorage($event_entity->getEntityTypeId())->load($event_entity->id());
+        if (empty($entity)) {
+          return;
+        }
+      }
+    }
+
     switch ($event) {
       case $event instanceof ActivityDecayEvent:
         // If here we get the ActivityDecayEvent we process plugins.
-        $enabled_plugins = $event->getTracker()->getProcessorPlugins()->getEnabled();
+        $enabled_plugins = $this->getTrackerEnabledPlugins($event->getTracker());
         foreach ($enabled_plugins as $plugin_id => $processor_plugin) {
           $processor_plugin->processActivity($event);
 
