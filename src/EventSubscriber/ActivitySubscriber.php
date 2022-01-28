@@ -2,6 +2,7 @@
 
 namespace Drupal\entity_activity_tracker\EventSubscriber;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\core_event_dispatcher\Event\Core\CronEvent;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\core_event_dispatcher\Event\Entity\AbstractEntityEvent;
@@ -190,7 +191,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
       // Clean all activity records for the tracker.
       $this->activityRecordStorage->deleteActivityRecorsdByBundle($entity->getTargetEntityType(), $entity->getTargetEntityBundle());
     }
-    else {
+    elseif ($entity instanceof ContentEntityInterface) {
       /** @var \Drupal\entity_activity_tracker\ActivityRecord $activity_record */
       $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($entity);
       if ($activity_record) {
