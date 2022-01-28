@@ -4,6 +4,7 @@ namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Queue\QueueInterface;
@@ -19,13 +20,6 @@ use Psr\Log\LoggerInterface;
  * )
  */
 class ActivityProcessorQueue extends ActivityQueueWorkerBase {
-
-  /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
 
   /**
    * The queue object.
@@ -51,10 +45,19 @@ class ActivityProcessorQueue extends ActivityQueueWorkerBase {
    *   A logger instance.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *   The config factory.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, QueueInterface $queue, LoggerInterface $logger, ConfigFactoryInterface $config) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $logger, $config);
-    $this->entityTypeManager = $entity_type_manager;
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    QueueInterface $queue,
+    LoggerInterface $logger,
+    ConfigFactoryInterface $config,
+    EntityTypeManagerInterface $entity_type_manager
+  ) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $logger, $config, $entity_type_manager);
     $this->queue = $queue;
   }
 
@@ -66,10 +69,10 @@ class ActivityProcessorQueue extends ActivityQueueWorkerBase {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager'),
       $container->get('queue')->get($plugin_id),
       $container->get('logger.factory')->get('entity_activity_tracker'),
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -77,8 +80,24 @@ class ActivityProcessorQueue extends ActivityQueueWorkerBase {
    * {@inheritdoc}
    */
   public function processItem($event) {
+    $event_tracker = $event->getTracker();
 
-    $enabled_plugins = $event->getTracker()->getProcessorPlugins()->getEnabled();
+    // Make sure we have still entity and tracker.
+    $tracker = $this->getEntityStorage($event_tracker->getEntityTypeId())->load($event_tracker->id());
+    if (empty($tracker)) {
+      return;
+    }
+
+    if (!$event->getDispatcherType() == 'ActivityEventInterface::TRACKER_CREATE') {
+      $event_entity = $event->getEntity();
+      $entity = $this->getEntityStorage($event_entity->getEntityTypeId())->load($event_entity->id());
+      if (empty($entity)) {
+        return;
+      }
+    }
+
+    $enabled_plugins = $this->getTrackerEnabledPlugins($tracker);
+
     $process_control = [];
 
     // NEW LOGIC!!! PROCESS, SKIP, SCHEDULE.
