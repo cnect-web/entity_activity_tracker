@@ -96,6 +96,8 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase implement
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+    $entity_bundle = $form_state->getValue('entity_bundle');
+
     // Check current tracked entities.
     $trackers =  $this->trackerLoader->getAll();
     $existingTrackers = [];
@@ -117,18 +119,17 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase implement
         }
       }
     }
-    
-    if (!isset($comment_map[$form_state->getValue('entity_bundle')])) {
+
+    if (!isset($comment_map[$entity_bundle])) {
       $form_state->setErrorByName('entity_bundle', $this->t('This comment type is not being used.'));
       return;
     }
 
     // Check if we have tracker for at least one bundle among the comment target entity type.
-    if (!count(array_intersect($comment_map[$form_state->getValue('entity_bundle')], $existingTrackers))) {
+    if (!count(array_intersect($comment_map[$entity_bundle], $existingTrackers))) {
       $form_state->setErrorByName('activity_processors[credit_group_comment_creation][enabled]', $this->t('No tracker for comment target entity.'));
       return;
     }
-    
   }
 
   /**
