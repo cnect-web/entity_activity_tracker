@@ -298,6 +298,16 @@ class EntityActivityTrackerForm extends EntityForm {
       // There is a Tracker for this entity/bundle so we set a form error.
       $form_state->setErrorByName('entity_bundle', $this->t('There is already a Tracker for this bundle: @bundle', ['@bundle' => $bundle_value]));
     }
+
+
+    foreach ($this->manager->getDefinitions() as $plugin_id => $definition) {
+      // If plugin is enabled validate plugin configuration form.
+      if ($form_state->getValue(['activity_processors', $plugin_id, 'enabled'])) {
+        $processor_plugin = $this->entity->getProcessorPlugin($plugin_id);
+        $processor_plugin->validateConfigurationForm($form, $form_state);
+      }
+    }
+
   }
 
   /**

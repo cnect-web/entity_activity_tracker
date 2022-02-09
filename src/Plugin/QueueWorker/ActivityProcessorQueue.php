@@ -88,7 +88,7 @@ class ActivityProcessorQueue extends ActivityQueueWorkerBase {
       return;
     }
 
-    if (!$event->getDispatcherType() == 'ActivityEventInterface::TRACKER_CREATE') {
+    if ($event->getDispatcherType() != ActivityEventInterface::TRACKER_CREATE) {
       $event_entity = $event->getEntity();
       $entity = $this->getEntityStorage($event_entity->getEntityTypeId())->load($event_entity->id());
       if (empty($entity)) {
@@ -100,7 +100,6 @@ class ActivityProcessorQueue extends ActivityQueueWorkerBase {
 
     $process_control = [];
 
-    // NEW LOGIC!!! PROCESS, SKIP, SCHEDULE.
     foreach ($enabled_plugins as $plugin_id => $processor_plugin) {
       $process_control[$plugin_id] = $processor_plugin->canProcess($event);
     }

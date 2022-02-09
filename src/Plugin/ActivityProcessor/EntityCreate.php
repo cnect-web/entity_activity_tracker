@@ -105,7 +105,6 @@ class EntityCreate extends ActivityProcessorBase implements ActivityProcessorInt
    * {@inheritdoc}
    */
   public function processActivity(Event $event) {
-
     $dispatcher_type = $event->getDispatcherType();
 
     switch ($dispatcher_type) {

@@ -186,7 +186,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
   public function deleteEntity(AbstractEntityEvent $original_event) {
     /** @var \Drupal\Core\Entity\EntityInterface|\Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $entity */
     $entity = $original_event->getEntity();
-    // @TODO - Later we can move it queue.
+    // @TODO - Later we can move it in queue.
     if ($entity->getEntityTypeId() == 'entity_activity_tracker') {
       // Clean all activity records for the tracker.
       $this->activityRecordStorage->deleteActivityRecorsdByBundle($entity->getTargetEntityType(), $entity->getTargetEntityBundle());

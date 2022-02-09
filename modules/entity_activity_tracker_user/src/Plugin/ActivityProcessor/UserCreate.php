@@ -39,8 +39,9 @@ class UserCreate extends EntityCreate {
         break;
 
       case ActivityEventInterface::TRACKER_CREATE:
+
         // Iterate all already existing entities and create a record.
-        $activity = ($this->configuration['activity_existing_enabler']) ? $this->configuration['activity_existing'] : $this->configuration['activity_creation'];
+        $activity = $this->configuration['activity_existing_enabler'] ? $this->configuration['activity_existing'] : $this->configuration['activity_creation'];
         foreach ($this->getExistingEntities($event->getTracker()) as $existing_entity) {
           // Prevent creation of activity record for anonymous user (uid = 0).
           if ($existing_entity->id()) {
