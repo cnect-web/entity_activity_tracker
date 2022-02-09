@@ -91,28 +91,24 @@ class DecayQueue extends ActivityQueueWorkerBase {
    */
   public function processItem($event) {
 
-    if (!($event instanceof CronEvent)) {
-      $event_tracker = $event->getTracker();
+    switch ($event) {
+      case $event instanceof ActivityDecayEvent:
+        $event_tracker = $event->getTracker();
 
-      // Make sure we have still entity and tracker.
-      $tracker = $this->getEntityStorage($event_tracker->getEntityTypeId())->load($event_tracker->id());
-      if (empty($tracker)) {
-        return;
-      }
+        // Make sure we have still entity and tracker.
+        $tracker = $this->getEntityStorage($event_tracker->getEntityTypeId())->load($event_tracker->id());
+        if (empty($tracker)) {
+          return;
+        }
 
-      if ($event->getDispatcherType() != ActivityEventInterface::TRACKER_CREATE) {
         $event_entity = $event->getEntity();
         $entity = $this->getEntityStorage($event_entity->getEntityTypeId())->load($event_entity->id());
         if (empty($entity)) {
           return;
         }
-      }
-    }
 
-    switch ($event) {
-      case $event instanceof ActivityDecayEvent:
         // If here we get the ActivityDecayEvent we process plugins.
-        $enabled_plugins = $this->getTrackerEnabledPlugins($event->getTracker());
+        $enabled_plugins = $this->getTrackerEnabledPlugins($event_tracker);
         foreach ($enabled_plugins as $plugin_id => $processor_plugin) {
           $processor_plugin->processActivity($event);
 
@@ -132,15 +128,6 @@ class DecayQueue extends ActivityQueueWorkerBase {
         $this->logInfo('Activity Decay Dispatched');
 
         break;
-    }
-  }
-
-  /**
-   *
-   */
-  protected function logInfo($message) {
-    if ($this->config->get('debug')) {
-      $this->logger->info($message);
     }
   }
 

@@ -167,32 +167,4 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
     );
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function canProcess(Event $event) {
-
-    // Make sure tracker is still there.
-    $tracker = $event->getTracker();
-
-    $exists = $this->getEntityStorage($tracker->getEntityTypeId())->load($tracker->id());
-    if (empty($exists)) {
-      return ActivityProcessorInterface::SKIP;
-    }
-
-    // This should change since doesn't make sense to store Entity in event to then
-    // load it again.
-    if ($event->getDispatcherType() == ActivityEventInterface::ENTITY_INSERT) {
-      $entity = $event->getEntity();
-      $exists = $this->getEntityStorage($entity->getEntityTypeId())->load($entity->id());
-      if (empty($exists)) {
-        return ActivityProcessorInterface::SKIP;
-      }
-
-      return ActivityProcessorInterface::PROCESS;
-    }
-
-    return ActivityProcessorInterface::SKIP;
-  }
-
 }
