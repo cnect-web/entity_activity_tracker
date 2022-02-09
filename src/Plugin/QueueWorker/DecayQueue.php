@@ -101,12 +101,6 @@ class DecayQueue extends ActivityQueueWorkerBase {
           return;
         }
 
-        $event_entity = $event->getEntity();
-        $entity = $this->getEntityStorage($event_entity->getEntityTypeId())->load($event_entity->id());
-        if (empty($entity)) {
-          return;
-        }
-
         // If here we get the ActivityDecayEvent we process plugins.
         $enabled_plugins = $this->getTrackerEnabledPlugins($event_tracker);
         foreach ($enabled_plugins as $plugin_id => $processor_plugin) {
