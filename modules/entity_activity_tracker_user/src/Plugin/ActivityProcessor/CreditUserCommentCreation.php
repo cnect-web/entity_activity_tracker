@@ -5,7 +5,7 @@ namespace Drupal\entity_activity_tracker_user\Plugin\ActivityProcessor;
 use Drupal\entity_activity_tracker_user\Plugin\CreditUserBase;
 
 /**
- * Sets setting for nodes and preforms the activity process for nodes.
+ * Sets setting for comments and preforms the activity process for comments.
  *
  * @ActivityProcessor (
  *   id = "credit_user_comment_creation",

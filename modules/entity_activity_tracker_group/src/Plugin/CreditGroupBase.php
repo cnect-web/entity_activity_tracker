@@ -3,6 +3,7 @@
 namespace Drupal\entity_activity_tracker_group\Plugin;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorCreditRelatedBase;
 use Drupal\group\Entity\GroupContentInterface;
@@ -65,50 +66,52 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
    *   The entity attached to event.
    */
   protected function getRelatedEntity(ContentEntityInterface $entity) {
+    if (empty($this->pluginDefinition['credit_related'])) {
+      return;
+    }
+    $credit_related = $this->pluginDefinition['credit_related'];
     // @todo HOW TO DEAL WITH CONTENT ON MULTIPLE GROUPS???
     switch ($entity->getEntityTypeId()) {
+
       case 'comment':
-        if (isset($this->pluginDefinition['credit_related'])) {
-          if ($this->pluginDefinition['credit_related'] == 'group') {
-            $node = $entity->getCommentedEntity();
-            if (empty($node)) {
-              return FALSE;
-            }
-            $group_contents = $this->entityTypeManager->getStorage('group_content')->loadByEntity($node);
-            if ($group_content = reset($group_contents)) {
-              return $this->getGroup($group_content);
-            }
-            else {
-              return FALSE;
-            }
-          }
-          if ($this->pluginDefinition['credit_related'] == 'group_content') {
-            $node = $entity->getCommentedEntity();
-            if (empty($node)) {
-              return FALSE;
-            }
-            $group_contents = $this->entityTypeManager->getStorage('group_content')->loadByEntity($node);
-            if ($group_content = reset($group_contents)) {
-              return $group_content;
-            }
-            else {
-              return FALSE;
-            }
-          }
+        if ($credit_related == 'group') {
+          return $this->getGroup($this->getGroupContent($entity->getCommentedEntity()));
+        }
+        if ($credit_related == 'group_content') {
+          return $this->getGroupContent($entity->getCommentedEntity());
         }
         break;
 
       case 'group_content':
-        if (isset($this->pluginDefinition['credit_related'])) {
-          if ($this->pluginDefinition['credit_related'] == 'group') {
-            return $this->getGroup($entity);
-          }
-          if ($this->pluginDefinition['credit_related'] == 'group_content') {
-            return $entity;
-          }
+        if ($credit_related == 'group') {
+          return $this->getGroup($entity);
+        }
+        if ($credit_related == 'group_content') {
+          return $entity;
         }
         break;
     }
+    return FALSE;
+  }
+
+  /**
+   * Get group content.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity.
+   *
+   * @return \Drupal\group\Entity\GroupContentInterface|mixed
+   *   Group content.
+   */
+  protected function getGroupContent(EntityInterface $entity) {
+    if (empty($entity)) {
+      return FALSE;
+    }
+    $group_contents = $this->entityTypeManager->getStorage('group_content')->loadByEntity($entity);
+    if ($group_content = reset($group_contents)) {
+      return $group_content;
+    }
+
     return FALSE;
   }
 
@@ -124,6 +127,7 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
 
     // Prevent further execution if no group was found.
     if (empty($group)) {
+      // TODO: Use DI.
       \Drupal::logger('entity_activity_tracker')->error($this->t("Couldn't find Group!"));
       return FALSE;
     }

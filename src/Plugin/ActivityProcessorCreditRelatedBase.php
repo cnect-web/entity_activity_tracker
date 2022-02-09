@@ -102,11 +102,6 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
             return ActivityProcessorInterface::SCHEDULE;
           }
         }
-        else {
-          // Tell plugin to process anyway so QueueWorker will process rest of enabled plugins.
-          // Use case "credit_group_comment_creation" on node that doesn't belong to any group.
-          return ActivityProcessorInterface::PROCESS;
-        }
 
         break;
 
@@ -123,23 +118,19 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
           }
         }
 
-        if (count($related_records) < 1) {
+        if (empty($related_records)) {
           // No content skip process.
           return ActivityProcessorInterface::SKIP;
         }
-        elseif (!in_array(FALSE, $related_records, TRUE)) {
-          // All related records needed exist.
-          return ActivityProcessorInterface::PROCESS;
-        }
-        else {
+        elseif (in_array(FALSE, $related_records, TRUE)) {
           // Not all related records needed exist.
           return ActivityProcessorInterface::SCHEDULE;
         }
-        break;
 
-      default:
-        return ActivityProcessorInterface::PROCESS;
+        break;
     }
+
+    return ActivityProcessorInterface::PROCESS;
   }
 
   /**
@@ -152,29 +143,29 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
    *   Related entity or null.
    */
   protected function getRelatedEntity(ContentEntityInterface $entity) {
+    if (empty($this->pluginDefinition['credit_related'])) {
+      return NULL;
+    }
+    $credit_related = $this->pluginDefinition['credit_related'];
     switch ($entity->getEntityTypeId()) {
       case 'comment':
         /** @var CommentInterface $entity */
-        if (isset($this->pluginDefinition['credit_related'])) {
-          if ($this->pluginDefinition['credit_related'] == 'node') {
-            return $entity->getCommentedEntity();
-          }
-          if ($this->pluginDefinition['credit_related'] == 'user') {
-            $user = $entity->getOwner();
-            // Prevent schedule for anonymous users.
-            if ($user->id() != 0) {
-              return $user;
-            }
+        if ($credit_related == 'node') {
+          return $entity->getCommentedEntity();
+        }
+        if ($credit_related == 'user') {
+          $user = $entity->getOwner();
+          // Prevent schedule for anonymous users.
+          if ($user->id() != 0) {
+            return $user;
           }
         }
         break;
 
       case 'node':
         /** @var NodeInterface $entity */
-        if (isset($this->pluginDefinition['credit_related'])) {
-          if ($this->pluginDefinition['credit_related'] == 'user') {
-            return $entity->getOwner();
-          }
+        if ($credit_related == 'user') {
+          return $entity->getOwner();
         }
         break;
     }
