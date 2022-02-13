@@ -4,18 +4,15 @@ namespace Drupal\entity_activity_tracker\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Component\Plugin\ConfigurableInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Contracts\EventDispatcher\Event;
+use Drupal\hook_event_dispatcher\Event\EventInterface;
 
 /**
  * Defines an interface for Activity processor plugins.
  */
 interface ActivityProcessorInterface extends PluginInspectionInterface, ConfigurableInterface, PluginFormInterface, ContainerFactoryPluginInterface {
-
-  const PROCESS = 'process_true';
-  const SKIP = 'process_false';
-  const SCHEDULE = 'process_schedule';
 
   /**
    * Get plugin config field.
@@ -23,8 +20,18 @@ interface ActivityProcessorInterface extends PluginInspectionInterface, Configur
   public function getConfigField();
 
   /**
-   * ProcessActivity.
+   * Process activity of an event.
    */
-  public function processActivity(Event $event);
+  public function processActivity(EventInterface $event);
+
+  /**
+   * Checks if we can process an event.
+   */
+  public function canProcess(EventInterface $entity);
+
+  /**
+   * Checks if the plugin accessible.
+   */
+  public function isAccessible();
 
 }

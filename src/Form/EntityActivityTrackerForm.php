@@ -2,6 +2,7 @@
 
 namespace Drupal\entity_activity_tracker\Form;
 
+use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
@@ -152,10 +153,12 @@ class EntityActivityTrackerForm extends EntityForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
+
     $form = parent::form($form, $form_state);
 
     /** @var \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $entity_activity_tracker */
     $entity_activity_tracker = $this->entity;
+
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
@@ -209,12 +212,19 @@ class EntityActivityTrackerForm extends EntityForm {
     $entity_type = $entity_activity_tracker->getTargetEntityType();
 
     if (!empty($entity_type)) {
+      $this->bundle_options = $this->getBundleOptions($this->entity_type_bundles[$entity_type]);
       $form['entity_bundle_wrapper']['entity_bundle'] = [
         '#type' => 'select',
         '#title' => $this->t('Entity Bundle'),
         '#default_value' => $entity_activity_tracker->getTargetEntityBundle(),
-        '#options' => $this->getBundleOptions($this->entity_type_bundles[$entity_type]),
+        '#options' => $this->bundle_options,
         '#disabled' => !$entity_activity_tracker->isNew(),
+        '#required' => TRUE,
+        '#ajax' => [
+          'callback' => [$this, 'updateProcessorsElement'],
+          'event' => 'change',
+          'wrapper' => 'entity-bundle-wrapper',
+        ],
       ];
     }
 
@@ -236,14 +246,19 @@ class EntityActivityTrackerForm extends EntityForm {
     foreach ($this->manager->getDefinitions() as $plugin_id => $definition) {
       // Display plugins that are meant to track selected entity type.
       if (in_array($target_entity, $definition['entity_types'])) {
+        /** @var ActivityProcessorInterface $processor */
+        $processor = $entity_activity_tracker->getProcessorPlugin($plugin_id);
+        if (!$processor->isAccessible()) {
+          continue;
+        }
         // Check if processor is defined as required for entity type.
         if (in_array($target_entity, $definition['required'])) {
-          $value = true;
-          $disabled = true;
+          $value = TRUE;
+          $disabled = TRUE;
         }
         else {
           $value = !empty($processor_config[$plugin_id]['enabled']);
-          $disabled = false;
+          $disabled = FALSE;
         }
         $form['activity_processors'][$plugin_id]['enabled'] = [
           '#type' => 'checkbox',
@@ -254,9 +269,6 @@ class EntityActivityTrackerForm extends EntityForm {
         ];
         $form['activity_processors'][$plugin_id]['settings'] = [];
         $subform_state = SubformState::createForSubform($form['activity_processors'][$plugin_id]['settings'], $form, $form_state);
-
-        /** @var ActivityProcessorInterface $processor */
-        $processor = $entity_activity_tracker->getProcessorPlugin($plugin_id);
 
         if ($settings = $processor->buildConfigurationForm($form['activity_processors'][$plugin_id]['settings'], $subform_state)) {
           $form['activity_processors'][$plugin_id]['settings'] = $settings + [
@@ -298,7 +310,6 @@ class EntityActivityTrackerForm extends EntityForm {
       // There is a Tracker for this entity/bundle so we set a form error.
       $form_state->setErrorByName('entity_bundle', $this->t('There is already a Tracker for this bundle: @bundle', ['@bundle' => $bundle_value]));
     }
-
 
     foreach ($this->manager->getDefinitions() as $plugin_id => $definition) {
       // If plugin is enabled validate plugin configuration form.
@@ -370,10 +381,31 @@ class EntityActivityTrackerForm extends EntityForm {
     $response = new AjaxResponse();
 
     $response->addCommand(new ReplaceCommand('#entity-bundle-wrapper', $form['entity_bundle_wrapper']));
-    $response->addCommand(new ReplaceCommand('#activity-processors-wrapper', $form['activity_processors']));
+    $response->addCommand(new RemoveCommand('#activity-processors-wrapper .details-wrapper > *', $form['activity_processors']));
+//    $response->addCommand(new ReplaceCommand('#activity-processors-wrapper', $form['activity_processors']));
 
     return $response;
+  }
 
+  /**
+   * Ajax callback to load bundle form element.
+   *
+   * @param array $form
+   *   Form definition of parent form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   State of the form.
+   *
+   * @return array
+   *   The form element.
+   */
+  public function updateProcessorsElement(array $form, FormStateInterface $form_state) {
+    $response = new AjaxResponse();
+
+    $response->addCommand(new ReplaceCommand('#activity-processors-wrapper', $form['activity_processors']));
+    if (empty($form_state->getValue('entity_bundle'))) {
+      $response->addCommand(new RemoveCommand('#activity-processors-wrapper .details-wrapper > *', $form['activity_processors']));
+    }
+    return $response;
   }
 
   /**
@@ -386,12 +418,14 @@ class EntityActivityTrackerForm extends EntityForm {
    *   List of bundles.
    */
   protected function getBundleOptions(string $entity_type_value) {
+
     if (empty($this->bundle_options[$entity_type_value])) {
       if ($entity_type_value == 'user') {
         // User entities don't have bundle.
         $this->bundle_options[$entity_type_value][$entity_type_value] = $this->t('User');
       }
       else {
+        $this->bundle_options[$entity_type_value][''] = $this->t('- Select -');
         $bundles = $this->entityTypeManager->getStorage($entity_type_value)->loadMultiple();
 
         foreach ($bundles as $bundle_id => $bundle_type) {

@@ -2,27 +2,17 @@
 
 namespace Drupal\entity_activity_tracker\Form;
 
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Drupal\entity_activity_tracker\Event\TrackerDeleteEvent;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\Core\Cache\CacheBackendInterface;
-use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Builds the form to delete Entity activity tracker entities.
  */
 class EntityActivityTrackerDeleteForm extends EntityConfirmFormBase {
-
-  /**
-   * The event dispatcher.
-   *
-   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
-   */
-  protected $eventDispatcher;
 
   /**
    * The cache backend to use.
@@ -34,15 +24,12 @@ class EntityActivityTrackerDeleteForm extends EntityConfirmFormBase {
   /**
    * Overridden constructor to get event dispatcher service.
    *
-   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
-   *   The event dispatcher.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger.
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
    *   Cache backend instance to use.
    */
-  public function __construct(EventDispatcherInterface $event_dispatcher, MessengerInterface $messenger, CacheBackendInterface $cache_backend) {
-    $this->eventDispatcher = $event_dispatcher;
+  public function __construct(MessengerInterface $messenger, CacheBackendInterface $cache_backend) {
     $this->messenger = $messenger;
     $this->cacheBackend = $cache_backend;
   }
@@ -52,7 +39,6 @@ class EntityActivityTrackerDeleteForm extends EntityConfirmFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('event_dispatcher'),
       $container->get('messenger'),
       $container->get('cache.default')
     );

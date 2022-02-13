@@ -5,11 +5,12 @@ namespace Drupal\entity_activity_tracker\Plugin;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Contracts\EventDispatcher\Event;
+use Drupal\hook_event_dispatcher\Event\EventInterface;
 
 /**
  * Base class for Activity processor plugins.
@@ -34,9 +35,22 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   protected $entityTypeManager;
 
   /**
+   * Tracker.
+   *
+   * @var \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
+   */
+  protected $tracker;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ActivityRecordStorageInterface $activity_record_storage, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    ActivityRecordStorageInterface $activity_record_storage,
+    EntityTypeManagerInterface $entity_type_manager
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->activityRecordStorage = $activity_record_storage;
     $this->entityTypeManager = $entity_type_manager;
@@ -56,6 +70,10 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
     );
   }
 
+  public function setTracker(EntityActivityTrackerInterface $tracker) {
+    $this->tracker = $tracker;
+  }
+
   /**
    * Get summary.
    *
@@ -73,39 +91,30 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   /**
    * {@inheritdoc}
    */
-  public function processActivity(Event $event) {
+  public function processActivity(EventInterface $event) {
     // code...
   }
 
+
   /**
-   * Let plugins decide if they can process.
+   * {@inheritdoc}
    */
-  public function canProcess(Event $event) {
-    // By default, we will tell to ActivityProcessorQueue to always process.
-    return ActivityProcessorInterface::PROCESS;
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+    // Do nothing for now.
   }
 
   /**
-   * Get existing entities of tracker that was just created.
-   *
-   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
-   *   The tracker config entity.
-   *
-   * @return \Drupal\Core\Entity\ContentEntityInterface[]
-   *   Existing entities to be tracked.
+   * {@inheritdoc}
    */
-  protected function getExistingEntities(EntityActivityTrackerInterface $tracker) {
-    $storage = $this->entityTypeManager->getStorage($tracker->getTargetEntityType());
-    $bundle_key = $storage->getEntityType()->getKey('bundle');
-    if (!empty($bundle_key)) {
-      return $storage->loadByProperties([$bundle_key => $tracker->getTargetEntityBundle()]);
-    }
-    else {
-      // This needs review!! For now should be enough.
-      // User entity has no bundles.
-      return $storage->loadMultiple();
+  public function canProcess(EventInterface $event) {
+    // TODO: simplify this.
+    if ($this->getPluginDefinition()['event'] != $event->getDispatcherType()) {
+      return FALSE;
     }
 
+    $entity = $event->getEntity();
+    // Entity doesn't have any relations and the current tracker handles it.
+    return empty($this->getPluginDefinition()['target_entity']) && $entity->getEntityTypeId() == $this->tracker->getTargetEntityType() && $entity->bundle() == $this->tracker->getTargetEntityBundle();
   }
 
   /**
@@ -130,6 +139,13 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   public function setConfiguration(array $configuration) {
     $this->configuration = $configuration + $this->defaultConfiguration();
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isAccessible() {
+    return TRUE;
   }
 
 }

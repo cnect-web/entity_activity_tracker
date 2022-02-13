@@ -39,13 +39,6 @@ abstract class CreditUserBase extends ActivityProcessorCreditRelatedBase {
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // Do nothing for now.
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration['credit_user'] = $form_state->getValue('credit_user');
   }

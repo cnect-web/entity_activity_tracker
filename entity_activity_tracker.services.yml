@@ -1,12 +1,16 @@
 services:
   entity_activity_tracker.activity_subscriber:
     class: Drupal\entity_activity_tracker\EventSubscriber\ActivitySubscriber
-    arguments: ['@queue', '@entity_activity_tracker.tracker_loader', '@entity_activity_tracker.activity_record_storage']
+    arguments: ['@queue', '@entity_activity_tracker.activity_record_storage']
     tags:
       - { name: event_subscriber }
 
   entity_activity_tracker.plugin.manager.activity_processor:
     class: Drupal\entity_activity_tracker\Plugin\ActivityProcessorManager
+    parent: default_plugin_manager
+
+  entity_activity_tracker.plugin.manager.tracker_processor:
+    class: Drupal\entity_activity_tracker\Plugin\TrackerProcessorManager
     parent: default_plugin_manager
 
   entity_activity_tracker.activity_record_storage:

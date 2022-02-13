@@ -41,13 +41,6 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // Do nothing for now.
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration['credit_group'] = $form_state->getValue('credit_group');
   }
