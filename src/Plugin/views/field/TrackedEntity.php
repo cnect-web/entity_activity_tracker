@@ -46,7 +46,14 @@ class TrackedEntity extends FieldPluginBase implements ContainerFactoryPluginInt
    * @param \Drupal\entity_activity_tracker\ActivityRecordStorageInterface $activity_record_storage
    *   The activity record storage service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, ActivityRecordStorageInterface $activity_record_storage) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    EntityTypeManagerInterface
+    $entity_type_manager,
+    ActivityRecordStorageInterface $activity_record_storage
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->activityRecordStorage = $activity_record_storage;

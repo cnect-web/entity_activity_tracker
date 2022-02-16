@@ -44,20 +44,6 @@ class ActivityProcessorCollection extends DefaultLazyPluginCollection {
   protected $definitions;
 
   /**
-   * Get plugins by event.
-   */
-  public function getPlugingByEvent($event) {
-    $this->getAll();
-    $plugins = [];
-    foreach ($this->getConfiguration() as $key => $value) {
-      if (!empty($value['enabled']) && $value['enabled'] == TRUE && !empty($value['event']) && $value['event'] == $event) {
-        $plugins[$key] = $this->get($key);
-      }
-    }
-    return $plugins;
-  }
-
-  /**
    * Retrieves all enabled plugins.
    */
   public function getEnabled() {

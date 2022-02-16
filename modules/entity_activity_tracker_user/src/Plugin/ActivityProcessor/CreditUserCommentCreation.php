@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   entity_types = {
  *     "user",
  *   },
- *   target_entity = "comment",
+ *   target_entity_type = "comment",
  *   summary = @Translation("Upon comment creation, credit author"),
  * )
  */

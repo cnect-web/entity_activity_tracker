@@ -66,7 +66,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
    *   The cron event.
    */
   public function scheduleDecay(CronEvent $event) {
-    $this->createQueueEventItem($event, 'decay_queue');
+    $this->queueEvent($event);
   }
 
   /**

@@ -51,7 +51,7 @@ class ActivityProcessor extends Plugin {
    *
    * @var string
    */
-  public $target_entity;
+  public $target_entity_type;
 
   /**
    * The summary of the plugin.

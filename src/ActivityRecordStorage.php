@@ -271,7 +271,7 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
    * @return \Drupal\entity_activity_tracker\ActivityRecord
    *   Activity record object.
    */
-  protected function getActivityRecordObject(ActivityRecord $record) {
+  protected function getActivityRecordObject(array $record) {
     return new ActivityRecord(
       $record['entity_type'],
       $record['bundle'],

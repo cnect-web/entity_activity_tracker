@@ -92,6 +92,13 @@ class EntityActivityTracker extends ConfigEntityBase implements EntityActivityTr
   protected $processorCollection;
 
   /**
+   * The list of enabled plugins.
+   *
+   * @var array
+   */
+  public $enabledPlugins = [];
+
+  /**
    * {@inheritdoc}
    */
   public function getTargetEntityType() {
@@ -122,11 +129,25 @@ class EntityActivityTracker extends ConfigEntityBase implements EntityActivityTr
     return $this->getProcessorPlugins()->get($instance_id);
   }
 
+  public function getEnapledPluginById($instance_id) {
+    foreach ($this->getEnabledProcessorsPlugins() as $plguin) {
+      if ($plguin->getPluginId() == $instance_id) {
+        return $plguin;
+      }
+    }
+
+    return NULL;
+  }
+
   /**
    * {@inheritdoc}
    */
   public function getEnabledProcessorsPlugins() {
-    return $this->getProcessorPlugins()->getEnabled();
+    if (empty($this->enabledPlugins)) {
+      $this->enabledPlugins = $this->getProcessorPlugins()->getEnabled();
+    }
+
+    return $this->enabledPlugins;
   }
 
   /**

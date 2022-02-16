@@ -13,12 +13,12 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
    * {@inheritdoc}
    */
   public function canProcess($event) {
-    // TODO: simplify this.
-    if ($this->getPluginDefinition()['event'] != $event->getDispatcherType()) {
+    if ($this->getEvent() != $event->getDispatcherType()) {
       return FALSE;
     }
 
     $entity = $event->getEntity();
+
     // Plugin has related entity.
     return !empty($this->getPluginDefinition()['target_entity']) && $this->getPluginDefinition()['target_entity'] == $entity->getEntityTypeId();
   }

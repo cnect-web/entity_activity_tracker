@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   entity_types = {
  *     "group",
  *   },
- *   target_entity = "node",
+ *   target_entity_type = "node",
  *   summary = @Translation("Upon content creation, credit Group"),
  * )
  */

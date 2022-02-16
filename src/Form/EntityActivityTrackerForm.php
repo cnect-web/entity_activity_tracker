@@ -240,19 +240,19 @@ class EntityActivityTrackerForm extends EntityForm {
     ];
 
     $processor_config = $entity_activity_tracker->get('activity_processors');
-    $target_entity = $entity_activity_tracker->getTargetEntityType();
+    $target_entity_type = $entity_activity_tracker->getTargetEntityType();
     $target_bundle = $form_state->getValue('entity_bundle');
 
     foreach ($this->manager->getDefinitions() as $plugin_id => $definition) {
       // Display plugins that are meant to track selected entity type.
-      if (in_array($target_entity, $definition['entity_types'])) {
+      if (in_array($target_entity_type, $definition['entity_types'])) {
         /** @var ActivityProcessorInterface $processor */
         $processor = $entity_activity_tracker->getProcessorPlugin($plugin_id);
         if (!$processor->isAccessible($target_bundle)) {
           continue;
         }
         // Check if processor is defined as required for entity type.
-        if (in_array($target_entity, $definition['required'])) {
+        if (in_array($target_entity_type, $definition['required'])) {
           $value = TRUE;
           $disabled = TRUE;
         }

@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   entity_types = {
  *     "group_content",
  *   },
- *   target_entity = "comment",
+ *   target_entity_type = "comment",
  *   summary = @Translation("Upon comment creation, credit Group Content"),
  * )
  */

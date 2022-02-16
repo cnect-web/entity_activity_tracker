@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   entity_types = {
  *     "user",
  *   },
- *   target_entity = "node",
+ *   target_entity_type = "node",
  *   summary = @Translation("Upon content creation, credit author"),
  * )
  */

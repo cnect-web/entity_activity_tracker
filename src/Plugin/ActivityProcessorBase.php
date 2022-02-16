@@ -97,7 +97,6 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
     // code...
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -109,8 +108,7 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
    * {@inheritdoc}
    */
   public function canProcess(EventInterface $event) {
-    // TODO: simplify this.
-    if ($this->getPluginDefinition()['event'] != $event->getDispatcherType()) {
+    if ($this->getEvent() != $event->getDispatcherType()) {
       return FALSE;
     }
 
@@ -164,5 +162,16 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   protected function getExistingEntities() {
     return [];
   }
+
+  /**
+   * Get event handled by this plugin.
+   *
+   * @return mixed
+   *   Event.
+   */
+  public function getEvent() {
+    return $this->getPluginDefinition()['event'];
+  }
+
 
 }
