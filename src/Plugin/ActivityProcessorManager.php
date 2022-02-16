@@ -22,8 +22,18 @@ class ActivityProcessorManager extends DefaultPluginManager {
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler to invoke the alter hook with.
    */
-  public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Plugin/ActivityProcessor', $namespaces, $module_handler, 'Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface', 'Drupal\entity_activity_tracker\Annotation\ActivityProcessor');
+  public function __construct(
+    \Traversable $namespaces,
+    CacheBackendInterface $cache_backend,
+    ModuleHandlerInterface $module_handler
+  ) {
+    parent::__construct(
+      'Plugin/ActivityProcessor',
+      $namespaces,
+      $module_handler,
+      'Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface',
+      'Drupal\entity_activity_tracker\Annotation\ActivityProcessor'
+    );
 
     $this->alterInfo('activity_processor_info');
     $this->setCacheBackend($cache_backend, 'entity_activity_tracker_activity_processor_plugins');

@@ -4,16 +4,15 @@ namespace Drupal\entity_activity_tracker\Plugin\ActivityProcessor;
 
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Contracts\EventDispatcher\Event;
-use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
-use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
+use Drupal\hook_event_dispatcher\Event\EventInterface;
 
 /**
  * Sets setting for nodes and preforms the activity process for nodes.
  *
  * @ActivityProcessor (
  *   id = "entity_decay",
+ *   event = "hook_event_dispatcher.cron",
  *   label = @Translation("Entity Decay"),
  *   entity_types = {
  *     "node",
@@ -25,7 +24,7 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
  *   },
  * )
  */
-class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInterface {
+class EntityDecay extends ActivityProcessorBase {
 
   const DECAY_TYPE_EXPONENTIAL = 'exponential';
   const DECAY_TYPE_LINEAR = 'linear';
@@ -80,13 +79,6 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // Do nothing for now.
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration['decay_type'] = $form_state->getValue('decay_type');
     $this->configuration['decay'] = $form_state->getValue('decay');
@@ -115,39 +107,38 @@ class EntityDecay extends ActivityProcessorBase implements ActivityProcessorInte
   /**
    * {@inheritdoc}
    */
-  public function processActivity(Event $event) {
-    $dispatcher_type = $event->getDispatcherType();
-    switch ($dispatcher_type) {
-      case ActivityEventInterface::DECAY:
-        $tracker = $event->getTracker();
-        $records = $this->recordsToDecay($tracker);
-        if (!empty($records)) {
-          foreach ($records as $record) {
+  public function canProcess(EventInterface $event) {
+    return $this->getEvent() == $event->getDispatcherType();
+  }
 
-            switch ($this->configuration['decay_type']) {
-              case EntityDecay::DECAY_TYPE_EXPONENTIAL:
-                $decay_rate = $this->configuration['decay'] / 100;
-                $decay_granularity = $this->configuration['decay_granularity'];
+  /**
+   * {@inheritdoc}
+   */
+  public function processActivity($event) {
+    $records = $this->recordsToDecay($this->tracker);
+    foreach ($records as $record) {
 
-                // Exponential Decay function.
-                $activity_value = ceil($record->getActivityValue() * pow(exp(1), (-$decay_rate * (($decay_granularity / 60) / 60) / 24)));
+      switch ($this->configuration['decay_type']) {
+        case EntityDecay::DECAY_TYPE_EXPONENTIAL:
+          $decay_rate = $this->configuration['decay'] / 100;
+          $decay_granularity = $this->configuration['decay_granularity'];
 
-                // @todo add threshold value and verify before apply decay.
-                $record->setActivityValue((int) $activity_value);
-                $this->activityRecordStorage->decayActivityRecord($record);
-                break;
+          // Exponential Decay function.
+          $activity_value = ceil($record->getActivityValue() * pow(exp(1), (-$decay_rate * (($decay_granularity / 60) / 60) / 24)));
 
-              case EntityDecay::DECAY_TYPE_LINEAR:
-                $initial_activity = $tracker->getProcessorPlugin('entity_create')->configuration['activity_creation'];
-                $activity_decay = $initial_activity * ($this->configuration['decay'] / 100);
-                $record->decreaseActivity($activity_decay);
+          // @todo add threshold value and verify before apply decay.
+          $record->setActivityValue((int) $activity_value);
+          $this->activityRecordStorage->decayActivityRecord($record);
+          break;
 
-                $this->activityRecordStorage->decayActivityRecord($record);
-                break;
-            }
-          }
-        }
-        break;
+        case EntityDecay::DECAY_TYPE_LINEAR:
+          $initial_activity = $this->tracker->getProcessorPlugin('entity_create')->configuration['activity_creation'];
+          $activity_decay = $initial_activity * ($this->configuration['decay'] / 100);
+          $record->decreaseActivity($activity_decay);
+
+          $this->activityRecordStorage->decayActivityRecord($record);
+          break;
+      }
     }
   }
 

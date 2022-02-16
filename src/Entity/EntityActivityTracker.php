@@ -3,7 +3,6 @@
 namespace Drupal\entity_activity_tracker\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorCollection;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 
@@ -93,6 +92,13 @@ class EntityActivityTracker extends ConfigEntityBase implements EntityActivityTr
   protected $processorCollection;
 
   /**
+   * The list of enabled plugins.
+   *
+   * @var array
+   */
+  public $enabledPlugins = [];
+
+  /**
    * {@inheritdoc}
    */
   public function getTargetEntityType() {
@@ -111,7 +117,7 @@ class EntityActivityTracker extends ConfigEntityBase implements EntityActivityTr
    */
   public function getProcessorPlugins() {
     if (!isset($this->processorCollection)) {
-      $this->processorCollection = new ActivityProcessorCollection(\Drupal::service('entity_activity_tracker.plugin.manager.activity_processor'), $this->activity_processors);
+      $this->processorCollection = new ActivityProcessorCollection(\Drupal::service('entity_activity_tracker.plugin.manager.activity_processor'), $this->activity_processors, $this);
     }
     return $this->processorCollection;
   }
@@ -123,11 +129,25 @@ class EntityActivityTracker extends ConfigEntityBase implements EntityActivityTr
     return $this->getProcessorPlugins()->get($instance_id);
   }
 
+  public function getEnapledPluginById($instance_id) {
+    foreach ($this->getEnabledProcessorsPlugins() as $plguin) {
+      if ($plguin->getPluginId() == $instance_id) {
+        return $plguin;
+      }
+    }
+
+    return NULL;
+  }
+
   /**
    * {@inheritdoc}
    */
   public function getEnabledProcessorsPlugins() {
-    return $this->getProcessorPlugins()->getEnabled();
+    if (empty($this->enabledPlugins)) {
+      $this->enabledPlugins = $this->getProcessorPlugins()->getEnabled();
+    }
+
+    return $this->enabledPlugins;
   }
 
   /**

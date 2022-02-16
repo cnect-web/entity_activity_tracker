@@ -18,7 +18,7 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
    */
   public function defaultConfiguration() {
     return [
-      'credit_group' => 2,
+      'credit_group' => 100,
     ];
   }
 
@@ -29,20 +29,13 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
 
     $form['credit_group'] = [
       '#type' => 'number',
-      '#title' => $this->t('Credit percentage'),
+      '#title' => $this->t('Credit activity'),
       '#min' => 1,
       '#default_value' => $this->getConfiguration()['credit_group'],
       '#description' => $this->t('The percentage relative to group initial value.'),
       '#required' => TRUE,
     ];
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // Do nothing for now.
   }
 
   /**
@@ -57,41 +50,6 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
    */
   public function getConfigField() {
     return 'credit_group';
-  }
-
-  /**
-   * Override getRelatedEntity to get group.
-   *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   *   The entity attached to event.
-   */
-  protected function getRelatedEntity(ContentEntityInterface $entity) {
-    if (empty($this->pluginDefinition['credit_related'])) {
-      return;
-    }
-    $credit_related = $this->pluginDefinition['credit_related'];
-    // @todo HOW TO DEAL WITH CONTENT ON MULTIPLE GROUPS???
-    switch ($entity->getEntityTypeId()) {
-
-      case 'comment':
-        if ($credit_related == 'group') {
-          return $this->getGroup($this->getGroupContent($entity->getCommentedEntity()));
-        }
-        if ($credit_related == 'group_content') {
-          return $this->getGroupContent($entity->getCommentedEntity());
-        }
-        break;
-
-      case 'group_content':
-        if ($credit_related == 'group') {
-          return $this->getGroup($entity);
-        }
-        if ($credit_related == 'group_content') {
-          return $entity;
-        }
-        break;
-    }
-    return FALSE;
   }
 
   /**
@@ -142,6 +100,48 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
     }
 
     return FALSE;
+  }
+
+  /**
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *
+   * @return array
+   */
+  protected function getGroupsByEntity(EntityInterface $entity) {
+    $entities = [];
+    $group_contents = $this->getGroupContentItemsByEntity($entity);
+    foreach ($group_contents as $group_content) {
+      $entities[] = $group_content->getGroup();
+    }
+    return $entities;
+  }
+
+  protected function getGroupContentItemsByEntityAndBundle(EntityInterface $entity) {
+    // TODO: Reorganize code to base classes
+    return $this->entityTypeManager->getStorage('group_content')
+      ->loadByProperties([
+        'entity_id' => $entity->id(),
+        'type' => $this->tracker->getTargetEntityBundle(),
+      ]);
+  }
+
+  protected function getGroupContentItemsByEntity(EntityInterface $entity) {
+    // TODO: Reorganize code to base classes
+    return $this->entityTypeManager->getStorage('group_content')->loadByEntity($entity);
+  }
+
+  protected function getGroupContentTypesForNodes($group_type_id) {
+    // TODO: Reorganize code to base classes
+    $group_type = $this->entityTypeManager->getStorage('group_type')->load($group_type_id);
+    $group_content_plugins = [];
+
+    foreach ($group_type->getInstalledContentPlugins() as $plugin) {
+      if ($plugin->getEntityTypeId() == 'node') {
+        $group_content_plugins[] = $plugin->getContentTypeConfigId();
+      }
+    }
+
+    return $group_content_plugins;
   }
 
 }

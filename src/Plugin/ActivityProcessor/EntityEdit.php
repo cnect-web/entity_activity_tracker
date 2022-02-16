@@ -2,19 +2,15 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\ActivityProcessor;
 
-use Drupal\entity_activity_tracker\ActivityRecord;
-use Drupal\entity_activity_tracker\Event\EntityActivityBaseEvent;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Contracts\EventDispatcher\Event;
-use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
-use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
 
 /**
  * Sets activity when entity is edited.
  *
  * @ActivityProcessor (
  *   id = "entity_edit",
+ *   event = "hook_event_dispatcher.entity.update",
  *   label = @Translation("Entity Edit"),
  *   entity_types = {
  *     "node",
@@ -26,14 +22,14 @@ use Drupal\entity_activity_tracker\Event\ActivityEventInterface;
  *   },
  * )
  */
-class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInterface {
+class EntityEdit extends ActivityProcessorBase {
 
   /**
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
     return [
-      'activity_edit' => 2,
+      'activity_edit' => 100,
     ];
   }
 
@@ -52,13 +48,6 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
     ];
 
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // Do nothing for now.
   }
 
   /**
@@ -88,47 +77,14 @@ class EntityEdit extends ActivityProcessorBase implements ActivityProcessorInter
   /**
    * {@inheritdoc}
    */
-  public function processActivity(Event $event) {
-
-    $dispatcher_type = $event->getDispatcherType();
-
-    switch ($dispatcher_type) {
-      case ActivityEventInterface::ENTITY_UPDATE:
-        $entity = $event->getEntity();
-        $tracker = $event->getTracker();
-
-        $initial_activity = $tracker->getProcessorPlugin('entity_create')->configuration['activity_creation'];
-
-        $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($entity);
-        // Create activity record, if it is missing.
-        if (empty($activity_record)) {
-          $activity_record = new ActivityRecord($entity->getEntityTypeId(), $entity->bundle(), $entity->id(), $initial_activity);
-          $this->activityRecordStorage->createActivityRecord($activity_record);
-        }
-
-        $update_activity = $initial_activity * ($this->configuration['activity_edit'] / 100);
-
-        $activity_record->increaseActivity($update_activity);
-
-        $this->activityRecordStorage->updateActivityRecord($activity_record);
-        break;
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function canProcess(Event $event) {
-    // Only target entity updates for this processor.
-    if ($event->getDispatcherType() == ActivityEventInterface::ENTITY_UPDATE) {
-      /** @var EntityActivityBaseEvent $event */
-      $entity = $event->getEntity();
-      if (empty($entity)) {
-        return ActivityProcessorInterface::SKIP;
-      }
-      return ActivityProcessorInterface::PROCESS;
-    }
-    return ActivityProcessorInterface::SKIP;
+  public function processActivity($event) {
+    $entity = $event->getEntity();
+    $this->activityRecordStorage->applyActivity(
+      $entity->getEntityTypeId(),
+      $entity->bundle(),
+      $entity->id(),
+      $this->configuration[$this->getConfigField()]
+    );
   }
 
 }

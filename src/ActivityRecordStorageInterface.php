@@ -21,20 +21,7 @@ interface ActivityRecordStorageInterface {
   public function getActivityRecord(int $id);
 
   /**
-   * Gets a list of ActivityRecords.
-   *
-   * @param string $entity_type
-   *   Optional get list of given entity_type.
-   * @param string $bundle
-   *   Optional get list of given entity_type and bundle.
-   *
-   * @return \Drupal\entity_activity_tracker\ActivityRecord[]
-   *   A list of ActivityRecord objects.
-   */
-  public function getActivityRecords(string $entity_type = '', string $bundle = '');
-
-  /**
-   * Gets a ActivityRecord given an Entity.
+   * Gets a ActivityRecord by entity.
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   Content entity that is being tracked.
@@ -43,6 +30,35 @@ interface ActivityRecordStorageInterface {
    *   The ActivityRecord object or FALSE.
    */
   public function getActivityRecordByEntity(ContentEntityInterface $entity);
+
+  /**
+   * Gets a ActivityRecord by entity data.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   * @param string $bundle
+   *   Bundle.
+   * @param int $entity_id
+   *   Entity id.
+   *
+   * @return \Drupal\entity_activity_tracker\ActivityRecord|false
+   *   The ActivityRecord object or FALSE.
+   */
+  public function getActivityRecordByEntityData($entity_type, $bundle, $entity_id);
+
+  /**
+   * Apply activity to give entity.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   * @param string $bundle
+   *   Bundle.
+   * @param int $entity_id
+   *   Entity id.
+   * @param int $activity
+   *   Activity.
+   */
+  public function applyActivity($entity_type, $bundle, $entity_id, $activity);
 
   /**
    * Creates an ActivityRecord on database.
@@ -80,13 +96,13 @@ interface ActivityRecordStorageInterface {
   /**
    * Deletes an ActivityRecord on database.
    *
-   * @param \Drupal\entity_activity_tracker\ActivityRecord $activity_record
-   *   ActivityRecord object that should be deleted.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   Content entity that is being tracked.
    *
    * @return bool
    *   TRUE if successful.
    */
-  public function deleteActivityRecord(ActivityRecord $activity_record);
+  public function deleteActivityByEntity(ContentEntityInterface $entity);
 
   /**
    * Delete activity records by bundle and entity type.
@@ -100,48 +116,6 @@ interface ActivityRecordStorageInterface {
    *   TRUE if successful.
    */
   public function deleteActivityRecorsdByBundle($entity_type, $bundle);
-
-  /**
-   * Gets a list of ActivityRecords filtering by created timestamp.
-   *
-   * This method will get activity records by comparing record creation date
-   * by default the operator parameter is "less than or equal to" (<=)
-   * this means that we get all records were created before given timestamp.
-   *
-   * @param int $timestamp
-   *   UNIX timestamp to use as filter.
-   * @param string $entity_type
-   *   (Optional) Defines entity_type of which records we should get.
-   * @param string $bundle
-   *   (Optional) Defines bundle of which records we should get.
-   * @param string $operator
-   *   (Optional) Defines query condition operator.
-   *
-   * @return \Drupal\entity_activity_tracker\ActivityRecord[]
-   *   A list of ActivityRecord objects.
-   */
-  public function getActivityRecordsCreated(int $timestamp, string $entity_type = '', string $bundle = '', string $operator = '<=');
-
-  /**
-   * Gets a list of ActivityRecords filtering by changed timestamp.
-   *
-   * This method will get activity records by comparing record creation date
-   * by default the operator parameter is "less than or equal to" (<=)
-   * this means that we get all records were changed before given timestamp.
-   *
-   * @param int $timestamp
-   *   UNIX timestamp to use as filter.
-   * @param string $entity_type
-   *   (Optional) Defines entity_type of which records we should get.
-   * @param string $bundle
-   *   (Optional) Defines bundle of which records we should get.
-   * @param string $operator
-   *   (Optional) Defines query condition operator.
-   *
-   * @return \Drupal\entity_activity_tracker\ActivityRecord[]
-   *   A list of ActivityRecord objects.
-   */
-  public function getActivityRecordsChanged(int $timestamp, string $entity_type = '', string $bundle = '', string $operator = '<=');
 
   /**
    * Gets a list of ActivityRecords filtering by last_decay timestamp.

@@ -22,7 +22,14 @@ class TrackerLoader {
    *
    * @var array
    */
-  protected $trackers;
+  protected $trackers = [];
+
+  /**
+   * Trackers by bundle.
+   *
+   * @var array
+   */
+  protected $bundleTrackers = [];
 
   /**
    * Constructs a new TrackerLoader object.
@@ -56,15 +63,15 @@ class TrackerLoader {
    */
   public function getTrackerByEntityBundle($entity_type, $entity_bundle) {
     $key = "{$entity_type}-{$entity_bundle}";
-    if (empty($this->trackers[$key])) {
+    if (empty($this->bundleTrackers[$key])) {
       $tracker = $this->trackerStorage->loadByProperties([
         'entity_type' => $entity_type,
         'entity_bundle' => $entity_bundle,
       ]);
-      $this->trackers[$key] = reset($tracker);
+      $this->bundleTrackers[$key] = reset($tracker);
     }
 
-    return $this->trackers[$key];
+    return $this->bundleTrackers[$key];
   }
 
   /**
@@ -74,7 +81,10 @@ class TrackerLoader {
    *   Array containing all trackers.
    */
   public function getAll() {
-    return $this->trackerStorage->loadMultiple();
+    if (empty($this->trackers)) {
+      $this->trackers = $this->trackerStorage->loadMultiple();
+    }
+    return $this->trackers;
   }
 
   /**
@@ -101,19 +111,6 @@ class TrackerLoader {
    */
   public function getTrackerCanonical(ContentEntityInterface $entity) {
     return $this->getTrackerByEntity($entity)->toUrl();
-  }
-
-  /**
-   * Get tracker by id.
-   *
-   * @param int $tracker_id
-   *  Tracker id.
-   *
-   * @return \Drupal\Core\Entity\EntityInterface|mixed|void|null
-   *  Tracker.
-   */
-  public function getById($tracker_id) {
-    return $this->trackerStorage->load($tracker_id);
   }
 
 }

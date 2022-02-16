@@ -31,6 +31,15 @@ class ActivityProcessor extends Plugin {
   public $label;
 
   /**
+   * The event which will be handled by plugin.
+   *
+   * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
+   */
+  public $event;
+
+  /**
    * An array of entity types where this plugin can be applied.
    *
    * @var array
@@ -38,18 +47,11 @@ class ActivityProcessor extends Plugin {
   public $entity_types = [];
 
   /**
-   * The related entity_type that plugin will credit.
+   * Target entity type related to this plugin.
    *
    * @var string
    */
-  public $credit_related;
-
-  /**
-   * The related plugin id that plugin will use to credit related entity.
-   *
-   * @var string
-   */
-  public $related_plugin;
+  public $target_entity_type;
 
   /**
    * The summary of the plugin.
