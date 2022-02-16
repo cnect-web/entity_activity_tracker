@@ -2,7 +2,6 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\ActivityProcessor;
 
-use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -30,7 +29,7 @@ class EntityEdit extends ActivityProcessorBase {
    */
   public function defaultConfiguration() {
     return [
-      'activity_edit' => 2,
+      'activity_edit' => 100,
     ];
   }
 
@@ -80,8 +79,12 @@ class EntityEdit extends ActivityProcessorBase {
    */
   public function processActivity($event) {
     $entity = $event->getEntity();
-    $activity_record = new ActivityRecord($entity->getEntityTypeId(), $entity->bundle(), $entity->id(), $this->configuration[$this->getConfigField()]);
-    $this->activityRecordStorage->createActivityRecord($activity_record);
+    $this->activityRecordStorage->applyActivity(
+      $entity->getEntityTypeId(),
+      $entity->bundle(),
+      $entity->id(),
+      $this->configuration[$this->getConfigField()]
+    );
   }
 
 }

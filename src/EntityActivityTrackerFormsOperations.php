@@ -4,13 +4,12 @@ namespace Drupal\entity_activity_tracker;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class to react to form related operations.
@@ -60,7 +59,12 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
    * @param \Drupal\entity_activity_tracker\TrackerLoader $tracker_loader
    *   Tracker loader.
    */
-  public function __construct(ActivityRecordStorageInterface $activity_record_storage, MessengerInterface $messenger, AccountProxyInterface $current_user, TrackerLoader $tracker_loader) {
+  public function __construct(
+    ActivityRecordStorageInterface $activity_record_storage,
+    MessengerInterface $messenger,
+    AccountProxyInterface $current_user,
+    TrackerLoader $tracker_loader
+  ) {
     $this->activityRecordStorage = $activity_record_storage;
     $this->messenger = $messenger;
     $this->currentUser = $current_user;

@@ -27,7 +27,11 @@ class ActivityProcessorCollection extends DefaultLazyPluginCollection {
    *   (optional) An associative array containing the initial configuration for
    *   each plugin in the collection, keyed by plugin instance ID.
    */
-  public function __construct(PluginManagerInterface $manager, array $configurations = [], EntityActivityTrackerInterface $tracker) {
+  public function __construct(
+    PluginManagerInterface $manager,
+    array $configurations = [],
+    EntityActivityTrackerInterface $tracker
+  ) {
     parent::__construct($manager, $configurations);
     $this->tracker = $tracker;
   }

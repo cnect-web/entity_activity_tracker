@@ -15,7 +15,7 @@ abstract class CreditUserBase extends ActivityProcessorCreditRelatedBase {
    */
   public function defaultConfiguration() {
     return [
-      'credit_user' => 2,
+      'credit_user' => 100,
     ];
   }
 

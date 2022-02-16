@@ -142,11 +142,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
       $this->activityRecordStorage->deleteActivityRecorsdByBundle($entity->getTargetEntityType(), $entity->getTargetEntityBundle());
     }
     elseif ($entity instanceof ContentEntityInterface) {
-      /** @var \Drupal\entity_activity_tracker\ActivityRecord $activity_record */
-      $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($entity);
-      if ($activity_record) {
-        $this->activityRecordStorage->deleteActivityRecord($activity_record);
-      }
+      $this->activityRecordStorage->deleteActivityByEntity($entity);
     }
   }
 

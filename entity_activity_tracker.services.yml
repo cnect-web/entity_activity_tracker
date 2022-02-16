@@ -9,10 +9,6 @@ services:
     class: Drupal\entity_activity_tracker\Plugin\ActivityProcessorManager
     parent: default_plugin_manager
 
-  entity_activity_tracker.plugin.manager.tracker_processor:
-    class: Drupal\entity_activity_tracker\Plugin\TrackerProcessorManager
-    parent: default_plugin_manager
-
   entity_activity_tracker.activity_record_storage:
     class: Drupal\entity_activity_tracker\ActivityRecordStorage
     arguments: ['@database', '@datetime.time', '@logger.factory']

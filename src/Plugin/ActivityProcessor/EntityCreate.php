@@ -4,7 +4,6 @@ namespace Drupal\entity_activity_tracker\Plugin\ActivityProcessor;
 
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\entity_activity_tracker\ActivityRecord;
 
 /**
  * Sets activity when entity is created.
@@ -99,8 +98,12 @@ class EntityCreate extends ActivityProcessorBase {
    */
   public function processActivity($event) {
     $entity = $event->getEntity();
-    $activity_record = new ActivityRecord($entity->getEntityTypeId(), $entity->bundle(), $entity->id(), $this->configuration['activity_creation']);
-    $this->activityRecordStorage->createActivityRecord($activity_record);
+    $this->activityRecordStorage->applyActivity(
+      $entity->getEntityTypeId(),
+      $entity->bundle(),
+      $entity->id(),
+      $this->configuration['activity_creation']
+    );
   }
 
   /**

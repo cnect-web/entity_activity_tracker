@@ -2,12 +2,10 @@
 
 namespace Drupal\entity_activity_tracker_group\Plugin\ActivityProcessor;
 
-use Drupal\comment\CommentManagerInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\entity_activity_tracker_group\Plugin\CreditGroupBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -70,7 +68,7 @@ class CreditGroupMembershipCommentCreation extends CreditGroupBase {
    */
   public function defaultConfiguration() {
     return [
-      'credit_group_content' => 2,
+      'credit_group_content' => 100,
     ];
   }
 
@@ -134,8 +132,12 @@ class CreditGroupMembershipCommentCreation extends CreditGroupBase {
     $results = $query->execute()->fetchAll();
 
     foreach ($results as $result) {
-      $activity_record = new ActivityRecord($this->tracker->getTargetEntityType(), $this->tracker->getTargetEntityBundle(), $result->id, $result->cnt * $this->configuration[$this->getConfigField()]);
-      $this->activityRecordStorage->createActivityRecord($activity_record);
+      $this->activityRecordStorage->applyActivity(
+        $this->tracker->getTargetEntityType(),
+        $this->tracker->getTargetEntityBundle(),
+        $result->id,
+        $result->cnt * $this->configuration[$this->getConfigField()]
+      );
     }
   }
 

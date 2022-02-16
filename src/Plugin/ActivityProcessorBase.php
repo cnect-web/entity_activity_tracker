@@ -6,7 +6,6 @@ use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
@@ -153,8 +152,12 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
 
   public function creditExistingEntities() {
    foreach ($this->getExistingEntities() as $entity) {
-     $activity_record = new ActivityRecord($entity->getEntityTypeId(), $entity->bundle(), $entity->id(), $this->configuration['activity_creation']);
-     $this->activityRecordStorage->createActivityRecord($activity_record);
+     $this->activityRecordStorage->applyActivity(
+       $entity->getEntityTypeId(),
+       $entity->bundle(),
+       $entity->id(),
+       $this->configuration['activity_creation']
+     );
    }
   }
 

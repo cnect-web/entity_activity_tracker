@@ -8,7 +8,6 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
-use Drupal\entity_activity_tracker\TrackerLoader;
 use Drupal\file\FileInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -168,8 +167,10 @@ class ImportActivityRecordsForm extends FormBase implements ContainerInjectionIn
     // Import record if entity / tracker exist and that record doesn't exist.
     if ($item_entity && $tracker && !$activity_record) {
       $message = "Creating activity record for entity {$entity_type} {$entity_id}";
+
       $activity_record = new ActivityRecord($entity_type, $bundle, $entity_id, $item['activity'], $item['created'], $item['changed']);
       $activity_record_storage->createActivityRecord($activity_record);
+
       $context['results'][] = $item;
     }
     else {

@@ -59,6 +59,7 @@ class ExportActivityRecordsController extends ControllerBase {
    */
   public function export() {
 
+    // @TODO: Move it to ActivityRecords storage.
     // Get everything from activity table;.
     $query = $this->database->select('entity_activity_tracker', 'fa')
       ->fields('fa');

@@ -3,7 +3,6 @@
 namespace Drupal\entity_activity_tracker\Plugin;
 
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\entity_activity_tracker\ActivityRecord;
 
 /**
  * Base class for Activity processor plugins.
@@ -37,7 +36,6 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
     return [];
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -45,10 +43,13 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
     $entity = $event->getEntity();
     $related_entities = $this->getRelatedEntities($entity);
     foreach ($related_entities as $related_entity) {
-      $activity_record = new ActivityRecord($related_entity->getEntityTypeId(), $related_entity->bundle(), $related_entity->id(), $this->configuration[$this->getConfigField()]);
-      $this->activityRecordStorage->createActivityRecord($activity_record);
+      $this->activityRecordStorage->applyActivity(
+        $related_entity->getEntityTypeId(),
+        $related_entity->bundle(),
+        $related_entity->id(),
+        $this->configuration[$this->getConfigField()]
+      );
     }
   }
-
 
 }

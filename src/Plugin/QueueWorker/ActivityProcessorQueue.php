@@ -79,11 +79,9 @@ class ActivityProcessorQueue extends ActivityQueueWorkerBase {
    * {@inheritdoc}
    */
   public function processItem($event) {
-    // TODO: cache.
     $trackers = $this->trackerLoader->getAll();
     foreach ($trackers as $tracker) {
-      // TODO cache plugins
-      $plugins = $tracker->getProcessorPlugins()->getEnabled();
+      $plugins = $tracker->getEnabledProcessorsPlugins();
       foreach ($plugins as $plugin_id => $plugin) {
         if ($plugin->canProcess($event)) {
           $plugin->processActivity($event);

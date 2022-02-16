@@ -18,7 +18,7 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
    */
   public function defaultConfiguration() {
     return [
-      'credit_group' => 2,
+      'credit_group' => 100,
     ];
   }
 
