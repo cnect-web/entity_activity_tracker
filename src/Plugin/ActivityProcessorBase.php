@@ -6,6 +6,7 @@ use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
@@ -82,6 +83,8 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
    */
   public function getSummary() {
     return $this->t('<b>@plugin_name:</b> <br> @plugin_summary: @activity <br>', [
+      '@entity_type' => $this->tracker->getTargetEntityType(),
+      '@bundle' => $this->tracker->getTargetEntityBundle(),
       '@plugin_name' => $this->pluginDefinition['label']->render(),
       '@plugin_summary' => $this->pluginDefinition['summary']->render(),
       '@activity' => $this->configuration[$this->getConfigField()],
@@ -146,6 +149,17 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
    */
   public function isAccessible() {
     return TRUE;
+  }
+
+  public function creditExistingEntities() {
+   foreach ($this->getExistingEntities() as $entity) {
+     $activity_record = new ActivityRecord($entity->getEntityTypeId(), $entity->bundle(), $entity->id(), $this->configuration['activity_creation']);
+     $this->activityRecordStorage->createActivityRecord($activity_record);
+   }
+  }
+
+  protected function getExistingEntities() {
+    return [];
   }
 
 }

@@ -103,4 +103,23 @@ class EntityCreate extends ActivityProcessorBase {
     $this->activityRecordStorage->createActivityRecord($activity_record);
   }
 
+  /**
+   * Get existing entities of tracker that was just created.
+   *
+   * @return \Drupal\Core\Entity\ContentEntityInterface[]
+   *   Existing entities to be tracked.
+   */
+  protected function getExistingEntities() {
+    $storage = $this->entityTypeManager->getStorage($this->tracker->getTargetEntityType());
+    $bundle_key = $storage->getEntityType()->getKey('bundle');
+    if (!empty($bundle_key)) {
+      return $storage->loadByProperties([$bundle_key => $this->tracker->getTargetEntityBundle()]);
+    }
+    else {
+      // @todo: This needs review!! For now should be enough.
+      // User entity has no bundles.
+      return $storage->loadMultiple();
+    }
+  }
+
 }

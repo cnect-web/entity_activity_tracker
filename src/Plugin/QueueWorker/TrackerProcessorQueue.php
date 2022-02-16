@@ -78,15 +78,11 @@ class TrackerProcessorQueue extends ActivityQueueWorkerBase {
    * {@inheritdoc}
    */
   public function processItem($event) {
-    $tracker_processors = array_keys($this->trackerProcessorManager->getDefinitions());
-
-    foreach ($tracker_processors as $plugin_id) {
-      $tracker_processor = $this->trackerProcessorManager->createInstance($plugin_id);
-      var_dump($tracker_processor);
-      exit();
-      $tracker_processor->process($event->getEntity());
+    $tracker = $event->getEntity();
+    $plugins = $tracker->getProcessorPlugins()->getEnabled();
+    foreach ($plugins as $plugin) {
+      $plugin->creditExistingEntities();
     }
-    exit();
   }
 
 }

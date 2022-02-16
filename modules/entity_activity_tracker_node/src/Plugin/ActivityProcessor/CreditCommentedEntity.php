@@ -2,13 +2,15 @@
 
 namespace Drupal\entity_activity_tracker_node\Plugin\ActivityProcessor;
 
+use Drupal\comment\CommentInterface;
 use Drupal\comment\CommentManagerInterface;
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\entity_activity_tracker\ActivityRecord;
 use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorCreditRelatedBase;
-use Drupal\entity_activity_tracker\TrackerLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -35,6 +37,13 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
   protected $commentManager;
 
   /**
+   * The database connection to use.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $connection;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(
@@ -43,12 +52,13 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
     $plugin_definition,
     ActivityRecordStorageInterface $activity_record_storage,
     EntityTypeManagerInterface $entity_type_manager,
-    TrackerLoader $tracker_loader,
-    CommentManagerInterface $comment_manager
+    CommentManagerInterface $comment_manager,
+    Connection $connection
   ) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $activity_record_storage, $entity_type_manager, $tracker_loader);
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $activity_record_storage, $entity_type_manager);
 
     $this->commentManager = $comment_manager;
+    $this->connection = $connection;
   }
 
   /**
@@ -61,8 +71,8 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
       $plugin_definition,
       $container->get('entity_activity_tracker.activity_record_storage'),
       $container->get('entity_type.manager'),
-      $container->get('entity_activity_tracker.tracker_loader'),
-      $container->get('comment.manager')
+      $container->get('comment.manager'),
+      $container->get('database')
     );
   }
 
@@ -82,10 +92,10 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
 
     $form['comment_creation'] = [
       '#type' => 'number',
-      '#title' => $this->t('Activity per comment'),
+      '#title' => $this->t('Activty points for commenting a node'),
       '#min' => 1,
       '#default_value' => $this->getConfiguration()['comment_creation'],
-      '#description' => $this->t('The percentage relative to initial value.'),
+      '#description' => $this->t('Node will get activity points everytime it is commented.'),
       '#required' => TRUE,
     ];
 
@@ -107,10 +117,10 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
   }
 
   /**
-   * Get entity based on attached entity and plugin "credit_related" definition.
+   * Get owner of the comment.
    *
-   * @param ContentEntityInterface $entity
-   *   The entity attached to event.
+   * @param CommentInterface $comment
+   *   The comment attached to event.
    *
    * @return ContentEntityInterface|null
    *   Related entity or null.
@@ -119,10 +129,32 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
     return [$entity->getCommentedEntity()];
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function isAccessible() {
-    // TODO: DI
     $field_names = $this->commentManager->getFields('node');
     return !empty($field_names['comment']['bundles'][$this->tracker->getTargetEntityBundle()]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function creditExistingEntities() {
+    // Get comments count for the existing nodes.
+    $query = $this->connection->select('comment_field_data', 'cd')
+      ->fields('nd', ['nid']);
+    $query->addExpression('COUNT(cd.cid)', 'cnt');
+    $query->innerJoin('node_field_data', 'nd', 'nd.nid = cd.entity_id');
+    $query->condition('nd.type', $this->tracker->getTargetEntityBundle());
+    $query->condition('cd.entity_type', $this->tracker->getTargetEntityType());
+    $query->groupBy('nd.nid');
+    $results = $query->execute()->fetchAll();
+
+    foreach ($results as $result) {
+      $activity_record = new ActivityRecord($this->tracker->getTargetEntityType(), $this->tracker->getTargetEntityBundle(), $result->nid, $result->cnt * $this->configuration[$this->getConfigField()]);
+      $this->activityRecordStorage->createActivityRecord($activity_record);
+    }
   }
 
 }

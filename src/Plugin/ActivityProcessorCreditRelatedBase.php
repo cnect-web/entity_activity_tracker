@@ -15,7 +15,6 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
    */
   public function canProcess($event) {
     // TODO: simplify this.
-    var_dump($this->getPluginDefinition()['event'] != $event->getDispatcherType());
     if ($this->getPluginDefinition()['event'] != $event->getDispatcherType()) {
       return FALSE;
     }
@@ -26,13 +25,13 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
   }
 
   /**
-   * Get entity based on attached entity and plugin "credit_related" definition.
+   * Get entities related to the give entity.
    *
    * @param ContentEntityInterface $entity
    *   The entity attached to event.
    *
-   * @return ContentEntityInterface|null
-   *   Related entity or null.
+   * @return array
+   *   Related entities.
    */
   protected function getRelatedEntities(ContentEntityInterface $entity) {
     return [];

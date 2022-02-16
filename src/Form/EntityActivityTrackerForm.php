@@ -153,7 +153,6 @@ class EntityActivityTrackerForm extends EntityForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-
     $form = parent::form($form, $form_state);
 
     /** @var \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $entity_activity_tracker */
@@ -212,12 +211,11 @@ class EntityActivityTrackerForm extends EntityForm {
     $entity_type = $entity_activity_tracker->getTargetEntityType();
 
     if (!empty($entity_type)) {
-      $this->bundle_options = $this->getBundleOptions($this->entity_type_bundles[$entity_type]);
       $form['entity_bundle_wrapper']['entity_bundle'] = [
         '#type' => 'select',
         '#title' => $this->t('Entity Bundle'),
         '#default_value' => $entity_activity_tracker->getTargetEntityBundle(),
-        '#options' => $this->bundle_options,
+        '#options' => $this->getBundleOptions($this->entity_type_bundles[$entity_type]),
         '#disabled' => !$entity_activity_tracker->isNew(),
         '#required' => TRUE,
         '#ajax' => [
@@ -243,12 +241,14 @@ class EntityActivityTrackerForm extends EntityForm {
 
     $processor_config = $entity_activity_tracker->get('activity_processors');
     $target_entity = $entity_activity_tracker->getTargetEntityType();
+    $target_bundle = $form_state->getValue('entity_bundle');
+
     foreach ($this->manager->getDefinitions() as $plugin_id => $definition) {
       // Display plugins that are meant to track selected entity type.
       if (in_array($target_entity, $definition['entity_types'])) {
         /** @var ActivityProcessorInterface $processor */
         $processor = $entity_activity_tracker->getProcessorPlugin($plugin_id);
-        if (!$processor->isAccessible()) {
+        if (!$processor->isAccessible($target_bundle)) {
           continue;
         }
         // Check if processor is defined as required for entity type.
@@ -382,7 +382,6 @@ class EntityActivityTrackerForm extends EntityForm {
 
     $response->addCommand(new ReplaceCommand('#entity-bundle-wrapper', $form['entity_bundle_wrapper']));
     $response->addCommand(new RemoveCommand('#activity-processors-wrapper .details-wrapper > *', $form['activity_processors']));
-//    $response->addCommand(new ReplaceCommand('#activity-processors-wrapper', $form['activity_processors']));
 
     return $response;
   }
@@ -420,12 +419,12 @@ class EntityActivityTrackerForm extends EntityForm {
   protected function getBundleOptions(string $entity_type_value) {
 
     if (empty($this->bundle_options[$entity_type_value])) {
+      $this->bundle_options[$entity_type_value][''] = $this->t('- Select -');
       if ($entity_type_value == 'user') {
         // User entities don't have bundle.
         $this->bundle_options[$entity_type_value][$entity_type_value] = $this->t('User');
       }
       else {
-        $this->bundle_options[$entity_type_value][''] = $this->t('- Select -');
         $bundles = $this->entityTypeManager->getStorage($entity_type_value)->loadMultiple();
 
         foreach ($bundles as $bundle_id => $bundle_type) {
@@ -433,6 +432,7 @@ class EntityActivityTrackerForm extends EntityForm {
         }
       }
     }
+
     return $this->bundle_options[$entity_type_value];
   }
 

@@ -31,6 +31,9 @@ interface ActivityProcessorInterface extends PluginInspectionInterface, Configur
 
   /**
    * Checks if the plugin accessible.
+   *
+   * @return bool
+   *   Result of accessibility checks.
    */
   public function isAccessible();
 
