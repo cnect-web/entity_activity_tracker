@@ -25,7 +25,7 @@ use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
  *     },
  *   },
  *   config_prefix = "entity_activity_tracker",
- *   admin_permission = "administer site configuration",
+ *   admin_permission = "administer activity trackers",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
