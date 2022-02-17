@@ -33,6 +33,10 @@ entity_activity_tracker.activity_processor.settings_base:
       type: boolean
       label: 'Enabled'
 
+entity_activity_tracker.activity_processor.settings.debug:
+  type: boolean
+  label: 'Enable debug logging'
+
 # The plugins which extend the base plugin and don't provide
 # any configuration form will validate on this entry.
 entity_activity_tracker.activity_processor.settings.*:
