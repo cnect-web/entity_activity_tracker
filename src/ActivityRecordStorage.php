@@ -73,6 +73,9 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
     return $this->getActivityRecordByEntityData($entity->getEntityTypeId(), $entity->bundle(), $entity->id());
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getActivityRecordByEntityData($entity_type, $bundle, $entity_id) {
     $query = $this->getBaseQuery()
       ->condition('entity_type', $entity_type)
@@ -83,6 +86,17 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
       return $this->getActivityRecordObject($result);
     }
     return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getActivityRecordByBundle($entity_type, $bundle) {
+    $query = $this->getBaseQuery()
+      ->condition('entity_type', $entity_type)
+      ->condition('bundle', $bundle);
+
+    return $this->prepareList($query);
   }
 
   /**

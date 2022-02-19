@@ -2,13 +2,6 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\entity_activity_tracker\TrackerLoader;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Queue\QueueInterface;
-use Psr\Log\LoggerInterface;
-
 /**
  * Processes ActivityProcessor plugins.
  *

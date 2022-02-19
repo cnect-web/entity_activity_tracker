@@ -52,6 +52,8 @@ class ActivityProcessEntityCreateTest extends WebDriverTestBase {
   protected function setUp():void {
     parent::setUp();
 
+    $this->entityTypeManager = $this->container->get('entity_type.manager');
+
     $this->adminUser = $this->drupalCreateUser([
       'administer activity trackers',
       'administer nodes',
