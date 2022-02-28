@@ -5,9 +5,10 @@ namespace Drupal\Tests\entity_activity_tracker_node\Kernel;
 use Drupal\Tests\entity_activity_tracker\Kernel\EntityActivityTrackerTestBase;
 
 /**
- * Tests basic activity processor plugin credit_user_comment_creation.
+ * Tests activity point assignment or user's related activities.
  *
  * @group entity_activity_tracker
+ * @see \Drupal\entity_activity_tracker_user\Plugin\ActivityProcessor\CreditUserCommentCreation
  */
 class CreditUserCommentCreationTest extends EntityActivityTrackerTestBase {
 
@@ -35,6 +36,15 @@ class CreditUserCommentCreationTest extends EntityActivityTrackerTestBase {
     $this->installSchema('comment', ['comment_entity_statistics']);
   }
 
+  /**
+   * Create a tracker for a user.
+   *
+   * @param $run_cron
+   *   Run cron after.
+   *
+   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
+   *   Tracker.
+   */
   protected function createTrackerForUser($run_cron) {
     // @TODO: refactor hardcoded values.
     return $this->createTracker('user', 'user', [
@@ -46,10 +56,9 @@ class CreditUserCommentCreationTest extends EntityActivityTrackerTestBase {
   }
 
   /**
-   * Test: when we comment an entity.
+   * Test assignment of activity points, when a user posts a comment.
    */
   public function testEntityCommenting() {
-
     $tracker = $this->createTrackerForUser(TRUE);
     $article = $this->createNode('article', TRUE);
     $this->createComment($article);
@@ -62,7 +71,7 @@ class CreditUserCommentCreationTest extends EntityActivityTrackerTestBase {
   }
 
   /**
-   * Test the case when we have entities and we apply activity points to existing entities.
+   * Test assignment of activity points, when we create a tracker and we assign points to authors of comments.
    */
   public function testTrackerCreationExistingEntity() {
     $article = $this->createNode('article', TRUE);
@@ -80,7 +89,7 @@ class CreditUserCommentCreationTest extends EntityActivityTrackerTestBase {
   }
 
   /**
-   * Test the case when don't have existing entities.
+   * Test assignment of activity points, when we create a tracker and we don't have any comments.
    */
   public function testTrackerCreationWithNoEntities() {
     $tracker = $this->createTrackerForUser(TRUE);

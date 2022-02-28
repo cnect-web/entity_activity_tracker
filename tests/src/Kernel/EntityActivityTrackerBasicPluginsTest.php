@@ -25,9 +25,12 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
   ];
 
   /**
-   * @param $run_cron
+   *   Create a tracker for node type article.
+   * @param bool $run_cron
+   *   Run cron after.
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
+   *   Create tracker for an article.
    */
   protected function createTrackerForNodeArticle($run_cron) {
     // @TODO: refactor hardcoded values.
@@ -41,6 +44,19 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
     ], $run_cron);
   }
 
+  /**
+   * @param $run_cron
+   *   Run cron after
+   * @param int $entity_create_activity_point
+   *   Create activity points.
+   * @param int $entity_decay_activity_point
+   *   Create decay activity points.
+   * @param string $decay_type
+   *   Decay type.
+   *
+   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
+   *   Tracker.
+   */
   protected function createTrackerWithDecayPlugin($run_cron, $entity_create_activity_point, $entity_decay_activity_point, $decay_type) {
     // @TODO: refactor hardcoded values.
     return $this->createTracker('node', 'article', [
@@ -60,19 +76,19 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
   }
 
   /**
-   * Test the case when we have entity and we apply activity points to existing entities.
+   * Test when we create tracker we want to apply activity points to existing entities.
    */
   public function testTrackerCreationExistingEntity() {
     $article = $this->createNode('article', TRUE);
     $this->createTrackerForNodeArticle(TRUE);
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($article);
-    $this->assertTrue( !empty($activity_record));
+    $this->assertTrue(!empty($activity_record));
 
     $this->assertEquals(50, $activity_record->getActivityValue());
   }
 
   /**
-   * Test a new entity creation.
+   * Test assignment of activity point when a new entity is created.
    */
   public function testEntityCreation() {
     $this->createTrackerForNodeArticle(TRUE);
@@ -84,7 +100,7 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
   }
 
   /**
-   * Test test assignment of activity point for existing entities.
+   * Test assignment of activity points when we have several existing entities.
    */
   public function testExistingEntities() {
     $count = 3;
@@ -112,7 +128,7 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
     $bundle = $article->bundle();
     $entity_id = $article->id();
 
-    $this->removeEntity('node', $article);
+    $this->removeEntity($article);
 
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntityData($entity_type, $bundle, $entity_id);
     $this->assertTrue(empty($activity_record));
@@ -131,14 +147,14 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
     $entity_type = $tracker->getTargetEntityType();
     $bundle = $tracker->getTargetEntityBundle();
 
-    $this->removeEntity('entity_activity_tracker', $tracker);
+    $this->removeEntity($tracker);
 
     $activity_records = $this->activityRecordStorage->getActivityRecordByBundle($entity_type, $bundle);
     $this->assertTrue(empty($activity_records));
   }
 
   /**
-   * Make sure we don't apply activity point to not tracked bundles.
+   * Make sure we don't apply activity points to not tracked bundles.
    */
   public function testNotTrackedBundles() {
     $page = $this->createNode('page', TRUE);
@@ -149,7 +165,7 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
   }
 
   /**
-   * Test entity_edit plugin.
+   * Test assignment of activity point, when entity is edited.
    */
   public function testEntityEditPlugin() {
     $activity_point = 300;
@@ -237,6 +253,5 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
     $result = (int) ceil($entity_create_plugin_activity_point * pow(exp(1), (-$entity_decay_plugin_activity_point * ((0 / 60) / 60) / 24)));
     $this->assertEquals($result, $activity_record->getActivityValue());
   }
-
 
 }

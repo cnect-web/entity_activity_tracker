@@ -2,8 +2,10 @@
 
 namespace Drupal\Tests\entity_activity_tracker\Kernel;
 
-use Drupal\Core\CronInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
+use Drupal\node\NodeInterface;
 
 /**
  * Test kernel base class.
@@ -67,8 +69,21 @@ abstract class EntityActivityTrackerTestBase extends EntityKernelTestBase {
     'entity_activity_tracker',
   ];
 
-  protected function createEntity($type, $values, $run_cron) {
-    $storage = $this->entityTypeManager->getStorage($type);
+  /**
+   * Create node.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   * @param array $values
+   *   Values.
+   * @param $run_cron
+   *   Run cron after.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface
+   *   Entity.
+   */
+  protected function createEntity($entity_type, array $values, $run_cron) {
+    $storage = $this->entityTypeManager->getStorage($entity_type);
     $entity = $storage->create($values);
     $entity->enforceIsNew();
     $storage->save($entity);
@@ -80,7 +95,22 @@ abstract class EntityActivityTrackerTestBase extends EntityKernelTestBase {
     return $entity;
   }
 
-  protected function createTracker($entity_type, $bundle, $processors, $run_cron) {
+  /**
+   * Create tracker.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   * @param string $bundle
+   *   Bundle.
+   * @param array $processors
+   *   List of processors configuration.
+   * @param $run_cron
+   *   Run cron after.
+   *
+   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
+   *   Tracker entity.
+   */
+  protected function createTracker($entity_type, $bundle, array $processors, $run_cron) {
     return $this->createEntity('entity_activity_tracker', [
       'id' => $this->randomMachineName(),
       'label' => $this->randomString(),
@@ -90,6 +120,17 @@ abstract class EntityActivityTrackerTestBase extends EntityKernelTestBase {
     ], $run_cron);
   }
 
+  /**
+   * Create node.
+   *
+   * @param string $type
+   *   Node type.
+   * @param $run_cron
+   *   Run cron service after.
+   *
+   * @return \Drupal\node\NodeInterface
+   *   Node entity.
+   */
   protected function createNode($type, $run_cron = TRUE) {
     return $this->createEntity('node', [
       'title' => $this->randomString(),
@@ -98,7 +139,6 @@ abstract class EntityActivityTrackerTestBase extends EntityKernelTestBase {
       'uid' => $this->adminUser->id(),
     ], $run_cron);
   }
-
 
   /**
    * Creates a node type.
@@ -116,18 +156,45 @@ abstract class EntityActivityTrackerTestBase extends EntityKernelTestBase {
     ], FALSE);
   }
 
-  protected function removeEntity($type, $entity) {
-    $storage = $this->entityTypeManager->getStorage($type);
+  /**
+   * Removes entity.
+   *
+   * @param EntityInterface $entity
+   *   Entity to be removed.
+   */
+  protected function removeEntity(EntityInterface $entity) {
+    $storage = $this->entityTypeManager->getStorage($entity->getEntityTypeId());
     $storage->delete([$entity]);
   }
 
-  protected function getPluginActivityPoints($tracker, $plguin_id) {
+  /**
+   * Gets plugin activity point based on config field.
+   *
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
+   *   Tracker.
+   * @param string $plguin_id
+   *   Plugin id.
+   *
+   * @return int
+   *   Activity point.
+   */
+  protected function getPluginActivityPoints(EntityActivityTrackerInterface $tracker, $plguin_id) {
     $plugin = $tracker->getProcessorPlugin($plguin_id);
     return $plugin->getConfiguration()[$plugin->getConfigField()];
   }
 
-  // @TODO move to base class
-  protected function createComment($node, $run_cron = TRUE) {
+  /**
+   * Create a comment.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   Node entity.
+   * @param $run_cron
+   *   Run cron service after.
+   *
+   * @return \Drupal\comment\CommentInterface
+   *   Comment entity.
+   */
+  protected function createComment(NodeInterface $node, $run_cron = TRUE) {
     return $this->createEntity('comment', [
       'entity_type' => $node->getEntityTypeId(),
       'entity_id'   => $node->id(),

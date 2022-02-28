@@ -5,9 +5,10 @@ namespace Drupal\Tests\entity_activity_tracker_node\Kernel;
 use Drupal\Tests\entity_activity_tracker\Kernel\EntityActivityTrackerTestBase;
 
 /**
- * Tests basic activity processor plugin credit_user_content_creation.
+ * Tests activity point assignment or user's related activities.
  *
  * @group entity_activity_tracker
+ * @see \Drupal\entity_activity_tracker_user\Plugin\ActivityProcessor\CreditUserContentCreation
  */
 class CreditUserContentCreationTest extends EntityActivityTrackerTestBase {
 
@@ -31,6 +32,15 @@ class CreditUserContentCreationTest extends EntityActivityTrackerTestBase {
     parent::setUp();
   }
 
+  /**
+   * Create a tracker for a user.
+   *
+   * @param $run_cron
+   *   Run cron after.
+   *
+   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
+   *   Tracker.
+   */
   protected function createTrackerForUser($run_cron) {
     // @TODO: refactor hardcoded values.
     return $this->createTracker('user', 'user', [
@@ -42,7 +52,7 @@ class CreditUserContentCreationTest extends EntityActivityTrackerTestBase {
   }
 
   /**
-   * Test the case when we have entity and we apply activity points to existing entities.
+   * Test assignment of activity points when a user post a node.
    */
   public function testNodeCreation() {
     $tracker = $this->createTrackerForUser(TRUE);
@@ -56,7 +66,7 @@ class CreditUserContentCreationTest extends EntityActivityTrackerTestBase {
   }
 
   /**
-   * Test the case when we have entity and we apply activity points to existing entities.
+   * Test assignment of activity points, when we create a tracker and we assign points to authors of nodes.
    */
   public function testTrackerCreationExistingEntity() {
     $count = 3;

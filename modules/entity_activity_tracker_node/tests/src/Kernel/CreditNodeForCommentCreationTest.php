@@ -2,14 +2,13 @@
 
 namespace Drupal\Tests\entity_activity_tracker_node\Kernel;
 
-
-use Drupal\entity_activity_tracker\Plugin\ActivityProcessor\EntityDecay;
 use Drupal\Tests\entity_activity_tracker\Kernel\EntityActivityTrackerTestBase;
 
 /**
- * Tests basic activity processor plugins (entity_create, entity_edit).
+ * Test assignment of activity point when comment is created.
  *
  * @group entity_activity_tracker
+ * @see \Drupal\entity_activity_tracker_user\Plugin\ActivityProcessor\CreditCommentedEntity
  */
 class CreditNodeForCommentCreationTest extends EntityActivityTrackerTestBase {
 
@@ -37,6 +36,15 @@ class CreditNodeForCommentCreationTest extends EntityActivityTrackerTestBase {
     $this->installSchema('comment', ['comment_entity_statistics']);
   }
 
+  /**
+   * Create a tracker for node type article.
+   *
+   * @param $run_cron
+   *   Run cron after.
+   *
+   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
+   *   Tracker.
+   */
   protected function createTrackerForNodeArticle($run_cron) {
     // @TODO: refactor hardcoded values.
     return $this->createTracker('node', 'article', [
@@ -54,7 +62,7 @@ class CreditNodeForCommentCreationTest extends EntityActivityTrackerTestBase {
   }
 
   /**
-   * Test the case when we have entity and we apply activity points to existing entities.
+   * Test assignment of activity points for node when comment is created for it.
    */
   public function testEntityCommenting() {
     $article = $this->createNode('article', TRUE);
@@ -64,17 +72,16 @@ class CreditNodeForCommentCreationTest extends EntityActivityTrackerTestBase {
     $credit_commented_entity_plugin_activity_point = $this->getPluginActivityPoints($tracker, 'credit_commented_entity');
 
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($article);
-    $this->assertTrue( !empty($activity_record));
+    $this->assertTrue(!empty($activity_record));
     $this->assertEquals($entity_create_plugin_activity_point, $activity_record->getActivityValue());
 
-    // First, we need to create an array of field values for the comment.
     $this->createComment($article);
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($article);
     $this->assertEquals($entity_create_plugin_activity_point + $credit_commented_entity_plugin_activity_point, $activity_record->getActivityValue());
   }
 
   /**
-   * Test the case when we have entity and we apply activity points to existing entities.
+   * Test assignment of activity points for existing nodes, when they have comments and we create a new tracker.
    */
   public function testTrackerCreationExistingEntity() {
     $article = $this->createNode('article', TRUE);
@@ -94,7 +101,7 @@ class CreditNodeForCommentCreationTest extends EntityActivityTrackerTestBase {
   }
 
   /**
-   * Test the case when we have entity and we apply activity points to existing entities.
+   * Test that we don't assign any activity points when we create tracker and we don't have any existing entities.
    */
   public function testTrackerCreationWithNoEntities() {
     $tracker = $this->createTrackerForNodeArticle(TRUE);

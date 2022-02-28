@@ -51,6 +51,15 @@ class CreditGroupTestBase extends EntityActivityTrackerTestBase {
     $this->createGroupType();
   }
 
+  /**
+   * Create a group.
+   *
+   * @param bool $run_cron
+   *   Run cron after.
+   *
+   * @return \Drupal\group\Entity\GroupInterface
+   *   Group.
+   */
   protected function createGroup($run_cron = TRUE) {
     return $this->createEntity('group', [
       'label' => $this->randomString(),

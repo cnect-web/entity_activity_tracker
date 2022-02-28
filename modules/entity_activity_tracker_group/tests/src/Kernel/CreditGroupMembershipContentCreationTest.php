@@ -3,14 +3,15 @@
 namespace Drupal\Tests\entity_activity_tracker_group\Kernel;
 
 /**
- * Tests basic activity processor plugin credit_group_membership_content_creation.
+ * Test assignment of activity points to group membership when user posts comments.
  *
  * @group entity_activity_tracker
+ * @see \Drupal\entity_activity_tracker_user\Plugin\ActivityProcessor\CreditGroupMembershipContentCreation
  */
 class CreditGroupMembershipContentCreationTest extends CreditGroupTestBase {
 
   /**
-   * Test: when we comment an entity.
+   * Test assignment of activity points to group membership, when a new node is posted.
    */
   public function testEntityCommenting() {
     $group = $this->createGroup();
@@ -29,7 +30,7 @@ class CreditGroupMembershipContentCreationTest extends CreditGroupTestBase {
   }
 
   /**
-   * Test the case when we have entities and we apply activity points to existing entities.
+   * Test assignment of activity points to group membership for existing nodes, when a new tracker is created.
    */
   public function testTrackerCreationExistingEntity() {
     $group = $this->createGroup();
@@ -49,7 +50,7 @@ class CreditGroupMembershipContentCreationTest extends CreditGroupTestBase {
   }
 
   /**
-   * Test the case when don't have existing entities.
+   * Test assignment of activity when we don't have existing entities.
    */
   public function testTrackerCreationWithNoEntities() {
     $tracker = $this->createTrackerForGroup(TRUE);
@@ -58,6 +59,15 @@ class CreditGroupMembershipContentCreationTest extends CreditGroupTestBase {
     $this->assertTrue(empty($activity_records));
   }
 
+  /**
+   * Create a tracker for a group.
+   *
+   * @param $run_cron
+   *   Run cron after.
+   *
+   * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
+   *   Tracker.
+   */
   public function createTrackerForGroup($run_cron) {
     return $this->createTracker('group_content', $this->groupType->getContentPlugin('group_membership')->getContentTypeConfigId(), [
       'credit_group_membership_content_creation' => [
