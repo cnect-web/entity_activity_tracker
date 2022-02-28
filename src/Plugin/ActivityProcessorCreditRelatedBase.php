@@ -20,7 +20,7 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
     $entity = $event->getEntity();
 
     // Plugin has related entity.
-    return !empty($this->getPluginDefinition()['target_entity']) && $this->getPluginDefinition()['target_entity'] == $entity->getEntityTypeId();
+    return !empty($this->getPluginDefinition()['target_entity_type']) && $this->getPluginDefinition()['target_entity_type'] == $entity->getEntityTypeId();
   }
 
   /**
@@ -42,6 +42,7 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
   public function processActivity($event) {
     $entity = $event->getEntity();
     $related_entities = $this->getRelatedEntities($entity);
+
     foreach ($related_entities as $related_entity) {
       $this->activityRecordStorage->applyActivity(
         $related_entity->getEntityTypeId(),

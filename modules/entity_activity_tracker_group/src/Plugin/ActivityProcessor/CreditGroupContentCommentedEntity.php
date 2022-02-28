@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *     "group_content",
  *   },
  *   target_entity_type = "comment",
- *   summary = @Translation("Upon comment creation, credit Group Content"),
+ *   summary = @Translation("Upon comment creation credit group content"),
  * )
  */
 class CreditGroupContentCommentedEntity extends CreditGroupBase {
@@ -35,7 +35,7 @@ class CreditGroupContentCommentedEntity extends CreditGroupBase {
   protected $commentManager;
 
   /**
-   * The database connection to use.
+   * The database connection.
    *
    * @var \Drupal\Core\Database\Connection
    */

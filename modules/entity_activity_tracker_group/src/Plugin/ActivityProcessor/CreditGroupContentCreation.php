@@ -16,18 +16,18 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @ActivityProcessor (
  *   id = "credit_group_content_creation",
  *   event = "hook_event_dispatcher.entity.insert",
- *   label = @Translation("Credit Group for content creation"),
+ *   label = @Translation("Credit group for content creation"),
  *   entity_types = {
  *     "group",
  *   },
  *   target_entity_type = "node",
- *   summary = @Translation("Upon content creation, credit Group"),
+ *   summary = @Translation("Upon content creation, credit group"),
  * )
  */
 class CreditGroupContentCreation extends CreditGroupBase {
 
   /**
-   * The database connection to use.
+   * The database connection.
    *
    * @var \Drupal\Core\Database\Connection
    */

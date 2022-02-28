@@ -36,7 +36,7 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
   protected $commentManager;
 
   /**
-   * The database connection to use.
+   * The database connection.
    *
    * @var \Drupal\Core\Database\Connection
    */
@@ -91,7 +91,7 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
 
     $form['comment_creation'] = [
       '#type' => 'number',
-      '#title' => $this->t('Activty points for commenting a node'),
+      '#title' => $this->t('Activity points for commenting a node'),
       '#min' => 1,
       '#default_value' => $this->getConfiguration()['comment_creation'],
       '#description' => $this->t('Node will get activity points everytime it is commented.'),

@@ -114,7 +114,7 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
 
     $entity = $event->getEntity();
     // Entity doesn't have any relations and the current tracker handles it.
-    return empty($this->getPluginDefinition()['target_entity']) && $entity->getEntityTypeId() == $this->tracker->getTargetEntityType() && $entity->bundle() == $this->tracker->getTargetEntityBundle();
+    return empty($this->getPluginDefinition()['target_entity_type']) && $entity->getEntityTypeId() == $this->tracker->getTargetEntityType() && $entity->bundle() == $this->tracker->getTargetEntityBundle();
   }
 
   /**

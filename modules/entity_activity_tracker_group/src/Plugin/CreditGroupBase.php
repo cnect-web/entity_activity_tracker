@@ -117,7 +117,7 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
   }
 
   protected function getGroupContentItemsByEntityAndBundle(EntityInterface $entity) {
-    // TODO: Reorganize code to base classes
+    // TODO: Reorganize code to base classes.
     return $this->entityTypeManager->getStorage('group_content')
       ->loadByProperties([
         'entity_id' => $entity->id(),

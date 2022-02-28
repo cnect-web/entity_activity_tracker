@@ -1,23 +1,29 @@
-entity_activity_tracker.activity_processor.settings.credit_group_comment_creation:
-  type: entity_activity_tracker.activity_processor.settings_base
+entity_activity_tracker.activity_processor.credit_group_comment_creation:
+  type: entity_activity_tracker.activity_processor.settings
   mapping:
     credit_group:
       type: integer
 
-entity_activity_tracker.activity_processor.settings.credit_group_content_creation:
-  type: entity_activity_tracker.activity_processor.settings_base
+entity_activity_tracker.activity_processor.credit_group_content_creation:
+  type: entity_activity_tracker.activity_processor.settings
   mapping:
     credit_group:
       type: integer
 
-entity_activity_tracker.activity_processor.settings.credit_group_content_commented_entity:
-  type: entity_activity_tracker.activity_processor.settings_base
+entity_activity_tracker.activity_processor.credit_group_content_commented_entity:
+  type: entity_activity_tracker.activity_processor.settings
   mapping:
-    credit_group:
+    credit_group_content:
       type: integer
 
-entity_activity_tracker.activity_processor.settings.credit_group_membership_comment_creation:
-  type: entity_activity_tracker.activity_processor.settings_base
+entity_activity_tracker.activity_processor.credit_group_membership_comment_creation:
+  type: entity_activity_tracker.activity_processor.settings
   mapping:
-    credit_group:
+    credit_group_content:
+      type: integer
+
+entity_activity_tracker.activity_processor.credit_group_membership_content_creation:
+  type: entity_activity_tracker.activity_processor.settings
+  mapping:
+    credit_group_content:
       type: integer
