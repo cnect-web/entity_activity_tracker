@@ -76,6 +76,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
    *   The original event from which we dispatch activity event.
    */
   public function createActivityEvent(AbstractEntityEvent $event) {
+
     $entity = $event->getEntity();
     $entity_type_id = $entity->getEntityTypeId();
 

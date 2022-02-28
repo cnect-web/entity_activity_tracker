@@ -16,7 +16,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
 
@@ -45,13 +44,6 @@ class EntityActivityTrackerForm extends EntityForm {
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
-
-  /**
-   * The event dispatcher.
-   *
-   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
-   */
-  protected $eventDispatcher;
 
   /**
    * The messenger.
@@ -106,7 +98,6 @@ class EntityActivityTrackerForm extends EntityForm {
       $container->get('entity_activity_tracker.plugin.manager.activity_processor'),
       $container->get('form_builder'),
       $container->get('entity_type.manager'),
-      $container->get('event_dispatcher'),
       $container->get('messenger'),
       $container->get('cache.default'),
       $container->get('entity_activity_tracker.tracker_loader')
@@ -122,8 +113,6 @@ class EntityActivityTrackerForm extends EntityForm {
    *   The form builder.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
-   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
-   *   The event dispatcher.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger service.
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
@@ -135,7 +124,6 @@ class EntityActivityTrackerForm extends EntityForm {
     PluginManagerInterface $manager,
     FormBuilderInterface $formBuilder,
     EntityTypeManagerInterface $entity_type_manager,
-    EventDispatcherInterface $event_dispatcher,
     MessengerInterface $messenger,
     CacheBackendInterface $cache_backend,
     TrackerLoader $tracker_loader
@@ -143,7 +131,6 @@ class EntityActivityTrackerForm extends EntityForm {
     $this->manager = $manager;
     $this->formBuilder = $formBuilder;
     $this->entityTypeManager = $entity_type_manager;
-    $this->eventDispatcher = $event_dispatcher;
     $this->messenger = $messenger;
     $this->cacheBackend = $cache_backend;
     $this->trackerLoader = $tracker_loader;

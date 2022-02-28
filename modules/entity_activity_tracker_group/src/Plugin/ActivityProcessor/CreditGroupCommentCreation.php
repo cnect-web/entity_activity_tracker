@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class CreditGroupCommentCreation extends CreditGroupBase {
 
   /**
-   * The database connection to use.
+   * The database connection.
    *
    * @var \Drupal\Core\Database\Connection
    */

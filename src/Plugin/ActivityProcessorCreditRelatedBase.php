@@ -42,6 +42,7 @@ abstract class ActivityProcessorCreditRelatedBase extends ActivityProcessorBase 
   public function processActivity($event) {
     $entity = $event->getEntity();
     $related_entities = $this->getRelatedEntities($entity);
+
     foreach ($related_entities as $related_entity) {
       $this->activityRecordStorage->applyActivity(
         $related_entity->getEntityTypeId(),

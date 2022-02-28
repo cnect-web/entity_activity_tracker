@@ -154,7 +154,7 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
        $entity->getEntityTypeId(),
        $entity->bundle(),
        $entity->id(),
-       $this->configuration['activity_creation']
+       $this->configuration[$this->getConfigField()]
      );
    }
   }

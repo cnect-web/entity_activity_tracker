@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class CreditGroupMembershipContentCreation extends CreditGroupBase {
 
   /**
-   * The database connection to use.
+   * The database connection.
    *
    * @var \Drupal\Core\Database\Connection
    */
@@ -139,6 +139,7 @@ class CreditGroupMembershipContentCreation extends CreditGroupBase {
       );
     }
   }
+
   /**
    * {@inheritdoc}
    */
@@ -148,8 +149,8 @@ class CreditGroupMembershipContentCreation extends CreditGroupBase {
       return FALSE;
     }
 
-    // Plugin group_mebership is only applicable.
+    // Plugin group_membership is only applicable.
     $group_content_type = $this->entityTypeManager->getStorage('group_content_type')->load($this->tracker->getTargetEntityBundle());
-    return $group_content_type->getContentPluginId()== 'group_membership';
+    return $group_content_type->getContentPluginId() == 'group_membership';
   }
 }

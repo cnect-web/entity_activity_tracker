@@ -47,6 +47,19 @@ interface ActivityRecordStorageInterface {
   public function getActivityRecordByEntityData($entity_type, $bundle, $entity_id);
 
   /**
+   * Gets a ActivityRecord by entity data.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   * @param string $bundle
+   *   Bundle.
+   *
+   * @return \Drupal\entity_activity_tracker\ActivityRecord|false
+   *   The ActivityRecord object or FALSE.
+   */
+  public function getActivityRecordByBundle($entity_type, $bundle);
+
+  /**
    * Apply activity to give entity.
    *
    * @param string $entity_type
