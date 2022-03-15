@@ -2,7 +2,6 @@
 
 namespace Drupal\entity_activity_tracker\Commands;
 
-use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
 use Drush\Commands\DrushCommands;
 
 /**
@@ -29,13 +28,16 @@ class EntityActivityTrackerCommands extends DrushCommands {
    */
   public function resetEntityActivityTracker() {
     // Delete all existing configs.
-    $configNames = \Drupal::service('config.storage')->listAll('entity_activity_tracker');
-    foreach ($configNames as $config) {
-      \Drupal::configFactory()->getEditable($config)->delete();
+    $config_names = \Drupal::service('config.storage')->listAll('entity_activity_tracker');
+    $config_factory = \Drupal::configFactory();
+    foreach ($config_names as $config) {
+        $config_factory->getEditable($config)->delete();
     }
     
     // Truncate entity_activity_tracker and clean up queue.
-    \Drupal::database()->truncate('entity_activity_tracker')->execute();
-    \Drupal::database()->delete('queue')->condition('name','activity_processor_queue')->execute();
+    $database = \Drupal::database();
+    $database->truncate('entity_activity_tracker')->execute();
+    $database->delete('queue')->condition('name', 'activity_processor_queue')->execute();
+    $database->delete('queue')->condition('name', 'tracker_processor_queue')->execute();
   }
 }
