@@ -51,11 +51,12 @@ class ActivitySubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
+    // Replace with constants later.
     return [
-      HookEventDispatcherInterface::CRON => 'scheduleDecay',
-      HookEventDispatcherInterface::ENTITY_INSERT => 'createActivityEvent',
-      HookEventDispatcherInterface::ENTITY_UPDATE => 'createActivityEvent',
-      HookEventDispatcherInterface::ENTITY_DELETE => 'deleteEntity',
+      'hook_event_dispatcher.cron' => 'scheduleDecay',
+      'hook_event_dispatcher.entity.insert' => 'createActivityEvent',
+      'hook_event_dispatcher.entity.update' => 'createActivityEvent',
+      'hook_event_dispatcher.entity.delete' => 'deleteEntity',
     ];
   }
 
