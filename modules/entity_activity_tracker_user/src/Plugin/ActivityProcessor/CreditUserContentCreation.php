@@ -88,7 +88,7 @@ class CreditUserContentCreation extends CreditUserBase {
   /**
    * {@inheritdoc}
    */
-  public function creditExistingEntities() {
+  public function getExistingEntitiesToBeCredited() {
     // Get nodes per a user.
     $query = $this->connection->select('node_field_data', 'n')
       ->fields('n', ['uid']);
@@ -96,14 +96,12 @@ class CreditUserContentCreation extends CreditUserBase {
     $query->groupBy('n.uid');
     $results = $query->execute()->fetchAll();
 
+    $items = [];
     foreach ($results as $result) {
-      $this->activityRecordStorage->applyActivity(
-        $this->tracker->getTargetEntityType(),
-        $this->tracker->getTargetEntityBundle(),
-        $result->uid,
-        $result->cnt * $this->configuration[$this->getConfigField()]
-      );
+      $items[] = $this->getActiveRecordItem($result->uid, $result->cnt * $this->configuration[$this->getConfigField()]);
     }
+
+    return $items;
   }
 
 }

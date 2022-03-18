@@ -122,7 +122,7 @@ class CreditGroupContentCommentedEntity extends CreditGroupBase {
   /**
    * {@inheritdoc}
    */
-  public function creditExistingEntities() {
+  public function getExistingEntitiesToBeCredited() {
     $group_content_type = $this->entityTypeManager->getStorage('group_content_type')->load($this->tracker->getTargetEntityBundle());
     $group_content_plugins = $this->getGroupContentTypesForNodes($group_content_type->getGroupTypeId());
 
@@ -141,14 +141,12 @@ class CreditGroupContentCommentedEntity extends CreditGroupBase {
     $query->groupBy('gc.id');
     $results = $query->execute()->fetchAll();
 
+    $items = [];
     foreach ($results as $result) {
-      $this->activityRecordStorage->applyActivity(
-        $this->tracker->getTargetEntityType(),
-        $this->tracker->getTargetEntityBundle(),
-        $result->id,
-        $result->cnt * $this->configuration[$this->getConfigField()]
-      );
+      $items[] = $this->getActiveRecordItem($result->id, $result->cnt * $this->configuration[$this->getConfigField()]);
     }
+
+    return $items;
   }
 
   /**
