@@ -114,15 +114,23 @@ class EntityCreate extends ActivityProcessorBase {
    */
   protected function getExistingEntities() {
     $storage = $this->entityTypeManager->getStorage($this->tracker->getTargetEntityType());
+    $query = $storage->getQuery();
     $bundle_key = $storage->getEntityType()->getKey('bundle');
     if (!empty($bundle_key)) {
-      return $storage->loadByProperties([$bundle_key => $this->tracker->getTargetEntityBundle()]);
+      $query->condition($bundle_key, $this->tracker->getTargetEntityBundle());
     }
-    else {
-      // @todo: This needs review!! For now should be enough.
-      // User entity has no bundles.
-      return $storage->loadMultiple();
+    $query->accessCheck(FALSE);
+
+    return $query->execute();
+  }
+
+  public function getExistingEntitiesToBeCredited() {
+    $items = [];
+    foreach ($this->getExistingEntities() as $entity_id) {
+      $items[] = $this->getActiveRecordItem($entity_id, $this->configuration[$this->getConfigField()]);
     }
+
+    return $items;
   }
 
 }

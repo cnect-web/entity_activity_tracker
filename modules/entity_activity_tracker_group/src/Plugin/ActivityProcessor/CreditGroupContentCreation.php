@@ -111,7 +111,7 @@ class CreditGroupContentCreation extends CreditGroupBase {
   /**
    * {@inheritdoc}
    */
-  public function creditExistingEntities() {
+  public function getExistingEntitiesToBeCredited() {
     $group_content_plugins = $this->getGroupContentTypesForNodes($this->tracker->getTargetEntityBundle());
 
     // If we don't have any group content plugins we skip it.
@@ -128,14 +128,12 @@ class CreditGroupContentCreation extends CreditGroupBase {
     $query->groupBy('gc.gid');
     $results = $query->execute()->fetchAll();
 
+    $items = [];
     foreach ($results as $result) {
-      $this->activityRecordStorage->applyActivity(
-        $this->tracker->getTargetEntityType(),
-        $this->tracker->getTargetEntityBundle(),
-        $result->gid,
-        $result->cnt * $this->configuration[$this->getConfigField()]
-      );
+      $items[] = $this->getActiveRecordItem($result->gid, $result->cnt * $this->configuration[$this->getConfigField()]);
     }
+
+    return $items;
   }
 
 }

@@ -83,6 +83,7 @@ abstract class ActivityQueueWorkerBase extends QueueWorkerBase implements Contai
       $container->get('entity_activity_tracker.tracker_loader')
     );
   }
+
   /**
    * Log message.
    *

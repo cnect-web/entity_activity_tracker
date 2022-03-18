@@ -88,7 +88,7 @@ class CreditUserCommentCreation extends CreditUserBase {
   /**
    * {@inheritdoc}
    */
-  public function creditExistingEntities() {
+  public function getExistingEntitiesToBeCredited() {
     // Get comments count for the existing nodes.
     $query = $this->connection->select('comment_field_data', 'cd')
       ->fields('cd', ['uid']);
@@ -96,13 +96,12 @@ class CreditUserCommentCreation extends CreditUserBase {
     $query->groupBy('cd.uid');
     $results = $query->execute()->fetchAll();
 
+    $items = [];
     foreach ($results as $result) {
-      $this->activityRecordStorage->applyActivity(
-        $this->tracker->getTargetEntityType(),
-        $this->tracker->getTargetEntityBundle(),
-        $result->uid,
-        $result->cnt * $this->configuration[$this->getConfigField()]);
+      $items[] = $this->getActiveRecordItem($result->uid, $result->cnt * $this->configuration[$this->getConfigField()]);
     }
+
+    return $items;
   }
 
 }

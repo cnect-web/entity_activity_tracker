@@ -139,7 +139,7 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
   /**
    * {@inheritdoc}
    */
-  public function creditExistingEntities() {
+  public function getExistingEntitiesToBeCredited() {
     // Get comments count for the existing nodes.
     $query = $this->connection->select('comment_field_data', 'cd')
       ->fields('nd', ['nid']);
@@ -150,14 +150,12 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
     $query->groupBy('nd.nid');
     $results = $query->execute()->fetchAll();
 
+    $items = [];
     foreach ($results as $result) {
-      $this->activityRecordStorage->applyActivity(
-        $this->tracker->getTargetEntityType(),
-        $this->tracker->getTargetEntityBundle(),
-        $result->nid,
-        $result->cnt * $this->configuration[$this->getConfigField()]
-      );
+      $items[] = $this->getActiveRecordItem($result->nid, $result->cnt * $this->configuration[$this->getConfigField()]);
     }
+
+    return $items;
   }
 
 }

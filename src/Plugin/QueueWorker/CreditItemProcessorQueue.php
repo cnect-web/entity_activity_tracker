@@ -4,6 +4,7 @@ namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Queue\QueueFactory;
+use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\entity_activity_tracker\TrackerLoader;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -12,12 +13,20 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Processes trackers.
  *
  * @QueueWorker(
- *   id = "tracker_processor_queue",
- *   title = @Translation("Tracker Processor queue"),
- *   cron = {"time" = 10}
+ *   id = "credit_item_processor_queue",
+ *   title = @Translation("Credit Item Processor queue"),
+ *   cron = {"time" = 86000}
  * )
  */
-class TrackerProcessorQueue extends ActivityQueueWorkerBase {
+class CreditItemProcessorQueue extends ActivityQueueWorkerBase {
+
+  /**
+   * The activity record storage service.
+   *
+   * @var \Drupal\entity_activity_tracker\ActivityRecordStorageInterface
+   */
+  protected $activityRecordStorage;
+
 
   /**
    * The queue service.
@@ -51,10 +60,12 @@ class TrackerProcessorQueue extends ActivityQueueWorkerBase {
     LoggerInterface $logger,
     ConfigFactoryInterface $config,
     TrackerLoader $tracker_loader,
-    QueueFactory $queue
+    QueueFactory $queue,
+    ActivityRecordStorageInterface $activity_record_storage
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $logger, $config, $tracker_loader);
     $this->queue = $queue;
+    $this->activityRecordStorage = $activity_record_storage;
   }
 
   /**
@@ -68,28 +79,39 @@ class TrackerProcessorQueue extends ActivityQueueWorkerBase {
       $container->get('logger.factory')->get('entity_activity_tracker'),
       $container->get('config.factory'),
       $container->get('entity_activity_tracker.tracker_loader'),
-      $container->get('queue')
+      $container->get('queue'),
+      $container->get('entity_activity_tracker.activity_record_storage')
     );
   }
 
   /**
    * {@inheritdoc}
    */
-  public function processItem($event) {
+  public function processItem($items) {
+    $count = 20;
+    $i = 0;
 
-    $tracker = $event->getEntity();
-    $plugins = $tracker->getEnabledProcessorsPlugins();
-
-    // We get existing entities for each plugin and activity points
-    // to be credited, we add this data to 'credit_item_processor_queue' queue
-    // to be processed later in small chunks.
-    foreach ($plugins as $plugin) {
-      $items = $plugin->getExistingEntitiesToBeCredited();
-
-      if (!empty($items)) {
-        $processors_queue = $this->queue->get('credit_item_processor_queue');
-        $processors_queue->createItem($items);
+    // We get data for existing entities data from 'tracker_processor_queue'
+    // queue and process them by assigning necessary points for entities, until
+    // the list of items is empty.
+    foreach ($items as $id => $item) {
+      if ($i == $count) {
+        break;
       }
+
+      $this->activityRecordStorage->applyActivity(
+        $item['entity_type'],
+        $item['bundle'],
+        $item['entity_id'],
+        $item['activity']
+      );
+      unset($items[$id]);
+      $i++;
+    }
+
+    if (!empty($items)) {
+      $processors_queue = $this->queue->get('credit_item_processor_queue');
+      $processors_queue->createItem($items);
     }
   }
 

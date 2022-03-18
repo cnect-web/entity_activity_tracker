@@ -148,19 +148,34 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
     return TRUE;
   }
 
-  public function creditExistingEntities() {
-   foreach ($this->getExistingEntities() as $entity) {
-     $this->activityRecordStorage->applyActivity(
-       $entity->getEntityTypeId(),
-       $entity->bundle(),
-       $entity->id(),
-       $this->configuration[$this->getConfigField()]
-     );
-   }
+  /**
+   * Gets array of entity data to be processed in cron service.
+   *
+   * @return array
+   *   Entity data to be credited.
+   */
+  public function getExistingEntitiesToBeCredited() {
+     return [];
   }
 
-  protected function getExistingEntities() {
-    return [];
+  /**
+   * Get entity data array for crediting
+   *
+   * @param int $entity_id
+   *   Entity id.
+   * @param int $activity_points
+   *   Activity points to be credited.
+   *
+   * @return array
+   *   Entity data for crediting.
+   */
+  protected function getActiveRecordItem($entity_id, $activity_points) {
+    return [
+      'entity_type' => $this->tracker->getTargetEntityType(),
+      'bundle' => $this->tracker->getTargetEntityBundle(),
+      'entity_id' => $entity_id,
+      'activity' => $activity_points,
+    ];
   }
 
   /**
@@ -172,6 +187,5 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   public function getEvent() {
     return $this->getPluginDefinition()['event'];
   }
-
 
 }
