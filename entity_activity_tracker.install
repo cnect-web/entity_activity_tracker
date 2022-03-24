@@ -66,17 +66,22 @@ function entity_activity_tracker_schema() {
     ],
     'primary key' => ['activity_id'],
     'indexes' => [
-      // @todo
-      // REVIEW Indexes when we have actual data to test queries performance.
-      // this might be useful -> https://2bits.com/articles/slow-queries-in-drupal-can-often-be-cured-by-indexes.html
-      // 'entity_id' => ['entity_id'],
-      // 'activity' => ['activity'],
-      // 'entity_type_bundle_entity_id' => ['entity_type','bundle','entity_id'],
-      // 'created_entity_type_bundle' => ['created', 'entity_type', 'bundle'],
-      // 'changed_entity_type_bundle' => ['changed', 'entity_type', 'bundle'],
+      'index_entity_type' => ['entity_type'],
+      'index_entity_entity_id' => ['entity_id'],
     ],
   ];
 
   return $schema;
 
+}
+
+/**
+ * Add indexes for entity_id and entity_type fields.
+ */
+function entity_activity_tracker_update_9301(&$sandbox) {
+  $entity_activity_tracker_schema = entity_activity_tracker_schema();
+  $spec = $entity_activity_tracker_schema['entity_activity_tracker'];
+  $schema = \Drupal::database()->schema();
+  $schema->addIndex('entity_activity_tracker', 'index_entity_type', ['entity_type'], $spec);
+  $schema->addIndex('entity_activity_tracker', 'index_entity_entity_id', ['entity_id'], $spec);
 }
