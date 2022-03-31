@@ -25,9 +25,6 @@ class ActivityProcessorQueue extends ActivityQueueWorkerBase {
           $plugin->processActivity($event);
           $message = "$plugin_id plugin processed";
         }
-        else {
-          $message = "$plugin_id plugin cannot be processed";
-        }
 
         $this->logInfo($message);
       }

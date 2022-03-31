@@ -125,7 +125,8 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
    *   Related entity or null.
    */
   protected function getRelatedEntities(ContentEntityInterface $entity) {
-    return [$entity->getCommentedEntity()];
+    $commented_entity = $entity->getCommentedEntity();
+    return !empty($commented_entity) ? [$commented_entity] : [];
   }
 
   /**
