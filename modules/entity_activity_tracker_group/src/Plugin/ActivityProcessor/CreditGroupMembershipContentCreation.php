@@ -105,7 +105,8 @@ class CreditGroupMembershipContentCreation extends CreditGroupBase {
    * {@inheritdoc}
    */
   protected function getRelatedEntities(ContentEntityInterface $entity) {
-    return $this->getGroupContentItemsByEntityAndBundle($entity->getOwner());
+    $owner = $entity->getOwner();
+    return !empty($owner) ? $this->getGroupContentItemsByEntityAndBundle($owner) : [];
   }
 
   /**

@@ -67,7 +67,8 @@ class CreditUserContentCreation extends CreditUserBase {
    * {@inheritdoc}
    */
   protected function getRelatedEntities(ContentEntityInterface $entity) {
-    return [$entity->getOwner()];
+    $owner = $entity->getOwner();
+    return !empty($owner) ? [$owner] : [];
   }
 
   /**

@@ -105,7 +105,8 @@ class CreditGroupCommentCreation extends CreditGroupBase {
    * {@inheritdoc}
    */
   protected function getRelatedEntities(ContentEntityInterface $entity) {
-    return $this->getGroupsByEntity($entity->getCommentedEntity());
+    $commented_entity = $entity->getCommentedEntity();
+    return !empty($commented_entity) ? $this->getGroupsByEntity($commented_entity) : [];
   }
 
   /**
