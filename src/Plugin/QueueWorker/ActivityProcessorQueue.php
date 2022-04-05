@@ -23,10 +23,8 @@ class ActivityProcessorQueue extends ActivityQueueWorkerBase {
       foreach ($plugins as $plugin_id => $plugin) {
         if ($plugin->canProcess($event)) {
           $plugin->processActivity($event);
-          $message = "$plugin_id plugin processed";
+          $this->logInfo("$plugin_id plugin processed");
         }
-
-        $this->logInfo($message);
       }
     }
   }
