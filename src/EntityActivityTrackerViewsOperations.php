@@ -219,20 +219,19 @@ class EntityActivityTrackerViewsOperations implements ContainerInjectionInterfac
   protected function getImplicitRelations() {
     $id_names = [];
     foreach ($this->trackerLoader->getAll() as $tracker) {
-      $id_names[$tracker->getTargetEntityType()] = $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->getEntityType()->getKey('id');
+      $id_names[$tracker->getTargetEntityType()] = $this->entityTypeManager->getStorage($tracker->getTargetEntityType())->getEntityType();
     }
     $joins = [];
 
-    foreach ($id_names as $entity_type => $id_name) {
-      $table_prefix = $entity_type == 'group' ? 'groups' : $entity_type;
-      $joins["{$table_prefix}_field_data"] = [
-        'left_field' => $id_name,
+    foreach ($id_names as $entity_type_id => $entity_type) {
+      $joins[$entity_type->get('data_table')] = [
+        'left_field' => $entity_type->getKey('id'),
         'field' => 'entity_id',
         'type' => 'INNER',
         'extra' => [
           [
             'field' => 'entity_type',
-            'value' => $entity_type,
+            'value' => $entity_type_id,
           ],
         ],
       ];
