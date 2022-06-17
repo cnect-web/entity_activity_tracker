@@ -2,7 +2,7 @@
 
 namespace Drupal\entity_activity_tracker;
 
-use Drupal\Core\Database\Driver\mysql\Connection;
+use Drupal\mysql\Driver\Database\mysql\Connection;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Database\Query\SelectInterface;
