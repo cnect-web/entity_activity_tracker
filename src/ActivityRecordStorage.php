@@ -14,9 +14,9 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 class ActivityRecordStorage implements ActivityRecordStorageInterface {
 
   /**
-   * Drupal\Core\Database\Driver\mysql\Connection definition.
+   * Drupal\mysql\Driver\Database\mysql\Connection definition.
    *
-   * @var \Drupal\Core\Database\Driver\mysql\Connection
+   * @var \Drupal\mysql\Driver\Database\mysql\Connection
    */
   protected $database;
 
@@ -37,7 +37,7 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
   /**
    * Constructs a new ActivityRecordStorage object.
    *
-   * @param \Drupal\Core\Database\Driver\mysql\Connection $database
+   * @param \Drupal\mysql\Driver\Database\mysql\Connection $database
    *   The active database connection.
    * @param \Drupal\Component\Datetime\TimeInterface $date_time
    *   The time service.
