@@ -2,7 +2,7 @@
 
 namespace Drupal\entity_activity_tracker;
 
-use Drupal\mysql\Driver\Database\mysql\Connection;
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Database\Query\SelectInterface;
@@ -14,9 +14,9 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 class ActivityRecordStorage implements ActivityRecordStorageInterface {
 
   /**
-   * Drupal\mysql\Driver\Database\mysql\Connection definition.
+   * Database connection.
    *
-   * @var \Drupal\mysql\Driver\Database\mysql\Connection
+   * @var \Drupal\Core\Database\Connection
    */
   protected $database;
 
@@ -37,7 +37,7 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
   /**
    * Constructs a new ActivityRecordStorage object.
    *
-   * @param \Drupal\mysql\Database\Driver\mysql\Connection $database
+   * @param \Drupal\Core\Database\Connection $database
    *   The active database connection.
    * @param \Drupal\Component\Datetime\TimeInterface $date_time
    *   The time service.
