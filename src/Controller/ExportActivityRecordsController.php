@@ -4,7 +4,7 @@ namespace Drupal\entity_activity_tracker\Controller;
 
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\mysql\Driver\Database\mysql\Connection;
+use Drupal\Core\Database\Connection;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -15,9 +15,9 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class ExportActivityRecordsController extends ControllerBase {
 
   /**
-   * Drupal\mysql\Driver\Database\mysql\Connection definition.
+   * Database connection.
    *
-   * @var \Drupal\mysql\Driver\Database\mysql\Connection
+   * @var \Drupal\Core\Database\Connection
    */
   protected $database;
 
@@ -31,7 +31,7 @@ class ExportActivityRecordsController extends ControllerBase {
   /**
    * Constructs a new GroupMembershipController.
    *
-   * @param \Drupal\mysql\Driver\Database\mysql\Connection $database
+   * @param \Drupal\Core\Database\Connection $database
    *   The active database connection.
    * @param \Drupal\Core\Config\ImmutableConfig $filesystem_settings
    *   The 'system.file' config.
