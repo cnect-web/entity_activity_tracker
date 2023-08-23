@@ -2,8 +2,9 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\ActivityProcessor;
 
-use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
+use Drupal\entity_activity_tracker\QueueActivityItem;
 
 /**
  * Sets activity when entity is created.
@@ -90,20 +91,7 @@ class EntityCreate extends ActivityProcessorBase {
    * {@inheritdoc}
    */
   public function getConfigField() {
-    return ($this->configuration['activity_existing_enabler']) ? 'activity_existing' : 'activity_creation';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function processActivity($event) {
-    $entity = $event->getEntity();
-    $this->activityRecordStorage->applyActivity(
-      $entity->getEntityTypeId(),
-      $entity->bundle(),
-      $entity->id(),
-      $this->configuration['activity_creation']
-    );
+    return 'activity_creation';
   }
 
   /**
@@ -124,10 +112,13 @@ class EntityCreate extends ActivityProcessorBase {
     return $query->execute();
   }
 
+  /**
+   * Get existing entities to be credited.
+   */
   public function getExistingEntitiesToBeCredited() {
     $items = [];
     foreach ($this->getExistingEntities() as $entity_id) {
-      $items[] = $this->getActiveRecordItem($entity_id, $this->configuration[$this->getConfigField()]);
+      $items[] = $this->getActiveRecordItem($entity_id, $this->configuration['activity_existing']);
     }
 
     return $items;

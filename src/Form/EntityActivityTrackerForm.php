@@ -2,25 +2,24 @@
 
 namespace Drupal\entity_activity_tracker\Form;
 
-use Drupal\Core\Ajax\RemoveCommand;
-use Drupal\Core\Entity\EntityForm;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBuilderInterface;
-use Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\SubformState;
+use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\entity_activity_tracker\TrackerLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Form\SubformState;
-use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\Core\Cache\CacheBackendInterface;
 
 /**
- * Class EntityActivityTrackerForm.
+ * Class Entity Activity Tracker Form.
  */
 class EntityActivityTrackerForm extends EntityForm {
 
@@ -69,26 +68,26 @@ class EntityActivityTrackerForm extends EntityForm {
   /**
    * Entity type options.
    *
-   * @var array $entity_type_options
+   * @var array
    *   List of entity types
    */
-  protected $entity_type_options = [];
+  protected $entityTypeOptions = [];
 
   /**
    * Entity type bundles.
    *
-   * @var array $entity_type_bundles
+   * @var array
    *   List of entity type bundles
    */
-  protected $entity_type_bundles = [];
+  protected $entityTypeBundles = [];
 
   /**
    * Bundle options.
    *
-   * @var array $bundle_options
+   * @var array
    *   List of bundle options
    */
-  protected $bundle_options = [];
+  protected $bundleOptions = [];
 
   /**
    * {@inheritdoc}
@@ -163,13 +162,13 @@ class EntityActivityTrackerForm extends EntityForm {
       '#disabled' => !$entity_activity_tracker->isNew(),
     ];
 
-    if (empty($this->entity_type_options)) {
+    if (empty($this->entityTypeOptions)) {
       foreach ($this->entityTypeManager->getDefinitions() as $entity_type_id => $entity_type) {
         if ($entity_type->entityClassImplements(ContentEntityInterface::class) && in_array($entity_type_id, EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
-          $this->entity_type_options[$entity_type_id] = $entity_type->get('label');
+          $this->entityTypeOptions[$entity_type_id] = $entity_type->get('label');
 
           // User don't have bundles.
-          $this->entity_type_bundles[$entity_type_id] = $entity_type->getBundleEntityType() ? $entity_type->getBundleEntityType() : $entity_type_id;
+          $this->entityTypeBundles[$entity_type_id] = $entity_type->getBundleEntityType() ? $entity_type->getBundleEntityType() : $entity_type_id;
         }
       }
     }
@@ -179,7 +178,7 @@ class EntityActivityTrackerForm extends EntityForm {
       '#title' => $this->t('Entity Type'),
       '#description' => $this->t('Select entity type for this config.'),
       '#default_value' => $entity_activity_tracker->getTargetEntityType(),
-      '#options' => $this->entity_type_options,
+      '#options' => $this->entityTypeOptions,
       '#required' => TRUE,
       '#ajax' => [
         'callback' => [$this, 'updateBundlesElement'],
@@ -202,7 +201,7 @@ class EntityActivityTrackerForm extends EntityForm {
         '#type' => 'select',
         '#title' => $this->t('Entity Bundle'),
         '#default_value' => $entity_activity_tracker->getTargetEntityBundle(),
-        '#options' => $this->getBundleOptions($this->entity_type_bundles[$entity_type]),
+        '#options' => $this->getBundleOptions($this->entityTypeBundles[$entity_type]),
         '#disabled' => !$entity_activity_tracker->isNew(),
         '#required' => TRUE,
         '#ajax' => [
@@ -228,14 +227,13 @@ class EntityActivityTrackerForm extends EntityForm {
 
     $processor_config = $entity_activity_tracker->get('activity_processors');
     $target_entity_type = $entity_activity_tracker->getTargetEntityType();
-    $target_bundle = $form_state->getValue('entity_bundle');
 
     foreach ($this->manager->getDefinitions() as $plugin_id => $definition) {
       // Display plugins that are meant to track selected entity type.
       if (in_array($target_entity_type, $definition['entity_types'])) {
-        /** @var ActivityProcessorInterface $processor */
+        /** @var \Drupal\entity_activity_tracker\Plugin\ActivityProcessorInterface $processor */
         $processor = $entity_activity_tracker->getProcessorPlugin($plugin_id);
-        if (!$processor->isAccessible($target_bundle)) {
+        if (!$processor->isAccessible()) {
           continue;
         }
         // Check if processor is defined as required for entity type.
@@ -405,22 +403,22 @@ class EntityActivityTrackerForm extends EntityForm {
    */
   protected function getBundleOptions(string $entity_type_value) {
 
-    if (empty($this->bundle_options[$entity_type_value])) {
-      $this->bundle_options[$entity_type_value][''] = $this->t('- Select -');
+    if (empty($this->bundleOptions[$entity_type_value])) {
+      $this->bundleOptions[$entity_type_value][''] = $this->t('- Select -');
       if ($entity_type_value == 'user') {
         // User entities don't have bundle.
-        $this->bundle_options[$entity_type_value][$entity_type_value] = $this->t('User');
+        $this->bundleOptions[$entity_type_value][$entity_type_value] = $this->t('User');
       }
       else {
         $bundles = $this->entityTypeManager->getStorage($entity_type_value)->loadMultiple();
 
         foreach ($bundles as $bundle_id => $bundle_type) {
-          $this->bundle_options[$entity_type_value][$bundle_id] = $bundle_type->get('name') ?? $bundle_id;
+          $this->bundleOptions[$entity_type_value][$bundle_id] = $bundle_type->get('name') ?? $bundle_id;
         }
       }
     }
 
-    return $this->bundle_options[$entity_type_value];
+    return $this->bundleOptions[$entity_type_value];
   }
 
 }

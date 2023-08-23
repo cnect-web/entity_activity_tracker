@@ -4,8 +4,8 @@ namespace Drupal\entity_activity_tracker;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -122,7 +122,7 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
   public function formAlter(array &$form, FormStateInterface $form_state, $form_id) {
 
     if ($this->currentUser->hasPermission('access entity activity field') || $this->currentUser->hasPermission('administer activity trackers')) {
-      /** @var ContentEntityInterface $entity */
+      /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
       $entity = $form_state->getFormObject()->getEntity();
       if ($entity instanceof ContentEntityInterface && !$entity->isNew() && $form_state->getFormObject()->getOperation() == 'edit' && $this->trackerLoader->hasTracker($entity) && $this->getActivityValue($entity)) {
         $form['activity'] = [
@@ -177,7 +177,7 @@ class EntityActivityTrackerFormsOperations implements ContainerInjectionInterfac
   /**
    * Get current activity value of given entity.
    *
-   * @param ContentEntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The tracked entity.
    *
    * @return int

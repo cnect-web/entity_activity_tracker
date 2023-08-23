@@ -11,7 +11,7 @@ namespace Drupal\Tests\entity_activity_tracker_group\Kernel;
 class CreditGroupCommentCreationTest extends CreditGroupTestBase {
 
   /**
-   * Test assignment of activity point when a comment for node inside of a group.
+   * Test assignment of activity point when a comment for node inside of group.
    */
   public function testEntityCommenting() {
     $group = $this->createGroup();
@@ -28,7 +28,9 @@ class CreditGroupCommentCreationTest extends CreditGroupTestBase {
   }
 
   /**
-   * Test assignment of activity point when a new tracker is created and we want to assign points for existing comments in a group.
+   * Test assignment of activity point when a new tracker is created.
+   *
+   * And we want to assign points for existing comments in a group.
    */
   public function testTrackerCreationExistingEntity() {
     $group = $this->createGroup();
@@ -44,12 +46,14 @@ class CreditGroupCommentCreationTest extends CreditGroupTestBase {
     $credit_group_comment_creation_plugin_activity_point = $this->getPluginActivityPoints($tracker, 'credit_group_comment_creation');
 
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($group);
-    $this->assertTrue( !empty($activity_record));
+    $this->assertTrue(!empty($activity_record));
     $this->assertEquals($credit_group_comment_creation_plugin_activity_point * $count, $activity_record->getActivityValue());
   }
 
   /**
-   * Test assignment of activity point, when we create a tracker, but we don't have any comments in a group.
+   * Test assignment of activity point, when we create a tracker.
+   *
+   * But we don't have any comments in a group.
    */
   public function testTrackerCreationWithNoEntities() {
     $tracker = $this->createTrackerForGroup(TRUE);
@@ -61,7 +65,7 @@ class CreditGroupCommentCreationTest extends CreditGroupTestBase {
   /**
    * Create a tracker for a group.
    *
-   * @param $run_cron
+   * @param bool $run_cron
    *   Run cron after.
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface

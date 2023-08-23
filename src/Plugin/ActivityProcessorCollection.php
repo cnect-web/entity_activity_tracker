@@ -26,10 +26,12 @@ class ActivityProcessorCollection extends DefaultLazyPluginCollection {
    * @param array $configurations
    *   (optional) An associative array containing the initial configuration for
    *   each plugin in the collection, keyed by plugin instance ID.
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
+   *   Tracker.
    */
   public function __construct(
     PluginManagerInterface $manager,
-    array $configurations = [],
+    array $configurations,
     EntityActivityTrackerInterface $tracker
   ) {
     parent::__construct($manager, $configurations);

@@ -4,10 +4,10 @@ namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\entity_activity_tracker\TrackerLoader;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Queue\QueueWorkerBase;
 
 /**
  * Provides a base implementation for a QueueWorker plugin.

@@ -2,6 +2,7 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
@@ -27,7 +28,6 @@ class CreditItemProcessorQueue extends ActivityQueueWorkerBase {
    */
   protected $activityRecordStorage;
 
-
   /**
    * The queue service.
    *
@@ -52,6 +52,8 @@ class CreditItemProcessorQueue extends ActivityQueueWorkerBase {
    *   Tracker loader.
    * @param \Drupal\Core\Queue\QueueFactory $queue
    *   Queue manager.
+   * @param \Drupal\entity_activity_tracker\ActivityRecordStorageInterface $activity_record_storage
+   *   Activity record storage.
    */
   public function __construct(
     array $configuration,
@@ -105,6 +107,10 @@ class CreditItemProcessorQueue extends ActivityQueueWorkerBase {
         $item['entity_id'],
         $item['activity']
       );
+      Cache::invalidateTags([
+        "{$item['entity_type']}:{$item['entity_id']}",
+        "{$item['entity_type']}_list",
+      ]);
       unset($items[$id]);
       $i++;
     }

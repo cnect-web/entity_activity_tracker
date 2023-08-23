@@ -70,20 +70,14 @@ class CreditGroupTestBase extends EntityActivityTrackerTestBase {
 
   /**
    * Creates a group type.
-   *
-   * @param array $values
-   *   (optional) The values used to create the entity.
-   *
-   * @return \Drupal\group\Entity\GroupType
-   *   The created group type entity.
    */
   protected function createGroupType() {
     $group_type_storage = $this->entityTypeManager->getStorage('group_type');
     $this->groupType = $group_type_storage->create([
-        'id' => $this->randomMachineName(),
-        'label' => $this->randomString(),
-        'creator_membership' => FALSE,
-      ]);
+      'id' => $this->randomMachineName(),
+      'label' => $this->randomString(),
+      'creator_membership' => FALSE,
+    ]);
 
     $group_type_storage->save($this->groupType);
 

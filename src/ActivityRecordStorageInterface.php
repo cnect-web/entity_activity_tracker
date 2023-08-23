@@ -5,7 +5,7 @@ namespace Drupal\entity_activity_tracker;
 use Drupal\Core\Entity\ContentEntityInterface;
 
 /**
- * Interface ActivityRecordStorageInterface.
+ * Interface Activity Record Storage.
  */
 interface ActivityRecordStorageInterface {
 

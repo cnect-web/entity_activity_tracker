@@ -39,14 +39,13 @@ class CreditUserCommentCreationTest extends EntityActivityTrackerTestBase {
   /**
    * Create a tracker for a user.
    *
-   * @param $run_cron
+   * @param bool $run_cron
    *   Run cron after.
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
    *   Tracker.
    */
   protected function createTrackerForUser($run_cron) {
-    // @TODO: refactor hardcoded values.
     return $this->createTracker('user', 'user', [
       'credit_user_comment_creation' => [
         'enabled' => 1,
@@ -71,7 +70,9 @@ class CreditUserCommentCreationTest extends EntityActivityTrackerTestBase {
   }
 
   /**
-   * Test assignment of activity points, when we create a tracker and we assign points to authors of comments.
+   * Test assignment of activity points, when we create a tracker and.
+   *
+   * We assign points to authors of comments.
    */
   public function testTrackerCreationExistingEntity() {
     $article = $this->createNode('article', TRUE);
@@ -84,12 +85,14 @@ class CreditUserCommentCreationTest extends EntityActivityTrackerTestBase {
     $credit_user_comment_creation_plugin_activity_point = $this->getPluginActivityPoints($tracker, 'credit_user_comment_creation');
 
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($this->adminUser);
-    $this->assertTrue( !empty($activity_record));
+    $this->assertTrue(!empty($activity_record));
     $this->assertEquals($credit_user_comment_creation_plugin_activity_point * $count, $activity_record->getActivityValue());
   }
 
   /**
-   * Test assignment of activity points, when we create a tracker and we don't have any comments.
+   * Test assignment of activity points.
+   *
+   * When we create a tracker and we don't have any comments.
    */
   public function testTrackerCreationWithNoEntities() {
     $tracker = $this->createTrackerForUser(TRUE);

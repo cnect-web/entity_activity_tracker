@@ -3,14 +3,15 @@
 namespace Drupal\entity_activity_tracker\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
+use Drupal\entity_activity_tracker\QueueActivityItem;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\hook_event_dispatcher\Event\EventInterface;
 
 /**
  * Base class for Activity processor plugins.
@@ -51,6 +52,7 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
     ActivityRecordStorageInterface $activity_record_storage,
     EntityTypeManagerInterface $entity_type_manager
   ) {
+
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->activityRecordStorage = $activity_record_storage;
     $this->entityTypeManager = $entity_type_manager;
@@ -70,6 +72,12 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
     );
   }
 
+  /**
+   * Set tracker.
+   *
+   * @param \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface $tracker
+   *   Tracker.
+   */
   public function setTracker(EntityActivityTrackerInterface $tracker) {
     $this->tracker = $tracker;
   }
@@ -93,8 +101,15 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   /**
    * {@inheritdoc}
    */
-  public function processActivity(EventInterface $event) {
-    // code...
+  public function processActivity(QueueActivityItem $queue_activity_item) {
+    $entity = $queue_activity_item->getEntity();
+    $this->activityRecordStorage->applyActivity(
+      $entity->getEntityTypeId(),
+      $entity->bundle(),
+      $entity->id(),
+      $this->configuration[$this->getConfigField()]
+    );
+    $this->cleanCache($queue_activity_item);
   }
 
   /**
@@ -107,12 +122,12 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
   /**
    * {@inheritdoc}
    */
-  public function canProcess(EventInterface $event) {
-    if ($this->getEvent() != $event->getDispatcherType()) {
+  public function canProcess(QueueActivityItem $queue_activity_item) {
+    if ($this->getEvent() != $queue_activity_item->getEventType()) {
       return FALSE;
     }
 
-    $entity = $event->getEntity();
+    $entity = $queue_activity_item->getEntity();
     // Entity doesn't have any relations and the current tracker handles it.
     return empty($this->getPluginDefinition()['target_entity_type']) && $entity->getEntityTypeId() == $this->tracker->getTargetEntityType() && $entity->bundle() == $this->tracker->getTargetEntityBundle();
   }
@@ -155,11 +170,11 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
    *   Entity data to be credited.
    */
   public function getExistingEntitiesToBeCredited() {
-     return [];
+    return [];
   }
 
   /**
-   * Get entity data array for crediting
+   * Get entity data array for crediting.
    *
    * @param int $entity_id
    *   Entity id.
@@ -186,6 +201,16 @@ abstract class ActivityProcessorBase extends PluginBase implements ActivityProce
    */
   public function getEvent() {
     return $this->getPluginDefinition()['event'];
+  }
+
+  public function cleanCache(QueueActivityItem $queue_activity_item) {
+    $entity = $queue_activity_item->getEntity();
+    if ($entity) {
+      Cache::invalidateTags([
+        "{$entity->getEntityTypeId()}:{$entity->id()}",
+        "{$entity->getEntityTypeId()}_list",
+      ]);
+    }
   }
 
 }

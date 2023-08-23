@@ -2,12 +2,12 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\views\field;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 
 /**
  * A handler to provide a field that is completely custom by the administrator.
@@ -50,8 +50,7 @@ class TrackedEntity extends FieldPluginBase implements ContainerFactoryPluginInt
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    EntityTypeManagerInterface
-    $entity_type_manager,
+    EntityTypeManagerInterface $entity_type_manager,
     ActivityRecordStorageInterface $activity_record_storage
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -112,7 +111,11 @@ class TrackedEntity extends FieldPluginBase implements ContainerFactoryPluginInt
     $entity_storage = $this->entityTypeManager->getStorage($activity_record->getEntityType());
     $tracked_entity = $entity_storage->load($activity_record->getEntityId());
 
-    return $tracked_entity->toLink()->toString();
+    if ($tracked_entity) {
+      return $tracked_entity->toLink()->toString();
+    }
+
+    return NULL;
   }
 
 }

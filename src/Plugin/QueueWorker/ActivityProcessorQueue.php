@@ -16,13 +16,13 @@ class ActivityProcessorQueue extends ActivityQueueWorkerBase {
   /**
    * {@inheritdoc}
    */
-  public function processItem($event) {
+  public function processItem($queue_activity_item) {
     $trackers = $this->trackerLoader->getAll();
     foreach ($trackers as $tracker) {
       $plugins = $tracker->getEnabledProcessorsPlugins();
       foreach ($plugins as $plugin_id => $plugin) {
-        if ($plugin->canProcess($event)) {
-          $plugin->processActivity($event);
+        if ($plugin->canProcess($queue_activity_item)) {
+          $plugin->processActivity($queue_activity_item);
           $this->logInfo("$plugin_id plugin processed");
         }
       }

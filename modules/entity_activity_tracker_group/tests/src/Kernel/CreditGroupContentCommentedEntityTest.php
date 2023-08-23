@@ -5,7 +5,7 @@ namespace Drupal\Tests\entity_activity_tracker_group\Kernel;
 use Drupal\group\Entity\GroupContent;
 
 /**
- * Tests assignment of activity points for group content when someone comments it.
+ * Tests assignment of activity points for group content when someone comments.
  *
  * @group entity_activity_tracker
  * @see \Drupal\entity_activity_tracker_user\Plugin\ActivityProcessor\CreditGroupContentCommentedEntity
@@ -33,7 +33,9 @@ class CreditGroupContentCommentedEntityTest extends CreditGroupTestBase {
   }
 
   /**
-   * Test assignment of activity points for group content, when a new tracker is created.
+   * Test assignment of activity points for group content.
+   *
+   * When a new tracker is created.
    */
   public function testTrackerCreationExistingEntity() {
     $group = $this->createGroup();
@@ -68,7 +70,7 @@ class CreditGroupContentCommentedEntityTest extends CreditGroupTestBase {
   /**
    * Create a tracker for a group.
    *
-   * @param $run_cron
+   * @param bool $run_cron
    *   Run cron after.
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface

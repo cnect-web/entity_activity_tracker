@@ -7,8 +7,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity_activity_tracker\ActivityRecord;
-use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
-use Drupal\file\FileInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -85,7 +83,7 @@ class ImportActivityRecordsForm extends FormBase implements ContainerInjectionIn
 
     $csv_file = $form_state->getValue('import_csv');
 
-    /** @var FileInterface $file */
+    /** @var \Drupal\file\FileInterface $file */
     $file = $this->entityTypeManager->getStorage('file')->load($csv_file[0]);
 
     // TEST IF THIS CAN BE TEMPORARY.
@@ -95,14 +93,20 @@ class ImportActivityRecordsForm extends FormBase implements ContainerInjectionIn
     $operations = [];
     $data = $this->csvtoarray($file->getFileUri(), ',');
     foreach ($data as $row) {
-      $operations[] = ['\Drupal\entity_activity_tracker\Form\ImportActivityRecordsForm::addImportActivityRecord', [$row]];
+      $operations[] = [
+        '\Drupal\entity_activity_tracker\Form\ImportActivityRecordsForm::addImportActivityRecord',
+        [$row],
+      ];
     }
 
     $batch = [
       'title' => $this->t('Importing Data...'),
       'operations' => $operations,
       'init_message' => $this->t('Import is starting.'),
-      'finished' => ['\Drupal\entity_activity_tracker\Form\ImportActivityRecordsForm', 'addImportActivityRecordCallback'],
+      'finished' => [
+        '\Drupal\entity_activity_tracker\Form\ImportActivityRecordsForm',
+        'addImportActivityRecordCallback',
+      ],
     ];
     batch_set($batch);
   }
@@ -156,7 +160,7 @@ class ImportActivityRecordsForm extends FormBase implements ContainerInjectionIn
     $bundle = $item['bundle'];
     $entity_id = $item['entity_id'];
 
-    /** @var ActivityRecordStorageInterface $activity_record_storage */
+    /** @var \Drupal\entity_activity_tracker\ActivityRecordStorageInterface $activity_record_storage */
     $activity_record_storage = \Drupal::service('entity_activity_tracker.activity_record_storage');
     $item_storage = \Drupal::entityTypeManager()->getStorage($entity_type);
     $item_entity = $item_storage->load($entity_id);

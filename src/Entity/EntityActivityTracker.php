@@ -3,8 +3,8 @@
 namespace Drupal\entity_activity_tracker\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\entity_activity_tracker\Plugin\ActivityProcessorCollection;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
+use Drupal\entity_activity_tracker\Plugin\ActivityProcessorCollection;
 
 /**
  * Defines the Entity activity tracker entity.
@@ -127,16 +127,6 @@ class EntityActivityTracker extends ConfigEntityBase implements EntityActivityTr
    */
   public function getProcessorPlugin($instance_id) {
     return $this->getProcessorPlugins()->get($instance_id);
-  }
-
-  public function getEnapledPluginById($instance_id) {
-    foreach ($this->getEnabledProcessorsPlugins() as $plguin) {
-      if ($plguin->getPluginId() == $instance_id) {
-        return $plguin;
-      }
-    }
-
-    return NULL;
   }
 
   /**

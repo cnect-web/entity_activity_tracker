@@ -21,3 +21,10 @@ function entity_activity_tracker_help($route_name, RouteMatchInterface $route_ma
     default:
   }
 }
+
+/**
+ * Implements hook_preprocess_block().
+ */
+function entity_activity_tracker_preprocess_block(&$variables) {
+  $test = $variables;
+}

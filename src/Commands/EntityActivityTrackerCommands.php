@@ -2,6 +2,9 @@
 
 namespace Drupal\entity_activity_tracker\Commands;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\StorageInterface;
+use Drupal\Core\Database\Connection;
 use Drush\Commands\DrushCommands;
 
 /**
@@ -18,6 +21,47 @@ use Drush\Commands\DrushCommands;
 class EntityActivityTrackerCommands extends DrushCommands {
 
   /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * Database.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $database;
+
+  /**
+   * The active configuration storage.
+   *
+   * @var \Drupal\Core\Config\StorageInterface
+   */
+  protected $configStorage;
+
+  /**
+   * FutTranslationsDrushCommands constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   * @param \Drupal\Core\Database\Connection $database
+   *   Database.
+   * @param \Drupal\Core\Config\StorageInterface $config_storage
+   *   The active configuration storage.
+   */
+  public function __construct(
+    ConfigFactoryInterface $config_factory,
+    Connection $database,
+    StorageInterface $config_storage,
+  ) {
+    $this->configFactory = $config_factory;
+    $this->database = $database;
+    $this->configStorage = $config_storage;
+  }
+
+  /**
    * Reset Entity Activity Tracker.
    *
    * @usage entity_activity_tracker-resetEntityActivityTracker reat
@@ -28,16 +72,15 @@ class EntityActivityTrackerCommands extends DrushCommands {
    */
   public function resetEntityActivityTracker() {
     // Delete all existing configs.
-    $config_names = \Drupal::service('config.storage')->listAll('entity_activity_tracker');
-    $config_factory = \Drupal::configFactory();
+    $config_names = $this->configStorage->listAll('entity_activity_tracker');
     foreach ($config_names as $config) {
-        $config_factory->getEditable($config)->delete();
+      $this->configFactory->getEditable($config)->delete();
     }
-    
+
     // Truncate entity_activity_tracker and clean up queue.
-    $database = \Drupal::database();
-    $database->truncate('entity_activity_tracker')->execute();
-    $database->delete('queue')->condition('name', 'activity_processor_queue')->execute();
-    $database->delete('queue')->condition('name', 'tracker_processor_queue')->execute();
+    $this->database->truncate('entity_activity_tracker')->execute();
+    $this->database->delete('queue')->condition('name', 'activity_processor_queue')->execute();
+    $this->database->delete('queue')->condition('name', 'tracker_processor_queue')->execute();
   }
+
 }

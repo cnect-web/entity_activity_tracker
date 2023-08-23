@@ -10,110 +10,13 @@ description: ''
 tag: ''
 base_table: entity_activity_tracker
 base_field: activity_id
-core: 8.x
 display:
   default:
-    display_plugin: default
     id: default
     display_title: Master
+    display_plugin: default
     position: 0
     display_options:
-      access:
-        type: none
-        options: {  }
-      cache:
-        type: none
-        options: {  }
-      query:
-        type: views_query
-        options:
-          disable_sql_rewrite: false
-          distinct: false
-          replica: false
-          query_comment: ''
-          query_tags: {  }
-      exposed_form:
-        type: basic
-        options:
-          submit_button: Apply
-          reset_button: false
-          reset_button_label: Reset
-          exposed_sorts_label: 'Sort by'
-          expose_sort_order: true
-          sort_asc_label: Asc
-          sort_desc_label: Desc
-      pager:
-        type: mini
-        options:
-          items_per_page: 10
-          offset: 0
-          id: 0
-          total_pages: null
-          expose:
-            items_per_page: false
-            items_per_page_label: 'Items per page'
-            items_per_page_options: '5, 10, 25, 50'
-            items_per_page_options_all: false
-            items_per_page_options_all_label: '- All -'
-            offset: false
-            offset_label: Offset
-          tags:
-            previous: ‹‹
-            next: ››
-      style:
-        type: table
-        options:
-          grouping: {  }
-          row_class: ''
-          default_row_class: true
-          override: true
-          sticky: false
-          caption: ''
-          summary: ''
-          description: ''
-          columns:
-            tracked_entity: tracked_entity
-            activity: activity
-            created: created
-            changed: changed
-          info:
-            tracked_entity:
-              sortable: false
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            activity:
-              sortable: true
-              default_sort_order: desc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            created:
-              sortable: true
-              default_sort_order: desc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            changed:
-              sortable: true
-              default_sort_order: desc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-          default: '-1'
-          empty_table: false
-      row:
-        type: fields
-        options:
-          inline: {  }
-          separator: ''
-          hide_empty: false
-          default_field_elements: true
       fields:
         tracked_entity:
           id: tracked_entity
@@ -122,6 +25,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          plugin_id: tracked_entity
           label: 'Tracked entity'
           exclude: false
           alter:
@@ -163,7 +67,6 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: false
-          plugin_id: tracked_entity
         activity:
           id: activity
           table: entity_activity_tracker
@@ -171,6 +74,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          plugin_id: numeric
           label: Activity
           exclude: false
           alter:
@@ -220,7 +124,6 @@ display:
           format_plural_string: !!binary MQNAY291bnQ=
           prefix: ''
           suffix: ''
-          plugin_id: numeric
         created:
           id: created
           table: entity_activity_tracker
@@ -228,6 +131,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          plugin_id: date
           label: Created
           exclude: false
           alter:
@@ -272,7 +176,6 @@ display:
           date_format: html_date
           custom_date_format: ''
           timezone: ''
-          plugin_id: date
         changed:
           id: changed
           table: entity_activity_tracker
@@ -280,6 +183,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          plugin_id: date
           label: 'last changed'
           exclude: false
           alter:
@@ -324,13 +228,55 @@ display:
           date_format: 'time ago'
           custom_date_format: ''
           timezone: ''
-          plugin_id: date
-      filters: {  }
-      sorts: {  }
-      header: {  }
-      footer: {  }
+      pager:
+        type: mini
+        options:
+          offset: 0
+          items_per_page: 10
+          total_pages: null
+          id: 0
+          tags:
+            next: ››
+            previous: ‹‹
+          expose:
+            items_per_page: false
+            items_per_page_label: 'Items per page'
+            items_per_page_options: '5, 10, 25, 50'
+            items_per_page_options_all: false
+            items_per_page_options_all_label: '- All -'
+            offset: false
+            offset_label: Offset
+      exposed_form:
+        type: basic
+        options:
+          submit_button: Apply
+          reset_button: false
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sort by'
+          expose_sort_order: true
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      access:
+        type: none
+        options: {  }
+      cache:
+        type: none
+        options: {  }
       empty: {  }
-      relationships: {  }
+      sorts:
+        changed:
+          id: changed
+          table: entity_activity_tracker
+          field: changed
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: standard
+          order: DESC
+          expose:
+            label: ''
+            field_identifier: ''
+          exposed: false
       arguments:
         entity_type:
           id: entity_type
@@ -339,6 +285,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          plugin_id: string
           default_action: 'not found'
           exception:
             value: all
@@ -353,8 +300,8 @@ display:
           summary_options:
             base_path: ''
             count: true
-            items_per_page: 25
             override: false
+            items_per_page: 25
           summary:
             sort_order: asc
             number_of_records: 0
@@ -370,7 +317,6 @@ display:
           path_case: none
           transform_dash: false
           break_phrase: false
-          plugin_id: string
         bundle:
           id: bundle
           table: entity_activity_tracker
@@ -378,6 +324,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          plugin_id: string
           default_action: 'not found'
           exception:
             value: all
@@ -392,8 +339,8 @@ display:
           summary_options:
             base_path: ''
             count: true
-            items_per_page: 25
             override: false
+            items_per_page: 25
           summary:
             sort_order: asc
             number_of_records: 0
@@ -409,7 +356,72 @@ display:
           path_case: none
           transform_dash: false
           break_phrase: false
-          plugin_id: string
+      filters: {  }
+      style:
+        type: table
+        options:
+          grouping: {  }
+          row_class: ''
+          default_row_class: true
+          columns:
+            tracked_entity: tracked_entity
+            activity: activity
+            created: created
+            changed: changed
+          default: '-1'
+          info:
+            tracked_entity:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            activity:
+              sortable: true
+              default_sort_order: desc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            created:
+              sortable: true
+              default_sort_order: desc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            changed:
+              sortable: true
+              default_sort_order: desc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+          override: true
+          sticky: false
+          summary: ''
+          empty_table: false
+          caption: ''
+          description: ''
+      row:
+        type: fields
+        options:
+          default_field_elements: true
+          inline: {  }
+          separator: ''
+          hide_empty: false
+      query:
+        type: views_query
+        options:
+          query_comment: ''
+          disable_sql_rewrite: false
+          distinct: false
+          replica: false
+          query_tags: {  }
+      relationships: {  }
+      header: {  }
+      footer: {  }
       display_extenders: {  }
     cache_metadata:
       max-age: -1

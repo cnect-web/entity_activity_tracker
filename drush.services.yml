@@ -1,5 +1,9 @@
 services:
   entity_activity_tracker.commands:
     class: \Drupal\entity_activity_tracker\Commands\EntityActivityTrackerCommands
+    arguments:
+      - '@config.factory'
+      - '@database'
+      - '@config.storage'
     tags:
       - { name: drush.command }

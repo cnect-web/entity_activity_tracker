@@ -76,7 +76,7 @@ abstract class EntityActivityTrackerTestBase extends EntityKernelTestBase {
    *   Entity type.
    * @param array $values
    *   Values.
-   * @param $run_cron
+   * @param bool $run_cron
    *   Run cron after.
    *
    * @return \Drupal\Core\Entity\EntityInterface
@@ -104,7 +104,7 @@ abstract class EntityActivityTrackerTestBase extends EntityKernelTestBase {
    *   Bundle.
    * @param array $processors
    *   List of processors configuration.
-   * @param $run_cron
+   * @param bool $run_cron
    *   Run cron after.
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
@@ -125,7 +125,7 @@ abstract class EntityActivityTrackerTestBase extends EntityKernelTestBase {
    *
    * @param string $type
    *   Node type.
-   * @param $run_cron
+   * @param bool $run_cron
    *   Run cron service after.
    *
    * @return \Drupal\node\NodeInterface
@@ -143,8 +143,8 @@ abstract class EntityActivityTrackerTestBase extends EntityKernelTestBase {
   /**
    * Creates a node type.
    *
-   * @param array $values
-   *   (optional) The values used to create the entity.
+   * @param array $type
+   *   Node type.
    *
    * @return \Drupal\node\Entity\NodeType
    *   The created node type entity.
@@ -159,7 +159,7 @@ abstract class EntityActivityTrackerTestBase extends EntityKernelTestBase {
   /**
    * Removes entity.
    *
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   Entity to be removed.
    */
   protected function removeEntity(EntityInterface $entity) {
@@ -188,7 +188,7 @@ abstract class EntityActivityTrackerTestBase extends EntityKernelTestBase {
    *
    * @param \Drupal\node\NodeInterface $node
    *   Node entity.
-   * @param $run_cron
+   * @param bool $run_cron
    *   Run cron service after.
    *
    * @return \Drupal\comment\CommentInterface

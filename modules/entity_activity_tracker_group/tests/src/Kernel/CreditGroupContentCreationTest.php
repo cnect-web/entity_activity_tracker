@@ -3,7 +3,7 @@
 namespace Drupal\Tests\entity_activity_tracker_group\Kernel;
 
 /**
- * Tests assignment of activity points, when content is created inside of a group.
+ * Tests assignment of activity points, when content is created inside of group.
  *
  * @group entity_activity_tracker
  * @see \Drupal\entity_activity_tracker_user\Plugin\ActivityProcessor\CreditGroupContentCreation
@@ -11,7 +11,7 @@ namespace Drupal\Tests\entity_activity_tracker_group\Kernel;
 class CreditGroupContentCreationTest extends CreditGroupTestBase {
 
   /**
-   * Test assignment of activity points, when a new content is created in a group.
+   * Test assignment of activity points, when a new content is created in group.
    */
   public function testEntityCommenting() {
     $group = $this->createGroup();
@@ -28,7 +28,9 @@ class CreditGroupContentCreationTest extends CreditGroupTestBase {
   }
 
   /**
-   * Test assignment of activity points for existing nodes inside of a group, when a new tracker is created.
+   * Test assignment of activity points for existing nodes.
+   *
+   * Inside of a group, when a new tracker is created.
    */
   public function testTrackerCreationExistingEntity() {
     $group = $this->createGroup();
@@ -42,7 +44,7 @@ class CreditGroupContentCreationTest extends CreditGroupTestBase {
     $credit_group_comment_creation_plugin_activity_point = $this->getPluginActivityPoints($tracker, 'credit_group_content_creation');
 
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($group);
-    $this->assertTrue( !empty($activity_record));
+    $this->assertTrue(!empty($activity_record));
     $this->assertEquals($credit_group_comment_creation_plugin_activity_point * $count, $activity_record->getActivityValue());
   }
 
@@ -59,7 +61,7 @@ class CreditGroupContentCreationTest extends CreditGroupTestBase {
   /**
    * Create a tracker for a group.
    *
-   * @param $run_cron
+   * @param bool $run_cron
    *   Run cron after.
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface

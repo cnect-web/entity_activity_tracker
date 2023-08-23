@@ -52,7 +52,7 @@ class TrackerLoader {
   }
 
   /**
-   * Get tracker by it's bundle info.
+   * Get tracker by it is bundle info.
    *
    * @param string $entity_type
    *   Entity type.
@@ -60,6 +60,7 @@ class TrackerLoader {
    *   Entity bundle.
    *
    * @return array|\Drupal\Core\Entity\EntityInterface[]
+   *   Trackers.
    */
   public function getTrackerByEntityBundle($entity_type, $entity_bundle) {
     $key = "{$entity_type}-{$entity_bundle}";
@@ -90,7 +91,7 @@ class TrackerLoader {
   /**
    * Check if exists EntityActivityTracker for given entity.
    *
-   * @param ContentEntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity to check if it has a tracker.
    *
    * @return bool
@@ -103,7 +104,7 @@ class TrackerLoader {
   /**
    * Get tracker canonical url given tracked entity.
    *
-   * @param ContentEntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The tracked entity.
    *
    * @return \Drupal\Core\Url

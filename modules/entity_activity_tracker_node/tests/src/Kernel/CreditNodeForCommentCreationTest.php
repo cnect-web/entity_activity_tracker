@@ -39,14 +39,14 @@ class CreditNodeForCommentCreationTest extends EntityActivityTrackerTestBase {
   /**
    * Create a tracker for node type article.
    *
-   * @param $run_cron
+   * @param bool $run_cron
    *   Run cron after.
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
    *   Tracker.
    */
   protected function createTrackerForNodeArticle($run_cron) {
-    // @TODO: refactor hardcoded values.
+    // @todo refactor hardcoded values.
     return $this->createTracker('node', 'article', [
       'entity_create' => [
         'enabled' => 1,
@@ -81,7 +81,9 @@ class CreditNodeForCommentCreationTest extends EntityActivityTrackerTestBase {
   }
 
   /**
-   * Test assignment of activity points for existing nodes, when they have comments and we create a new tracker.
+   * Test assignment of activity points for existing nodes.
+   *
+   * When they have comments and we create a new tracker.
    */
   public function testTrackerCreationExistingEntity() {
     $article = $this->createNode('article', TRUE);
@@ -96,20 +98,20 @@ class CreditNodeForCommentCreationTest extends EntityActivityTrackerTestBase {
     $credit_commented_entity_plugin_activity_point = $this->getPluginActivityPoints($tracker, 'credit_commented_entity');
 
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($article);
-    $this->assertTrue( !empty($activity_record));
+    $this->assertTrue(!empty($activity_record));
     $this->assertEquals($entity_create_plugin_activity_point + $credit_commented_entity_plugin_activity_point * $count, $activity_record->getActivityValue());
   }
 
   /**
-   * Test that we don't assign any activity points when we create tracker and we don't have any existing entities.
+   * Test that we don't assign any activity points.
+   *
+   * When we create tracker and we don't have any existing entities.
    */
   public function testTrackerCreationWithNoEntities() {
     $tracker = $this->createTrackerForNodeArticle(TRUE);
 
     $activity_records = $this->activityRecordStorage->getActivityRecordByBundle($tracker->getTargetEntityType(), $tracker->getTargetEntityBundle());
-    $this->assertTrue( empty($activity_records));
+    $this->assertTrue(empty($activity_records));
   }
-
-
 
 }

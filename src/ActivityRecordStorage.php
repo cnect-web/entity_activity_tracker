@@ -2,14 +2,14 @@
 
 namespace Drupal\entity_activity_tracker;
 
-use Drupal\Core\Database\Connection;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Query\SelectInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
 /**
- * Class ActivityRecordStorage.
+ * Class Activity Record Storage.
  */
 class ActivityRecordStorage implements ActivityRecordStorageInterface {
 
@@ -169,26 +169,26 @@ class ActivityRecordStorage implements ActivityRecordStorageInterface {
    * {@inheritdoc}
    */
   public function decayActivityRecord(ActivityRecord $activity_record) {
-    if (!$activity_record->isNew()) {
-      $fields = [
-        'activity' => $activity_record->getActivityValue(),
-        'changed' => $this->dateTime->getRequestTime(),
-        'last_decay' => $this->dateTime->getRequestTime(),
-      ];
-      try {
-        $this->database->update('entity_activity_tracker')
-          ->fields($fields)
-          ->condition('activity_id', $activity_record->id())
-          ->execute();
-      }
-      catch (\Throwable $th) {
-        $this->logger->error($th->getMessage());
-        return FALSE;
-      }
-      return TRUE;
+    if ($activity_record->isNew()) {
+      return FALSE;
     }
 
-    return FALSE;
+    $fields = [
+      'activity' => $activity_record->getActivityValue(),
+      'changed' => $this->dateTime->getRequestTime(),
+      'last_decay' => $this->dateTime->getRequestTime(),
+    ];
+    try {
+      $this->database->update('entity_activity_tracker')
+        ->fields($fields)
+        ->condition('activity_id', $activity_record->id())
+        ->execute();
+    }
+    catch (\Throwable $th) {
+      $this->logger->error($th->getMessage());
+      return FALSE;
+    }
+    return TRUE;
   }
 
   /**

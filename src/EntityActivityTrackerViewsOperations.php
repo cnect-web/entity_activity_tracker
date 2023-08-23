@@ -5,7 +5,6 @@ namespace Drupal\entity_activity_tracker;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\entity_activity_tracker\TrackerLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

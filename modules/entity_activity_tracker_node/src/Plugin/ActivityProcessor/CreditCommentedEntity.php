@@ -2,7 +2,6 @@
 
 namespace Drupal\entity_activity_tracker_node\Plugin\ActivityProcessor;
 
-use Drupal\comment\CommentInterface;
 use Drupal\comment\CommentManagerInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\ContentEntityInterface;
@@ -13,12 +12,12 @@ use Drupal\entity_activity_tracker\Plugin\ActivityProcessorCreditRelatedBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Sets setting for nodes and preforms the activity process for nodes.
+ * Sets setting for nodes and performs the activity process for nodes.
  *
  * @ActivityProcessor (
  *   id = "credit_commented_entity",
  *   event = "hook_event_dispatcher.entity.insert",
- *   label = @Translation("Credit Commented Entity"),
+ *   label = @Translation("Credit commented node"),
  *   entity_types = {
  *     "node",
  *   },
@@ -118,10 +117,10 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
   /**
    * Get owner of the comment.
    *
-   * @param CommentInterface $comment
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The comment attached to event.
    *
-   * @return ContentEntityInterface|null
+   * @return \Drupal\Core\Entity\ContentEntityInterface|null
    *   Related entity or null.
    */
   protected function getRelatedEntities(ContentEntityInterface $entity) {
@@ -134,7 +133,13 @@ class CreditCommentedEntity extends ActivityProcessorCreditRelatedBase {
    */
   public function isAccessible() {
     $field_names = $this->commentManager->getFields('node');
-    return !empty($field_names['comment']['bundles'][$this->tracker->getTargetEntityBundle()]);
+    foreach ($field_names as $field) {
+      if (!empty($field['bundles'][$this->tracker->getTargetEntityBundle()])) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**

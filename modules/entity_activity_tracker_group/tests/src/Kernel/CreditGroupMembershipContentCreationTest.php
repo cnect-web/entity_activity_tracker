@@ -3,7 +3,9 @@
 namespace Drupal\Tests\entity_activity_tracker_group\Kernel;
 
 /**
- * Test assignment of activity points to group membership when user posts comments.
+ * Test assignment of activity points to group membership.
+ *
+ * When user posts comments.
  *
  * @group entity_activity_tracker
  * @see \Drupal\entity_activity_tracker_user\Plugin\ActivityProcessor\CreditGroupMembershipContentCreation
@@ -11,7 +13,9 @@ namespace Drupal\Tests\entity_activity_tracker_group\Kernel;
 class CreditGroupMembershipContentCreationTest extends CreditGroupTestBase {
 
   /**
-   * Test assignment of activity points to group membership, when a new node is posted.
+   * Test assignment of activity points to group membership.
+   *
+   * When a new node is posted.
    */
   public function testEntityCommenting() {
     $group = $this->createGroup();
@@ -30,7 +34,9 @@ class CreditGroupMembershipContentCreationTest extends CreditGroupTestBase {
   }
 
   /**
-   * Test assignment of activity points to group membership for existing nodes, when a new tracker is created.
+   * Test assignment of activity points to group membership for existing nodes.
+   *
+   * When a new tracker is created.
    */
   public function testTrackerCreationExistingEntity() {
     $group = $this->createGroup();
@@ -45,7 +51,7 @@ class CreditGroupMembershipContentCreationTest extends CreditGroupTestBase {
     $credit_group_membership_content_creation_plugin_activity_point = $this->getPluginActivityPoints($tracker, 'credit_group_membership_content_creation');
 
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($membership->getGroupContent());
-    $this->assertTrue( !empty($activity_record));
+    $this->assertTrue(!empty($activity_record));
     $this->assertEquals($credit_group_membership_content_creation_plugin_activity_point * $count, $activity_record->getActivityValue());
   }
 
@@ -62,7 +68,7 @@ class CreditGroupMembershipContentCreationTest extends CreditGroupTestBase {
   /**
    * Create a tracker for a group.
    *
-   * @param $run_cron
+   * @param bool $run_cron
    *   Run cron after.
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface

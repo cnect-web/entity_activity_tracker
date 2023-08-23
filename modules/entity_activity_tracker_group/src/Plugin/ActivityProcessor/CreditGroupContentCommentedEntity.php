@@ -164,8 +164,13 @@ class CreditGroupContentCommentedEntity extends CreditGroupBase {
 
     $content_plugin = $group_content_type->getContentPlugin();
     $field_names = $this->commentManager->getFields($content_plugin->getEntityTypeId());
+    foreach ($field_names as $field) {
+      if (!empty($field['bundles'][$content_plugin->getPluginDefinition()['entity_bundle']])) {
+        return TRUE;
+      }
+    }
 
-    return !empty($field_names['comment']['bundles'][$content_plugin->getEntityBundle()]);
+    return FALSE;
   }
 
 }

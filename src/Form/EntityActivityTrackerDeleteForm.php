@@ -5,8 +5,8 @@ namespace Drupal\entity_activity_tracker\Form;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

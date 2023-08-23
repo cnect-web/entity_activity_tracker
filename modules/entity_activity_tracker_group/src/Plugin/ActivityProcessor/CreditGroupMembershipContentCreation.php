@@ -152,4 +152,5 @@ class CreditGroupMembershipContentCreation extends CreditGroupBase {
     $group_content_type = $this->entityTypeManager->getStorage('group_content_type')->load($this->tracker->getTargetEntityBundle());
     return $group_content_type->getContentPluginId() == 'group_membership';
   }
+
 }

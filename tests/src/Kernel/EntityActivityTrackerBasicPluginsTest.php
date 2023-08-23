@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\entity_activity_tracker\Kernel;
 
-
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessor\EntityDecay;
 
 /**
@@ -25,7 +24,8 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
   ];
 
   /**
-   *   Create a tracker for node type article.
+   * Create a tracker for node type article.
+   *
    * @param bool $run_cron
    *   Run cron after.
    *
@@ -33,20 +33,21 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
    *   Create tracker for an article.
    */
   protected function createTrackerForNodeArticle($run_cron) {
-    // @TODO: refactor hardcoded values.
     return $this->createTracker('node', 'article', [
       'entity_create' => [
         'enabled' => 1,
         'activity_creation' => 100,
         'activity_existing' => 50,
         'activity_existing_enabler' => 1,
-      ]
+      ],
     ], $run_cron);
   }
 
   /**
-   * @param $run_cron
-   *   Run cron after
+   * Create a tracker with a decay plugin.
+   *
+   * @param bool $run_cron
+   *   Run cron after.
    * @param int $entity_create_activity_point
    *   Create activity points.
    * @param int $entity_decay_activity_point
@@ -58,7 +59,6 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
    *   Tracker.
    */
   protected function createTrackerWithDecayPlugin($run_cron, $entity_create_activity_point, $entity_decay_activity_point, $decay_type) {
-    // @TODO: refactor hardcoded values.
     return $this->createTracker('node', 'article', [
       'entity_create' => [
         'enabled' => 1,
@@ -76,7 +76,9 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
   }
 
   /**
-   * Test when we create tracker we want to apply activity points to existing entities.
+   * Test when we create tracker.
+   *
+   * We want to apply activity points to existing entities.
    */
   public function testTrackerCreationExistingEntity() {
     $article = $this->createNode('article', TRUE);
@@ -94,8 +96,8 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
     $this->createTrackerForNodeArticle(TRUE);
     $article = $this->createNode('article');
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($article);
-    $this->assertTrue( !empty($activity_record));
-    // The case when we apply
+    $this->assertTrue(!empty($activity_record));
+    // The case when we apply.
     $this->assertEquals(100, $activity_record->getActivityValue());
   }
 
@@ -161,7 +163,7 @@ class EntityActivityTrackerBasicPluginsTest extends EntityActivityTrackerTestBas
     $this->createTrackerForNodeArticle(TRUE);
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($page);
 
-    $this->assertTrue( empty($activity_record));
+    $this->assertTrue(empty($activity_record));
   }
 
   /**

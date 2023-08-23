@@ -75,9 +75,9 @@ class TrackerProcessorQueue extends ActivityQueueWorkerBase {
   /**
    * {@inheritdoc}
    */
-  public function processItem($event) {
+  public function processItem($queue_activity_item) {
 
-    $tracker = $event->getEntity();
+    $tracker = $queue_activity_item->getEntity();
     $plugins = $tracker->getEnabledProcessorsPlugins();
 
     // We get existing entities for each plugin and activity points

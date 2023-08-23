@@ -2,10 +2,10 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\ActivityProcessor;
 
-use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
-use Drupal\hook_event_dispatcher\Event\EventInterface;
+use Drupal\entity_activity_tracker\Plugin\ActivityProcessorBase;
+use Drupal\entity_activity_tracker\QueueActivityItem;
 
 /**
  * Sets setting for nodes and preforms the activity process for nodes.
@@ -112,14 +112,14 @@ class EntityDecay extends ActivityProcessorBase {
   /**
    * {@inheritdoc}
    */
-  public function canProcess(EventInterface $event) {
-    return $this->getEvent() == $event->getDispatcherType();
+  public function canProcess(QueueActivityItem $queue_activity_item) {
+    return $this->getEvent() == $queue_activity_item->getEventType();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function processActivity($event) {
+  public function processActivity(QueueActivityItem $queue_activity_item) {
 
     $records = $this->recordsToDecay($this->tracker);
     switch ($this->configuration['decay_type']) {

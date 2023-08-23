@@ -26,23 +26,15 @@ class CreditUserContentCreationTest extends EntityActivityTrackerTestBase {
   ];
 
   /**
-   * {@inheritdoc}
-   */
-  protected function setUp():void {
-    parent::setUp();
-  }
-
-  /**
    * Create a tracker for a user.
    *
-   * @param $run_cron
+   * @param bool $run_cron
    *   Run cron after.
    *
    * @return \Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface
    *   Tracker.
    */
   protected function createTrackerForUser($run_cron) {
-    // @TODO: refactor hardcoded values.
     return $this->createTracker('user', 'user', [
       'credit_user_content_creation' => [
         'enabled' => 1,
@@ -66,7 +58,9 @@ class CreditUserContentCreationTest extends EntityActivityTrackerTestBase {
   }
 
   /**
-   * Test assignment of activity points, when we create a tracker and we assign points to authors of nodes.
+   * Test assignment of activity points.
+   *
+   * When we create a tracker and we assign points to authors of nodes.
    */
   public function testTrackerCreationExistingEntity() {
     $count = 3;
@@ -79,7 +73,7 @@ class CreditUserContentCreationTest extends EntityActivityTrackerTestBase {
     $credit_user_content_creation_plugin_activity_point = $this->getPluginActivityPoints($tracker, 'credit_user_content_creation');
 
     $activity_record = $this->activityRecordStorage->getActivityRecordByEntity($this->adminUser);
-    $this->assertTrue( !empty($activity_record));
+    $this->assertTrue(!empty($activity_record));
     $this->assertEquals($credit_user_content_creation_plugin_activity_point * $count, $activity_record->getActivityValue());
   }
 

@@ -2,7 +2,6 @@
 
 namespace Drupal\entity_activity_tracker_group\Plugin;
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity_activity_tracker\Plugin\ActivityProcessorCreditRelatedBase;
@@ -26,7 +25,6 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-
     $form['credit_group'] = [
       '#type' => 'number',
       '#title' => $this->t('Credit activity'),
@@ -65,7 +63,7 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
     if (empty($entity)) {
       return FALSE;
     }
-    $group_contents = $this->entityTypeManager->getStorage('group_content')->loadByEntity($entity);
+    $group_contents = $this->getGroupContentItemsByEntity($entity);
     if ($group_content = reset($group_contents)) {
       return $group_content;
     }
@@ -85,8 +83,6 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
 
     // Prevent further execution if no group was found.
     if (empty($group)) {
-      // TODO: Use DI.
-      \Drupal::logger('entity_activity_tracker')->error($this->t("Couldn't find Group!"));
       return FALSE;
     }
 
@@ -94,8 +90,6 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
 
     // Do something if there is a Tracker for group where content was created.
     if ($group_tracker) {
-      // I NEED TO THINK HOW TO HANDLE MULTIPLE.
-      // SINCE WE DON'T ALLOW A NODE BE PART OF 2 DIFFERENT GROUPS IT'S OK FOR NOW.
       return $group;
     }
 
@@ -103,9 +97,13 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
   }
 
   /**
+   * Get groups by entity.
+   *
    * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity.
    *
    * @return array
+   *   Get groups by entity.
    */
   protected function getGroupsByEntity(EntityInterface $entity) {
     $entities = [];
@@ -116,8 +114,16 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
     return $entities;
   }
 
+  /**
+   * Get group content items by entity and bundle.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface[]
+   *   Group content items.
+   */
   protected function getGroupContentItemsByEntityAndBundle(EntityInterface $entity) {
-    // TODO: Reorganize code to base classes.
     return $this->entityTypeManager->getStorage('group_content')
       ->loadByProperties([
         'entity_id' => $entity->id(),
@@ -125,13 +131,29 @@ abstract class CreditGroupBase extends ActivityProcessorCreditRelatedBase {
       ]);
   }
 
+  /**
+   * Get group content items by entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity.
+   *
+   * @return mixed
+   *   Group content items.
+   */
   protected function getGroupContentItemsByEntity(EntityInterface $entity) {
-    // TODO: Reorganize code to base classes
     return $this->entityTypeManager->getStorage('group_content')->loadByEntity($entity);
   }
 
+  /**
+   * Get group content types for nodes.
+   *
+   * @param string $group_type_id
+   *   Group type id.
+   *
+   * @return array
+   *   Group content types for nodes
+   */
   protected function getGroupContentTypesForNodes($group_type_id) {
-    // TODO: Reorganize code to base classes
     $group_type = $this->entityTypeManager->getStorage('group_type')->load($group_type_id);
     $group_content_plugins = [];
 

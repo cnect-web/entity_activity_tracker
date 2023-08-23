@@ -2,9 +2,9 @@
 
 namespace Drupal\entity_activity_tracker\Plugin;
 
-use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Plugin\DefaultPluginManager;
 
 /**
  * Provides the Activity processor plugin manager.

@@ -5,8 +5,8 @@
  * Entity Activity Tracker module install/schema/update hooks.
  */
 
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Config\Entity\ConfigEntityStorage;
+use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
  * Implements hook_schema().

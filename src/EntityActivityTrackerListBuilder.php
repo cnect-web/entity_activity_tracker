@@ -4,11 +4,52 @@ namespace Drupal\entity_activity_tracker;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Render\RendererInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a listing of Entity activity tracker entities.
  */
 class EntityActivityTrackerListBuilder extends ConfigEntityListBuilder {
+
+  /**
+   * The rendering service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
+    return new static(
+      $entity_type,
+      $container->get('entity_type.manager')->getStorage($entity_type->id()),
+      $container->get('renderer')
+    );
+  }
+
+  /**
+   * Constructs a new EntityListBuilder object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type definition.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+   *   The entity storage class.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The rendering service.
+   */
+  public function __construct(
+    EntityTypeInterface $entity_type,
+    EntityStorageInterface $storage,
+    RendererInterface $renderer
+  ) {
+    parent::__construct($entity_type, $storage);
+    $this->renderer = $renderer;
+  }
 
   /**
    * {@inheritdoc}
@@ -34,8 +75,8 @@ class EntityActivityTrackerListBuilder extends ConfigEntityListBuilder {
         '#markup' => $plugin->getSummary(),
       ];
     }
-    // @TODO use DI.
-    $row['plugins'] = \Drupal::service('renderer')->render($summary_element);
+
+    $row['plugins'] = $this->renderer->render($summary_element);
 
     return $row + parent::buildRow($entity);
   }
