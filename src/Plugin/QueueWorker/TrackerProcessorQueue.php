@@ -4,6 +4,7 @@ namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Queue\QueueFactory;
+use Drupal\entity_activity_tracker\QueueActivityItem;
 use Drupal\entity_activity_tracker\TrackerLoader;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -76,6 +77,10 @@ class TrackerProcessorQueue extends ActivityQueueWorkerBase {
    * {@inheritdoc}
    */
   public function processItem($queue_activity_item) {
+
+    if (!$queue_activity_item instanceof QueueActivityItem) {
+      return;
+    }
 
     $tracker = $queue_activity_item->getEntity();
     $plugins = $tracker->getEnabledProcessorsPlugins();

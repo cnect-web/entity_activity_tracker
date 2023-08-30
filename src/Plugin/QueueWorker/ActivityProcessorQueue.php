@@ -2,6 +2,8 @@
 
 namespace Drupal\entity_activity_tracker\Plugin\QueueWorker;
 
+use Drupal\entity_activity_tracker\QueueActivityItem;
+
 /**
  * Processes ActivityProcessor plugins.
  *
@@ -17,6 +19,10 @@ class ActivityProcessorQueue extends ActivityQueueWorkerBase {
    * {@inheritdoc}
    */
   public function processItem($queue_activity_item) {
+    if (!$queue_activity_item instanceof QueueActivityItem) {
+      return;
+    }
+
     $trackers = $this->trackerLoader->getAll();
     foreach ($trackers as $tracker) {
       $plugins = $tracker->getEnabledProcessorsPlugins();
