@@ -10,6 +10,6 @@
     ],
     "require": {
         "drupal/core": "^8.9 || ^9",
-        "drupal/hook_event_dispatcher": "^3.0"
+        "drupal/hook_event_dispatcher": "^3.0 || ^4.0"
     }
 }
