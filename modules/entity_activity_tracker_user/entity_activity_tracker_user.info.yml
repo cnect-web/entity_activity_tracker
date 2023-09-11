@@ -1,7 +1,7 @@
 name: 'Entity Activity Tracker - User plugins'
 type: module
 description: 'Provides ActivityProcessor plugins specific to user entity type'
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^9 || ^10
 package: 'Entity Activity Tracker'
 dependencies:
   - drupal:entity_activity_tracker

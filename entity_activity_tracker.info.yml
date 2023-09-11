@@ -1,7 +1,7 @@
 name: 'Entity Activity Tracker'
 type: module
 description: 'Provides a way to track entity activity/popularity'
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^9 || ^10
 package: 'Entity Activity Tracker'
 dependencies:
   - drupal:core_event_dispatcher
