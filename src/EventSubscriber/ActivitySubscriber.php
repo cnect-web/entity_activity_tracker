@@ -7,8 +7,10 @@ use Drupal\Core\Queue\QueueFactory;
 use Drupal\core_event_dispatcher\EntityHookEvents;
 use Drupal\core_event_dispatcher\Event\Core\CronEvent;
 use Drupal\core_event_dispatcher\Event\Entity\AbstractEntityEvent;
+use Drupal\entity_activity_tracker\ActivityRecordStorageInterface;
 use Drupal\entity_activity_tracker\Entity\EntityActivityTrackerInterface;
 use Drupal\entity_activity_tracker\QueueActivityItem;
+use Drupal\entity_activity_tracker\TrackerLoader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -31,19 +33,30 @@ class ActivitySubscriber implements EventSubscriberInterface {
   protected $activityRecordStorage;
 
   /**
+   * Tracker loader.
+   *
+   * @var \Drupal\entity_activity_tracker\TrackerLoader
+   */
+  protected $trackerLoader;
+
+  /**
    * Constructs a new ActivitySubscriber object.
    *
    * @param \Drupal\Core\Queue\QueueFactory $queue
    *   Queue manager.
    * @param \Drupal\entity_activity_tracker\ActivityRecordStorageInterface $activity_record_storage
    *   Activity record storage.
+   * @param \Drupal\entity_activity_tracker\TrackerLoader $tracker_loader
+   *    Tracker loader.
    */
   public function __construct(
     QueueFactory $queue,
-    $activity_record_storage
+    ActivityRecordStorageInterface $activity_record_storage,
+    TrackerLoader $tracker_loader
   ) {
     $this->queue = $queue;
     $this->activityRecordStorage = $activity_record_storage;
+    $this->trackerLoader = $tracker_loader;
   }
 
   /**
@@ -53,7 +66,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
     // Replace with constants later.
     return [
       'hook_event_dispatcher.cron' => 'scheduleDecay',
-      'hook_event_dispatcher.entity.view' => 'createActivityEvent',
+      'hook_event_dispatcher.entity.view' => 'processView',
       'hook_event_dispatcher.entity.insert' => 'createActivityEvent',
       'hook_event_dispatcher.entity.update' => 'createActivityEvent',
       'hook_event_dispatcher.entity.delete' => 'deleteEntity',
@@ -72,6 +85,41 @@ class ActivitySubscriber implements EventSubscriberInterface {
   }
 
   /**
+   * Process view event.
+   *
+   * @param \Drupal\core_event_dispatcher\Event\Entity\AbstractEntityEvent $event
+   *   The original event from which we dispatch activity event.
+   */
+  public function processView(AbstractEntityEvent $event) {
+    $queue_activity_item = $this->createQueueActivityItem($event);
+
+    $trackers = $this->trackerLoader->getAll();
+    foreach ($trackers as $tracker) {
+      $plugins = $tracker->getEnabledProcessorsPlugins();
+      foreach ($plugins as $plugin) {
+        if ($plugin->canProcess($queue_activity_item)) {
+          $plugin->processActivity($queue_activity_item);
+        }
+      }
+    }
+  }
+
+  /**
+   * Create queue activity item.
+   *
+   * @param \Drupal\hook_event_dispatcher\Event\EventInterface $event
+   *   The original event from which we dispatch activity event.
+   *
+   * @return \Drupal\entity_activity_tracker\QueueActivityItem
+   *   Queue activity item.
+   */
+  protected function createQueueActivityItem(AbstractEntityEvent $event) {
+    $queue_activity_item = new QueueActivityItem($event->getDispatcherType());
+    $queue_activity_item->setEntity($event->getEntity());
+    return $queue_activity_item;
+  }
+
+  /**
    * Dispatch activity event based on an event.
    *
    * @param \Drupal\hook_event_dispatcher\Event\EventInterface $event
@@ -79,14 +127,11 @@ class ActivitySubscriber implements EventSubscriberInterface {
    */
   public function createActivityEvent(AbstractEntityEvent $event) {
     $entity = $event->getEntity();
-    $queue_activity_item = new QueueActivityItem($event->getDispatcherType());
-    $queue_activity_item->setEntity($entity);
-
     $entity_type_id = $entity->getEntityTypeId();
 
     // Add tracker handling to a queue.
     if ($entity_type_id == 'entity_activity_tracker' && $event->getDispatcherType() == EntityHookEvents::ENTITY_INSERT) {
-      $this->queueTrackerEvent($queue_activity_item);
+      $this->queueTrackerEvent($this->createQueueActivityItem($event));
     }
 
     // @todo IMPROVE THIS FIRST CONDITION!!
@@ -94,7 +139,7 @@ class ActivitySubscriber implements EventSubscriberInterface {
     // @see: GroupContent::postSave()
     // @todo Move allowed entities to settings
     if (!$entity->isSyncing() && in_array($entity_type_id, EntityActivityTrackerInterface::ALLOWED_ENTITY_TYPES)) {
-      $this->queueEvent($queue_activity_item);
+      $this->queueEvent($this->createQueueActivityItem($event));
     }
   }
 

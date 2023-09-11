@@ -90,7 +90,7 @@ class CreditItemProcessorQueue extends ActivityQueueWorkerBase {
    * {@inheritdoc}
    */
   public function processItem($items) {
-    $count = 20;
+    $count = 50;
     $i = 0;
 
     // We get data for existing entities data from 'tracker_processor_queue'
