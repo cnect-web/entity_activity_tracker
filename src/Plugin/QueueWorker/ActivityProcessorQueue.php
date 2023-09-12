@@ -10,7 +10,7 @@ use Drupal\entity_activity_tracker\QueueActivityItem;
  * @QueueWorker(
  *   id = "activity_processor_queue",
  *   title = @Translation("Activity Processor queue"),
- *   cron = {"time" = 10}
+ *   cron = {"time" = 100}
  * )
  */
 class ActivityProcessorQueue extends ActivityQueueWorkerBase {

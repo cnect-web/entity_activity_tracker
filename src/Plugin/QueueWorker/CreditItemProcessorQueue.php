@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @QueueWorker(
  *   id = "credit_item_processor_queue",
  *   title = @Translation("Credit Item Processor queue"),
- *   cron = {"time" = 86000}
+ *   cron = {"time" = 100}
  * )
  */
 class CreditItemProcessorQueue extends ActivityQueueWorkerBase {
