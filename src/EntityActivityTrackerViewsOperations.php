@@ -226,7 +226,7 @@ class EntityActivityTrackerViewsOperations implements ContainerInjectionInterfac
       $joins[$entity_type->get('data_table')] = [
         'left_field' => $entity_type->getKey('id'),
         'field' => 'entity_id',
-        'type' => 'LEFT',
+        'type' => 'INNER',
         'extra' => [
           [
             'field' => 'entity_type',
